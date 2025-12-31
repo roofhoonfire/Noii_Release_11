@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a4aae8b4ee76604abf2f86da5e80130, type: 3}
+  m_Name: TestDial
+  m_EditorClassIdentifier: 
+  lines:
+  - speakerName: jomaire
+    text: fuck off u little brat
+    portrait: {fileID: 0}
+  - speakerName: jomaire
+    text: I said Fuck off
+    portrait: {fileID: 0}
+  - speakerName: jomaire
+    text: You cunt
+    portrait: {fileID: 0}
+  rewards:
+  - triggerLineIndex: 1
+    id: c1
+    amount: 1
+    type: 1
+  - triggerLineIndex: 2
+    id: i1
+    amount: 1
+    type: 0

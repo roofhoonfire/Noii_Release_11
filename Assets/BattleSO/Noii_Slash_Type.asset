@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cef0f6920dee82a4f9ad64f5d7233a12, type: 3}
+  m_Name: Noii_Slash_Type
+  m_EditorClassIdentifier: 
+  cardCode: c1
+  cam2Shot: 2
+  cam3Shot: 3
+  playerSequenceClip: {fileID: 7400000, guid: f64a7a618d7ada74c9d16002e87b4879, type: 2}
+  playerSequenceClipAfterCutIn: {fileID: 7400000, guid: 7797b6470d2c762489b86b0115b7174f,
+    type: 2}
+  playerFreezeNormalizedTime: 1
+  freezePlayerAtTime: 1
+  cutInSprite: {fileID: 21300000, guid: 4fb3480f1998edd4d83b9a616050e41d, type: 3}
+  cutInHoldSeconds: 1.33333
+  afterCutInDelayBeforeCam3: 0.05
+  characterCutInFadeSeconds: 0.3
+  useCam2Dolly: 1
+  cam2DollyStart: 0
+  cam2DollyEnd: 1
+  cam2DollyDuration: 1
+  cam2CutInTriggerPos: 1
+  stopDollyAtCutInPoint: 1
+  enemyHitEffectClip: {fileID: 7400000, guid: c5c585672a473f94b99cf32dfa8701ed, type: 2}
+  useEnemyHitEffect: 1
+  useHitStop: 1
+  hitStopSeconds: 0.17
+  hitStopUseFrameIndex: 1
+  hitStopEffectFrameIndex: 2
+  hitEffectFps: 12
+  hitStopEffectTimeSeconds: 0
+  useCameraShake: 1
+  cameraShakeStrength: 0.21
+  enemyHitTrigger: Hit
