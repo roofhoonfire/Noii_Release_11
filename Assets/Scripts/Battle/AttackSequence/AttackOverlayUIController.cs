@@ -16,6 +16,8 @@ public class AttackOverlayUIController : MonoBehaviour
 
     [Header("Cut Line (no alpha needed)")]
     [SerializeField] private GameObject cutLineRoot;
+    [SerializeField] private GameObject cutBarUp;
+    [SerializeField] private GameObject cutBarDown;
 
     private Coroutine _bgFadeRoutine;
     private Coroutine _charFadeRoutine;
@@ -33,6 +35,8 @@ public class AttackOverlayUIController : MonoBehaviour
         if (bgRoot) bgRoot.SetActive(false);
         if (charRoot) charRoot.SetActive(false);
         if (cutLineRoot) cutLineRoot.SetActive(false);
+        if (cutBarUp) cutBarUp.SetActive(false);
+        if (cutBarDown) cutBarDown.SetActive(false);
 
         SetAlpha(bgImage, 0f);
         SetAlpha(charImage, 0f);
@@ -83,6 +87,9 @@ public class AttackOverlayUIController : MonoBehaviour
     public void ShowCutLine()
     {
         if (cutLineRoot) cutLineRoot.SetActive(true);
+        if (cutBarUp) cutBarUp.SetActive(true);
+        if (cutBarDown) cutBarDown.SetActive(true);
+
     }
 
     public void HideAllAndResetAlpha() => HardReset();

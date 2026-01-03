@@ -70,6 +70,10 @@ public class BattleManager : MonoBehaviour
     [SerializeField] GameObject parryEffects;
     [SerializeField] Transform parryTransform;
 
+    [Header("Damage Popup")]
+    [SerializeField] private DamageTextPopup popupPrefab;
+    [SerializeField] private Transform popupSpawnPoint;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -711,14 +715,23 @@ public class BattleManager : MonoBehaviour
             {
                 GameObject instance = Instantiate(parryEffects, parryTransform.position, Quaternion.identity);
                 Destroy(instance, 2f); // Destroy in 2 seconds
-
+                if (popupPrefab != null && popupSpawnPoint != null)
+                {
+                    var pop = Instantiate(popupPrefab, popupSpawnPoint.position, Quaternion.identity);
+                    pop.Setup("PARRY!");
+                }
             }
             if (!success)
             {
                 HPBarManager.Instance.DamageMe();
+                if (popupPrefab != null && popupSpawnPoint != null)
+                {
+                    var pop = Instantiate(popupPrefab, popupSpawnPoint.position, Quaternion.identity);
+                    pop.Setup(10.ToString());
+                }
             }
             
         }));
     }
-
+  
 }
