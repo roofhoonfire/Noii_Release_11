@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4516165903848282345}
   - component: {fileID: 1201190135621314034}
   m_Layer: 0
-  m_Name: Parrying
+  m_Name: Parry_Effect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

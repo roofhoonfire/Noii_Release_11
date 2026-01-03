@@ -68,6 +68,7 @@ public class BattleManager : MonoBehaviour
     private int _currentHitIndex;
     [Header("Parry Effect")]
     [SerializeField] GameObject parryEffects;
+    [SerializeField] GameObject damageEffects;
     [SerializeField] Transform parryTransform;
 
     [Header("Damage Popup")]
@@ -723,6 +724,9 @@ public class BattleManager : MonoBehaviour
             }
             if (!success)
             {
+
+                GameObject instance = Instantiate(damageEffects, parryTransform.position, Quaternion.identity);
+                Destroy(instance, 2f); // Destroy in 2 seconds
                 HPBarManager.Instance.DamageMe();
                 if (popupPrefab != null && popupSpawnPoint != null)
                 {
