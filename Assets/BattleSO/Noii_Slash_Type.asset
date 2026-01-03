@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Noii_Slash_Type
   m_EditorClassIdentifier: 
   cardCode: c1
+  actionNotice: "\uB178\uC774\uAC00 \uC801\uC744 \uBCA0\uC5B4 \uB118\uAE41\uB2C8\uB2E4"
   cam2Shot: 2
   cam3Shot: 3
   playerSequenceClip: {fileID: 7400000, guid: f64a7a618d7ada74c9d16002e87b4879, type: 2}
@@ -33,7 +34,7 @@ MonoBehaviour:
   enemyHitEffectClip: {fileID: 7400000, guid: c5c585672a473f94b99cf32dfa8701ed, type: 2}
   useEnemyHitEffect: 1
   useHitStop: 1
-  hitStopSeconds: 0.17
+  hitStopSeconds: 0.01
   hitStopUseFrameIndex: 1
   hitStopEffectFrameIndex: 2
   hitEffectFps: 12

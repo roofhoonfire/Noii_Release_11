@@ -65,6 +65,9 @@ public class PlayerAttackSequenceDirector : MonoBehaviour
 
         bool prevRootActive = rootPlayerVisual != null && rootPlayerVisual.activeSelf;
 
+
+
+
         // 0) 다음 시퀀스 번쩍임 방지:
         // Cam2가 Live 되기 전에 Dolly Position을 start로 박아둔다
         if (seq.useCam2Dolly && cam2SplineDolly != null)
@@ -391,6 +394,9 @@ public class PlayerAttackSequenceDirector : MonoBehaviour
 
         // 5) 이펙트 애니 끝날 때까지 대기 (Cam3 유지)
         yield return WaitAnimatorClipEnd(enemyHitEffectAnimator, seq.enemyHitEffectClip.name);
+
+        //5.5) 피격 
+        HPBarManager.Instance.DamageOp();
 
         // 6) 오브젝트 OFF
         enemyHitEffectObject.SetActive(false);

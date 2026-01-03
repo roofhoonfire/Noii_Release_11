@@ -32,6 +32,8 @@ public class ActionData //여기 뭐 추가할 거면 carddragHandler로 수정해야함
     public int nthaction = 0;
     public bool isDot = false;
 
+    //텍스트
+    public string actionNotice;
 
     // ===== 패링 관련 =====
     public bool isEnemyAction = false;     // 몹 액션인지 표기 (패링 전용)

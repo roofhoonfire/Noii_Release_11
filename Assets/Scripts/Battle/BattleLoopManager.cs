@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Burst.CompilerServices;
 using UnityEngine;
 using SRandom = System.Random;
 
@@ -22,14 +23,14 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private int enemyStartHp = 100;
     [SerializeField] public List<string> deckList;
 
-    [SerializeField] private GameObject NoticeBar;
 
     // --- 액터들 ---
     public BattleActor Player { get; private set; }
     public BattleActor Enemy { get; private set; }
     public Animator EnemyAnimator;
 
-
+    [Header("Select Mode UI")]
+    [SerializeField] private SelectModeUIController selectModeUI;
     // --- 액션 큐 ---
     private struct QueuedAction
     {
@@ -60,6 +61,15 @@ public class BattleManager : MonoBehaviour
 
     // ====== 유니티 라이프사이클 ======
 
+
+    //패리
+    private bool _parryWindowActive;
+    private bool _parrySucceededThisWindow;
+    private int _currentHitIndex;
+    [Header("Parry Effect")]
+    [SerializeField] GameObject parryEffects;
+    [SerializeField] Transform parryTransform;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -74,6 +84,7 @@ public class BattleManager : MonoBehaviour
     {
         InitActors();
         StartCoroutine(BattleLoop());
+        HPBarManager.Instance.HPBar_Init(100);
     }
 
     // ====== 초기화 ======
@@ -197,7 +208,7 @@ public class BattleManager : MonoBehaviour
             actionClock = tpl.baseActionClock,
             isDot = false,
             nthaction = 0,
-
+            actionNotice = tpl.ActionNotice,
             isEnemyAction = true,
             parryable = tpl.parryable,
             animations = (tpl.attackAnim != null)
@@ -245,7 +256,8 @@ public class BattleManager : MonoBehaviour
             yield break;
 
 
-        yield return SimpleTypewriterUI.Instance.TypeAndCloseRoutine("Your Tunr bitch");
+        yield return SimpleTypewriterUI.Instance.TypeAndCloseRoutine("자신의 차례");
+
         Debug.Log("플레이어 액션 선택 대기 시작 (Enemy 의도는 이미 공개된 상태라고 가정)");
 
         _waitingForPlayerAction = true;
@@ -292,9 +304,11 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     private IEnumerator PlayerSelectLoop()
     {
-        BattleCameraDirector.Instance.EnterSelectShot();
+       yield return BattleCameraDirector.Instance.SetShotAndWait(BattleCameraDirector.ShotId.Front);
         _isSelectModeActive = true;
         Debug.Log("=== SelectMode 진입: C=Card, I=Item (지금은 모드 없이 로그만) ===");
+        selectModeUI.EnterSelectMode();
+
 
         while (_waitingForPlayerAction)
         {
@@ -304,6 +318,8 @@ public class BattleManager : MonoBehaviour
 
                 CardModeState.Instance.SetActive(true);
                 Debug.Log("[SelectMode] C 입력 → 여기서 CardMode 진입 예정 (현재는 로그만)");
+                selectModeUI.ExitSelectMode();
+
                 // 나중에: 여기서 CardModeState.Instance.SetActive(...) 같은 걸 호출하고,
                 // 카드 선택 완료 시 SubmitPlayerAction(...) 호출하는 구조로 확장
             }
@@ -320,6 +336,7 @@ public class BattleManager : MonoBehaviour
 
             yield return null;
         }
+        selectModeUI.ExitSelectMode();
 
         _isSelectModeActive = false;
         Debug.Log("SelectMode 종료 (_waitingForPlayerAction == false)");
@@ -477,8 +494,21 @@ public class BattleManager : MonoBehaviour
         // --- 몹 공격 + 패링 가능일 때 ---
         if (actorId == Enemy.actorId && myAction.parryable &&
             myAction.parryWindows != null && myAction.parryWindows.Count > 0)
+
+
         {
+            BattleCameraDirector.Instance.SetShot(BattleCameraDirector.ShotId.Cam4);
+
+            yield return SimpleTypewriterUI.Instance.TypeAndCloseRoutine(q.action.actionNotice);
+            //   BattleCameraDirector.Instance.SetShot(BattleCameraDirector.ShotId.Back);
+            //카메라 블렌드 이후 공격 연출
+            yield return BattleCameraDirector.Instance.SetShotAndWait(BattleCameraDirector.ShotId.E_Attack_Cam1);
+
             yield return StartCoroutine(EnemyAttackWithParryWindows(q));
+
+
+            yield return BattleCameraDirector.Instance.SetShotAndWait(BattleCameraDirector.ShotId.Back);
+
             // TODO: 나중에 parrySuccessCount / wasParried 보고 데미지/카운터 처리
             yield break;
         }
@@ -489,6 +519,11 @@ public class BattleManager : MonoBehaviour
             var seq = PlayerAttackSequenceDatabase.Instance.Get(myAction.cardcode);
             if (seq != null)
             {
+
+                //노티스 띄우기
+
+                yield return SimpleTypewriterUI.Instance.TypeAndCloseRoutine(seq.actionNotice);
+
                 // 여기서 “연출 전체”를 기다린다.
                 yield return PlayerAttackSequenceDirector.Instance.Play(seq, myAction);
 
@@ -507,6 +542,8 @@ public class BattleManager : MonoBehaviour
                 yield break;
             }
         }
+
+
 
         // TODO: 여기 나중에 플레이어 공격, 이동, 몹 비패링 공격 등 집어넣기
 
@@ -566,83 +603,63 @@ public class BattleManager : MonoBehaviour
     {
         var action = q.action;
 
-        if (action.parryWindows == null || action.parryWindows.Count == 0)
+        if (action.animations == null || action.animations.Count == 0)
         {
-            Debug.LogWarning("[EnemyAttack] parryable=true인데 parryWindows가 비어있다.");
+            Debug.LogWarning("[EnemyAttack] animations가 비어있다.");
             yield break;
         }
 
-        // 혹시 인스펙터에서 순서가 뒤죽박죽일 수 있으니 정렬
-        action.parryWindows.Sort((a, b) => a.startTime.CompareTo(b.startTime));
+        var clip = action.animations[0];
+        string stateName = clip.name;
 
-        Debug.Log($"[EnemyAttack] {Enemy.name} 공격 시작. 패링 윈도우 수: {action.parryWindows.Count}");
+        // 패리 입력 상태 초기화
+        _parryWindowActive = false;
+        _parrySucceededThisWindow = false;
+        _currentHitIndex = -1;
 
-        // (선택) 애니메이션 재생 훅 – 지금은 생략 가능
-        if (action.animations != null && action.animations.Count > 0)
-            EnemyAnimator.Play(action.animations[0].name);
+        // 애니 재생
+        EnemyAnimator.Play(stateName, 0, 0f);
 
-        float t = 0f;                 // 공격 애니메이션 경과 시간
-        int windowIndex = 0;
-        int successCount = 0;
-        var successHits = new List<int>();
+        // Play 직후 상태가 아직 전환 중일 수 있어서 1~2프레임 보정
+        yield return null;
 
-        while (windowIndex < action.parryWindows.Count)
+        // “이 상태가 끝날 때까지” 루프
+        while (true)
         {
-            var w = action.parryWindows[windowIndex];
-
-            // 1) 이 윈도우 시작까지 시간 흘리기
-            while (t < w.startTime)
-            {
-                t += Time.deltaTime;
-                yield return null;
-            }
-
-            bool windowSuccess = false;
-            Debug.Log($"[Parry] 윈도우 {windowIndex} (hitIndex={w.hitIndex}) 오픈: " +
-                      $"{w.startTime:F2} ~ {w.endTime:F2}, A키로 패링 가능");
-
-            // 2) 윈도우 구간 동안 패링 입력 받기
-            while (t < w.endTime)
+            // 1) 패리 윈도우가 열려있는 동안만 입력 감시
+            if (_parryWindowActive && !_parrySucceededThisWindow)
             {
                 if (Input.GetKeyDown(KeyCode.A))
                 {
-                    windowSuccess = true;
-                    successCount++;
-                    successHits.Add(w.hitIndex);
+                    _parrySucceededThisWindow = true;
+                    Debug.Log($"[Parry] Input success at hitIndex={_currentHitIndex}");
 
-                    Debug.Log($"[Parry] 윈도우 {windowIndex} (hitIndex={w.hitIndex}) 패링 성공!");
-                    // 한 윈도우에 여러 번 누르더라도 1회만 인정 → break
-                    break;
+                    // (옵션) 여기서 작은 피드백(사운드/짧은 이펙트)만 주고 싶으면 여기서.
+                    // 큰 히트스탑/쉐이크는 Close에서 1번만.
                 }
-
-                t += Time.deltaTime;
-                yield return null;
             }
 
-            if (!windowSuccess)
-            {
-                Debug.Log($"[Parry] 윈도우 {windowIndex} (hitIndex={w.hitIndex}) 실패.");
-            }
+            // 2) 애니가 끝났는지 체크
+            // 현재 재생 상태가 우리가 킨 stateName인지 확인 + normalizedTime >= 1
+            var st = EnemyAnimator.GetCurrentAnimatorStateInfo(0);
 
-            // 다음 패링 윈도우로
-            windowIndex++;
-            // t는 계속 누적 – 하나의 공격 애니 안에서 시간이 흘러가는 느낌
+            // 주의: stateName이 “클립명 == 스테이트명”이라는 전제.
+            // 만약 Animator State 이름이 다르면, 해시로 맞추는 방식으로 바꿔야 함.
+            if (st.IsName(stateName) && st.normalizedTime >= 1f && !EnemyAnimator.IsInTransition(0))
+                break;
+
+            yield return null;
         }
-
-        // 결과 기록
-        action.parrySuccessCount = successCount;
-        action.parriedHitIndices = successHits;
-        action.wasParried = successCount > 0;
-
-        Debug.Log($"[Parry] 전체 공격 패링 결과: {successCount}회 성공 " +
-                  $"(hits: {string.Join(",", successHits)})");
-
-        // TODO:
-        //  - 예: successCount == parryWindows.Count → 완전 패링 → 데미지 0 + 몹 스턴
-        //  - successCount >= 1 → 데미지 일부 감소
-        //  - successCount == 0 → 풀 히트 데미지
+        //  공격 끝 → Idle로 복귀
+        if (enemyDefinition != null && enemyDefinition.idleAnim != null && EnemyAnimator != null)
+        {
+            EnemyAnimator.Play(enemyDefinition.idleAnim.name, 0, 0f);
+            // (선택) yield return null;  // 바로 다음 프레임에 안정적으로 반영시키고 싶으면
+        }
+        // 공격 애니가 끝남. (Close 이벤트는 애니 프레임에 박혀있으니 이미 호출됐을 것)
         yield break;
     }
+
 
 
     /// <summary>
@@ -666,6 +683,42 @@ public class BattleManager : MonoBehaviour
 
         remainingCost = q.remainingCost;
         return true;
+    }
+    public void OnParryOpen(int hitIndex)
+    {
+        _parryWindowActive = true;
+        _parrySucceededThisWindow = false;
+        _currentHitIndex = hitIndex;
+
+        Debug.Log($"[Parry] OPEN hitIndex={hitIndex}");
+        // 사운드도 여기서 (지금은 로그)
+    }
+    public void OnParryClose(int hitIndex)
+    {
+        if (_currentHitIndex != hitIndex) return; // hitIndex 불일치 방지(선택)
+
+        bool success = _parrySucceededThisWindow;
+
+        _parryWindowActive = false;
+
+        StartCoroutine(HitStopController.Instance.DoHitStop(0.06f, () =>
+        {
+            BattleCameraDirector.Instance.Shake(0.21f);
+            Debug.Log(success ? "PARRY!" : "MISS!");
+
+
+            if (success)
+            {
+                GameObject instance = Instantiate(parryEffects, parryTransform.position, Quaternion.identity);
+                Destroy(instance, 2f); // Destroy in 2 seconds
+
+            }
+            if (!success)
+            {
+                HPBarManager.Instance.DamageMe();
+            }
+            
+        }));
     }
 
 }

@@ -30,7 +30,9 @@ public class BattleCameraDirector : MonoBehaviour
         Back,
         Front,
         Cam2,
-        Cam3
+        Cam3,
+        Cam4,
+        E_Attack_Cam1,
         // 필요하면 계속 추가 가능
     }
 
@@ -223,6 +225,13 @@ public class BattleCameraDirector : MonoBehaviour
         }
 
         activeCam.Priority = activePriority;
+    }
+    
+    //카메라 100프로 전환 후에 쿠라라랑
+    public IEnumerator SetShotAndWait(ShotId id)
+    {
+        SetShot(id);
+        yield return WaitForBlendComplete();
     }
 
     /// <summary>

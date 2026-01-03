@@ -5,6 +5,8 @@ public class PlayerAttackSequenceSO : ScriptableObject
 {
     [Header("Key")]
     public string cardCode;
+    [Header("Text")]
+    public string actionNotice;
 
     // 式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式式
     // Camera
