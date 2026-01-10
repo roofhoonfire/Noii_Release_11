@@ -73,14 +73,13 @@ public class CardModeState : MonoBehaviour
 
     private Coroutine _selectCardCoroutine;
     private int _populateVersion = 0;
-    public InGameAPData apData = new InGameAPData();
     void Awake()
     {
         if (Instance == null) Instance = this;
         else { Destroy(gameObject); return; }
         //나중에 바꿔줘라 ㅎ
 
-        var sourceDeck = new List<string> { "c1", "c2", "c2" };
+      /*  var sourceDeck = new List<string> { "c1", "c2", "c2" };
         if (sourceDeck == null)
         {
             Debug.LogError("CardModeState - source deckList is NULL");
@@ -110,7 +109,7 @@ public class CardModeState : MonoBehaviour
         }
 
         Debug.Log($"[CardModeState] 최초 핸드 초기화 완료: {apData.hands.Count}장 뽑음");
-
+      */
         // 손패 셋팅 
     }
 
@@ -129,7 +128,9 @@ public class CardModeState : MonoBehaviour
 
         if (isActive)
         {
-            cancelLocked = false;   // ← 필드로 접근
+            cancelLocked = false;
+
+         
             StartSelectCardLoop();
         }
         else StopSelectCardLoop(null);
@@ -274,12 +275,12 @@ public class CardModeState : MonoBehaviour
 
 
 
-        foreach (string code in apData.hands)
+        foreach (string code in BattleManager.Instance.apData.hands)
         {
             var cardGO = Instantiate(cardPrefab, cardContentArea);
             spawnedCards.Add(cardGO);
 
-            if (apData.isBlinded)
+            if (BattleManager.Instance.apData.isBlinded)
             {
                 Transform visualRoot = cardGO.transform.Find("VisualRoot");
                 if (visualRoot != null)

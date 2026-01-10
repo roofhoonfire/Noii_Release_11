@@ -1,3 +1,6 @@
 code,cardType,name,sprite,animation,actionClock,rumblePoint,damage,defense,disappear,mana,tileType,zoneIndex,energy,cardText
 c1,0,Slash,ActionCards/AC_C1,,4,2,10,5,0,0,0,0,,피해를 {damage} 줍니다 \n 선공 : 피해를 15 추가로 줍니다
 c2,0,십자베기,ActionCards/AC_C2,,5,3,15,5,0,0,0,2,,피해를 {damage} 줍니다 \n 
+c3,,임전태세,,,,,,,,,,,,피해를 {damage} 줍니다 \n 캐스팅 중 패링에 성공하면 추가 피해를 줍니다
+c4,,칩실드,,,,,,,,,,,,개쩌는 방패입니다 ㅎ
+c5,,가시방패,,,,,,,,,,,,캐스팅 중 패링에 성공하면 추가 피해를 줍니다

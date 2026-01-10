@@ -5,6 +5,8 @@ public class GameStateManager : MonoBehaviour
 {
     public static GameStateManager Instance { get; private set; }
 
+
+    //일단 이렇게 하고 본격 개발되면 불러오기로 바꾸기
     public GameSaveData CurrentSave { get; private set; } = new GameSaveData();
 
     private string SavePath => Path.Combine(Application.persistentDataPath, "save_slot0.json");

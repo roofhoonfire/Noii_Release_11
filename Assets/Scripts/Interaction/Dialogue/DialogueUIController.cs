@@ -1,147 +1,173 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class DialogueUIController : MonoBehaviour
+public class DialogueGraphUIController : MonoBehaviour
 {
-    public static DialogueUIController Instance { get; private set; }
+    public static DialogueGraphUIController Instance { get; private set; }
 
-    [Header("UI References")]
+    [Header("Root")]
+    [SerializeField] private GameObject root; // 대화 UI 전체 루트(패널)
+
+    [Header("Texts")]
+    [SerializeField] private TMP_Text speakerText;
+    [SerializeField] private TMP_Text bodyText;
+
+    [Header("Choices UI")]
+    [SerializeField] private List<Transform> choiceSpawnRoot;      // Canvas 아래(VerticalLayoutGroup 추천)
+    [SerializeField] private DialogueChoiceButton choicePrefab; // 프리팹 드래그&드랍
+
+    [Header("Continue")]
+    [Tooltip("선택지가 없을 때 '클릭/스페이스'로 다음 진행 허용")]
+    [SerializeField] private bool enableClickToContinue = true;
+
+
+    [Header("Fade")]
     [SerializeField] private CanvasGroup canvasGroup;
-    [SerializeField] private TextMeshProUGUI nameText;
-    [SerializeField] private TextMeshProUGUI bodyText;
-    [SerializeField] private Image portraitImage;
-    [SerializeField] private GameObject nextHintRoot;
+    [SerializeField] private float fadeDuration = 0.25f;
 
-    [Header("Input")]
-    [SerializeField] private KeyCode nextKey = KeyCode.Z;
+    public bool IsPlaying { get; private set; }
 
-    private DialogueAsset _currentAsset;
-    private int _currentIndex;
-    private bool _isPlaying;
-    private bool _isWaitingForInput;
+    private Action _onContinue;
+    private readonly List<GameObject> _spawned = new();
 
-    private Action _onFinished;
-    private Action<int> _onLineChanged; // ★ 추가: 현재 라인 인덱스 콜백
-
-    public bool IsPlaying => _isPlaying;
-    public int CurrentLineIndex => _currentIndex;
+    private Coroutine _fadeRoutine;
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
 
-        if (canvasGroup == null)
-            canvasGroup = GetComponent<CanvasGroup>();
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 0f;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+        }
 
-        SetVisible(false);
+        if (root != null)
+            root.SetActive(false);
     }
-
     private void Update()
     {
-        if (!_isPlaying) return;
+        if (!IsPlaying || !enableClickToContinue) return;
 
-        if (_isWaitingForInput && Input.GetKeyDown(nextKey))
+        // 선택지가 없는 경우에만 continue가 설정됨
+        if (_onContinue != null)
         {
-            ShowNextLine();
+            if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return))
+            {
+                var cb = _onContinue;
+                _onContinue = null;
+                cb?.Invoke();
+            }
         }
     }
 
-    /// <summary>
-    /// 대화 시작.
-    /// onFinished : 대화가 완전히 끝났을 때 호출.
-    /// onLineChanged : 각 라인이 표시될 때마다 현재 라인 인덱스를 전달.
-    /// </summary>
-    public void StartDialogue(DialogueAsset asset, Action onFinished = null, Action<int> onLineChanged = null)
+    public void Open()
     {
-        if (asset == null || asset.lines == null || asset.lines.Count == 0)
+        IsPlaying = true;
+
+        if (root != null)
+            root.SetActive(true);
+
+        StartFade(1f);
+    }
+
+
+    public void Close()
+    {
+        IsPlaying = false;
+        _onContinue = null;
+        ClearChoices();
+
+        StartFade(0f, onComplete: () =>
         {
-            onFinished?.Invoke();
+            if (root != null)
+                root.SetActive(false);
+        });
+    }
+
+    private void StartFade(float targetAlpha, Action onComplete = null)
+    {
+        if (canvasGroup == null)
+        {
+            onComplete?.Invoke();
             return;
         }
 
-        _currentAsset = asset;
-        _currentIndex = -1;
-        _onFinished = onFinished;
-        _onLineChanged = onLineChanged;
+        if (_fadeRoutine != null)
+            StopCoroutine(_fadeRoutine);
 
-        _isPlaying = true;
-        _isWaitingForInput = false;
-
-        SetVisible(true);
-        ShowNextLine(); // 첫 라인 표시
+        _fadeRoutine = StartCoroutine(FadeRoutine(targetAlpha, onComplete));
     }
 
-    private void ShowNextLine()
+    private System.Collections.IEnumerator FadeRoutine(float targetAlpha, Action onComplete)
     {
-        _isWaitingForInput = false;
-        _currentIndex++;
+        float startAlpha = canvasGroup.alpha;
+        float time = 0f;
 
-        if (_currentAsset == null || _currentIndex >= _currentAsset.lines.Count)
+        canvasGroup.blocksRaycasts = true;
+        canvasGroup.interactable = true;
+
+        while (time < fadeDuration)
         {
-            EndDialogue();
-            return;
+            time += Time.unscaledDeltaTime;
+            float t = time / fadeDuration;
+            canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
+            yield return null;
         }
 
-        var line = _currentAsset.lines[_currentIndex];
+        canvasGroup.alpha = targetAlpha;
 
-        if (nameText != null)
-            nameText.text = line.speakerName;
-
-        if (bodyText != null)
-            bodyText.text = line.text;
-
-        if (portraitImage != null)
-        {
-            if (line.portrait != null)
-            {
-                portraitImage.gameObject.SetActive(true);
-                portraitImage.sprite = line.portrait;
-            }
-            else
-            {
-                portraitImage.gameObject.SetActive(false);
-            }
-        }
-
-        if (nextHintRoot != null)
-            nextHintRoot.SetActive(true);
-
-        _isWaitingForInput = true;
-
-        // ★ 현재 라인 인덱스 콜백 호출
-        _onLineChanged?.Invoke(_currentIndex);
-    }
-
-    private void EndDialogue()
-    {
-        _isPlaying = false;
-        _isWaitingForInput = false;
-        SetVisible(false);
-
-        var finishedCb = _onFinished;
-        var lineChangedCb = _onLineChanged;
-
-        _onFinished = null;
-        _onLineChanged = null;
-        _currentAsset = null;
-
-        finishedCb?.Invoke();
-        // lineChangedCb는 여기선 호출하지 않음 (-1 처리는 DialogueInteractable에서)
-    }
-
-    private void SetVisible(bool visible)
-    {
-        if (canvasGroup == null) return;
-
-        canvasGroup.alpha = visible ? 1f : 0f;
-        canvasGroup.blocksRaycasts = visible;
+        bool visible = targetAlpha > 0.01f;
         canvasGroup.interactable = visible;
+        canvasGroup.blocksRaycasts = visible;
+
+        _fadeRoutine = null;
+        onComplete?.Invoke();
+    }
+
+    public void ShowNode(
+        string speaker,
+        string text,
+        List<(string text, Action onClick)> choices,
+        Action onContinueIfNoChoices)
+    {
+        Open();
+
+        if (speakerText != null) speakerText.text = speaker;
+        if (bodyText != null) bodyText.text = text;
+
+        ClearChoices();
+
+        if (choices != null && choices.Count > 0)
+        {
+            // 선택지 생성
+            for (int i = 0; i < choices.Count; i++)
+            {
+                var (ctext, onClick) = choices[i];
+                var btn = Instantiate(choicePrefab, choiceSpawnRoot[i]);
+                btn.Bind(ctext, onClick);
+                _spawned.Add(btn.gameObject);
+            }
+
+            _onContinue = null; // 선택지가 있으면 continue 금지
+        }
+        else
+        {
+            // 선택지 없음 → continue 대기
+            _onContinue = onContinueIfNoChoices;
+        }
+    }
+
+    private void ClearChoices()
+    {
+        for (int i = 0; i < _spawned.Count; i++)
+        {
+            if (_spawned[i] != null) Destroy(_spawned[i]);
+        }
+        _spawned.Clear();
     }
 }

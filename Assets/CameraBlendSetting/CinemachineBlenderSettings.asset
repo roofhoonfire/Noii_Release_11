@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CustomBlends:
   - From: CM_BackShot_Idle
-    To: CM_Slash
+    To: CM_Slash_Temp
     Blend:
       Style: 1
       Time: 0.66
@@ -46,7 +46,7 @@ MonoBehaviour:
         m_PreInfinity: 0
         m_PostInfinity: 0
         m_RotationOrder: 4
-  - From: CM_Slash
+  - From: CM_Slash_Temp
     To: CM_Bill_CloseUp
     Blend:
       Style: 0

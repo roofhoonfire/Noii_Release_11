@@ -21,13 +21,20 @@ public class BattleManager : MonoBehaviour
     [Header("디버그 시작값")]
     [SerializeField] private int playerStartHp = 100;
     [SerializeField] private int enemyStartHp = 100;
-    [SerializeField] public List<string> deckList;
 
 
     // --- 액터들 ---
     public BattleActor Player { get; private set; }
-    public BattleActor Enemy { get; private set; }
+    public BattleActor inGameEnemy { get; private set; }
     public Animator EnemyAnimator;
+
+
+    [Header("PlayerDeck")]
+    [SerializeField] List<string> playerDeck;
+
+    public InGameAPData apData = new InGameAPData();
+
+
 
     [Header("Select Mode UI")]
     [SerializeField] private SelectModeUIController selectModeUI;
@@ -107,7 +114,7 @@ public class BattleManager : MonoBehaviour
             energy = 3
         };
 
-        Enemy = new BattleActor
+        inGameEnemy = new BattleActor
         {
             actorId = 1,
             name = enemyDefinition != null ? enemyDefinition.enemyName : "Enemy",
@@ -117,6 +124,9 @@ public class BattleManager : MonoBehaviour
             curPos = 0,
             energy = 3
         };
+
+        //얕은 복사인지 확인
+        apData.deckList = new List<string>(playerDeck);
     }
 
     // ====== 외부에서 플레이어 액션 넘겨주는 함수 ======
@@ -149,7 +159,7 @@ public class BattleManager : MonoBehaviour
             yield return EnsureEnemyHasQueuedAction();
             
             if (RemainingCostRenderer.Instance != null)
-                yield return RemainingCostRenderer.Instance.ActionAddedRenderingRoutine(Enemy.actorId);
+                yield return RemainingCostRenderer.Instance.ActionAddedRenderingRoutine(inGameEnemy.actorId);
 
             yield return EnsurePlayerHasQueuedAction();
            
@@ -188,7 +198,7 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     private IEnumerator EnsureEnemyHasQueuedAction()
     {
-        if (HasAnyActionForActor(Enemy.actorId))
+        if (HasAnyActionForActor(inGameEnemy.actorId))
             yield break;
 
         if (enemyDefinition == null || enemyDefinition.actions.Count == 0)
@@ -238,11 +248,11 @@ public class BattleManager : MonoBehaviour
             action.parryWindows = new List<ParryWindow>();
         }
 
-        InitActionBeforeInsert(action, Enemy.actorId);
+        InitActionBeforeInsert(action, inGameEnemy.actorId);
 
         _actionQueue.Add(new QueuedAction
         {
-            actorId = Enemy.actorId,
+            actorId = inGameEnemy.actorId,
             action = action,
             remainingCost = action.actionClock
         });
@@ -314,7 +324,27 @@ public class BattleManager : MonoBehaviour
         Debug.Log("=== SelectMode 진입: C=Card, I=Item (지금은 모드 없이 로그만) ===");
         selectModeUI.EnterSelectMode();
 
+        
+        // 3) 핸드 초기화
+      //  apData.hands = new List<string>();
 
+        // 뽑을 카드 수 (덱이 5장 미만이면 가능한 만큼)
+        int drawCount = Mathf.Min(5, apData.deckList.Count);
+
+        System.Random rng = new System.Random();
+
+        for (int i = 0; i < drawCount; i++)
+        {
+            int idx = rng.Next(0, apData.deckList.Count);
+
+            string pickedCard = apData.deckList[idx];
+
+            // 핸드에 추가
+            apData.hands.Add(pickedCard);
+
+            // 덱에서 제거
+            apData.deckList.RemoveAt(idx);
+        }
         while (_waitingForPlayerAction)
         {
             if (Input.GetKeyDown(KeyCode.C))
@@ -331,6 +361,14 @@ public class BattleManager : MonoBehaviour
             else if (Input.GetKeyDown(KeyCode.I))
             {
                 Debug.Log("[SelectMode] I 입력 → 여기서 ItemMode 진입 예정 (현재는 로그만)");
+                // 나중에: ItemModeState.Instance.SetActive(...) → 사용 확정 시 SubmitPlayerAction(...)
+            }
+            else if (Input.GetKeyDown(KeyCode.R))
+            {
+                CardFusionState.Instance.SetActive(true);
+                Debug.Log("[SelectMode] R 입력 → 여기서 ItemMode 진입 예정 (현재는 로그만)");
+                selectModeUI.ExitSelectMode();
+
                 // 나중에: ItemModeState.Instance.SetActive(...) → 사용 확정 시 SubmitPlayerAction(...)
             }
             else if (Input.GetKeyDown(KeyCode.Escape))
@@ -497,7 +535,7 @@ public class BattleManager : MonoBehaviour
         var myMainAction = FindMainActionOfActor(actorId);
 
         // --- 몹 공격 + 패링 가능일 때 ---
-        if (actorId == Enemy.actorId && myAction.parryable &&
+        if (actorId == inGameEnemy.actorId && myAction.parryable &&
             myAction.parryWindows != null && myAction.parryWindows.Count > 0)
 
 
@@ -586,21 +624,21 @@ public class BattleManager : MonoBehaviour
     private BattleActor GetActor(int actorId)
     {
         if (actorId == Player.actorId) return Player;
-        if (actorId == Enemy.actorId) return Enemy;
+        if (actorId == inGameEnemy.actorId) return inGameEnemy;
         return null;
     }
 
     private int GetOtherActorId(int actorId)
     {
-        if (actorId == Player.actorId) return Enemy.actorId;
-        if (actorId == Enemy.actorId) return Player.actorId;
+        if (actorId == Player.actorId) return inGameEnemy.actorId;
+        if (actorId == inGameEnemy.actorId) return Player.actorId;
         return -1;
     }
 
     private bool IsBattleOver()
     {
         if (Player.hp <= 0) return true;
-        if (Enemy.hp <= 0) return true;
+        if (inGameEnemy.hp <= 0) return true;
         return false;
     }
 

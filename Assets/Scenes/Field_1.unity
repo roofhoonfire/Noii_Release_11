@@ -404,6 +404,7 @@ GameObject:
   m_Component:
   - component: {fileID: 334316842}
   - component: {fileID: 334316844}
+  - component: {fileID: 334316845}
   - component: {fileID: 334316843}
   m_Layer: 5
   m_Name: Panel
@@ -472,6 +473,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 334316841}
   m_CullTransparentMesh: 1
+--- !u!225 &334316845
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 334316841}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &352937747
 GameObject:
   m_ObjectHideFlags: 0
@@ -960,6 +973,41 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 570347975}
   m_CullTransparentMesh: 1
+--- !u!1 &713666913
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 713666914}
+  m_Layer: 5
+  m_Name: SelectionSpawnPoint 1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &713666914
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713666913}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1145757307}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 699, y: 177}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &770517001
 GameObject:
   m_ObjectHideFlags: 0
@@ -1019,8 +1067,9 @@ MonoBehaviour:
       m_Calls: []
   m_text: New Text
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 31f5b9654f3a8e64c89d3be98d9bf3d4, type: 2}
+  m_sharedMaterial: {fileID: 2825272737718613350, guid: 31f5b9654f3a8e64c89d3be98d9bf3d4,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1918,7 +1967,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1145757307}
-  - component: {fileID: 1145757309}
   - component: {fileID: 1145757308}
   m_Layer: 5
   m_Name: DialogueUIRoot
@@ -1940,6 +1988,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 334316842}
+  - {fileID: 713666914}
+  - {fileID: 2069515327}
   m_Father: {fileID: 6400925378873577923}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1959,24 +2009,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 172c1a1203d4493438831c5a5cbeb2df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canvasGroup: {fileID: 1145757309}
-  nameText: {fileID: 770517003}
+  root: {fileID: 334316841}
+  speakerText: {fileID: 770517003}
   bodyText: {fileID: 1404067107}
-  portraitImage: {fileID: 0}
-  nextHintRoot: {fileID: 570347975}
-  nextKey: 122
---- !u!225 &1145757309
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1145757306}
-  m_Enabled: 1
-  m_Alpha: 0
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
+  choiceSpawnRoot:
+  - {fileID: 713666914}
+  - {fileID: 2069515327}
+  choicePrefab: {fileID: 1351154743551833440, guid: 2698c5d2bd1c8b74b84070f576b7d13e,
+    type: 3}
+  enableClickToContinue: 1
+  canvasGroup: {fileID: 334316845}
+  fadeDuration: 0.25
 --- !u!1 &1176909552
 GameObject:
   m_ObjectHideFlags: 0
@@ -2122,8 +2165,9 @@ MonoBehaviour:
       m_Calls: []
   m_text: New Text
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 31f5b9654f3a8e64c89d3be98d9bf3d4, type: 2}
+  m_sharedMaterial: {fileID: 2825272737718613350, guid: 31f5b9654f3a8e64c89d3be98d9bf3d4,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2320,7 +2364,7 @@ MonoBehaviour:
   onInteract:
     m_PersistentCalls:
       m_Calls: []
-  dialogue: {fileID: 11400000, guid: 76a86d63fd5e4e247bae03d73152b5ac, type: 2}
+  graph: {fileID: 0}
   playerController: {fileID: 496837830}
 --- !u!1 &1534018505
 GameObject:
@@ -2662,7 +2706,7 @@ MonoBehaviour:
   onInteract:
     m_PersistentCalls:
       m_Calls: []
-  dialogue: {fileID: 11400000, guid: 853e78ea5e70f8c4f840446420640652, type: 2}
+  graph: {fileID: 11400000, guid: a1a3beb952b85c24894630fd3a98110a, type: 2}
   playerController: {fileID: 496837830}
 --- !u!1 &1701105920
 GameObject:
@@ -2908,7 +2952,7 @@ MonoBehaviour:
   onInteract:
     m_PersistentCalls:
       m_Calls: []
-  dialogue: {fileID: 0}
+  graph: {fileID: 0}
   playerController: {fileID: 0}
 --- !u!1 &2038326910
 GameObject:
@@ -3033,8 +3077,43 @@ MonoBehaviour:
   onInteract:
     m_PersistentCalls:
       m_Calls: []
-  dialogue: {fileID: 0}
+  graph: {fileID: 0}
   playerController: {fileID: 0}
+--- !u!1 &2069515326
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2069515327}
+  m_Layer: 5
+  m_Name: SelectionSpawnPoint 2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2069515327
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2069515326}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1145757307}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 699, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &2888721585750189
 RectTransform:
   m_ObjectHideFlags: 0

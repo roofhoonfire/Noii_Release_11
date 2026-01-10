@@ -130,7 +130,7 @@ public class CardDragHandler : MonoBehaviour,
             if (inZoneFlame) inZoneFlame.SetActive(false);
 
             // Blinded: 피 다시 덮기
-            if (CardModeState.Instance.apData.isBlinded)
+            if (BattleManager.Instance.apData.isBlinded)
             {
                 Transform blood = transform.Find("BloodShed");
                 if (blood != null)
@@ -139,7 +139,7 @@ public class CardDragHandler : MonoBehaviour,
         }
         else // 드롭 성공
         {
-           var apData = CardModeState.Instance.apData;
+           var apData = BattleManager.Instance.apData;
 
             if (thisCardData.cardType == 0)
             {
@@ -162,14 +162,16 @@ public class CardDragHandler : MonoBehaviour,
                 // ── 여기부터 추가 ─────────────────────────────────────────────
                 // 1) 로컬 핸드 AP 임시 수치 리셋
 
-                      CardModeState.Instance.apData.tempDef = 0;
-                      CardModeState.Instance.apData.tempCast = 0;
-                      CardModeState.Instance.apData.tempDam = 0;
-                      CardModeState.Instance.apData.tempRum= 0;
+                      BattleManager.Instance.apData.tempDef = 0;
+                      BattleManager.Instance.apData.tempCast = 0;
+                      BattleManager.Instance.apData.tempDam = 0;
+                      BattleManager.Instance.apData.tempRum= 0;
+                    RemoveUsedFromHands(thisCardData.code);
 
-                    // 2) usedCard 목록을 멀티셋 방식으로 hands에서 제거
+                    BattleManager.Instance.apData.trash.Add(thisCardData.code);
+
+                // 2) usedCard 목록을 멀티셋 방식으로 hands에서 제거
                 //    RemoveUsedFromHands(LocalState.Instance.LastApData, LocalState.Instance.btmPacket?.usedCard);
-                
                 // ───────────────────────────────────────────────────────────────
                 CardModeState.Instance.StopSelectCardLoop(CardModeState.Instance.curAction);
             }
@@ -235,18 +237,18 @@ public class CardDragHandler : MonoBehaviour,
         }
     }
 
-  /* private static void RemoveUsedFromHands(List<string> used)
+   private static void RemoveUsedFromHands(string used)
     {
-        if (ap == null || ap.hands == null || used == null) return;
+        if (BattleManager.Instance.apData == null || BattleManager.Instance.apData.hands == null || used == null) return;
 
         // 멀티셋 제거: used 에 있는 각 코드마다 hands에서 "첫 번째 매칭"만 제거
-        foreach (var code in used)
-        {
-            int idx = ap.hands.IndexOf(code);
-            if (idx >= 0) ap.hands.RemoveAt(idx);
-        }
+       // foreach (var code in used)
+        //{
+            int idx = BattleManager.Instance.apData.hands.IndexOf(used);
+            if (idx >= 0) BattleManager.Instance.apData.hands.RemoveAt(idx);
+       // }
     }
-  */
+  
     public void OnPointerClick(PointerEventData eventData)
     {
         PlayClickScaleAnimation();
