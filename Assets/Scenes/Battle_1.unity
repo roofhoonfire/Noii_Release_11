@@ -1433,6 +1433,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerAttackSequenceSOs:
   - {fileID: 11400000, guid: 6b96e4f87e989bb479840a1a76665d4f, type: 2}
+  - {fileID: 11400000, guid: 2f6ee05857b31cd4ba4754ee7b76ec0f, type: 2}
 --- !u!114 &371132899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3043,7 +3044,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uB9B4\uB9AC\uC2A4(R)"
+  m_text: "\uCE74\uB4DC \uD569\uC131(R)"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 31f5b9654f3a8e64c89d3be98d9bf3d4, type: 2}
   m_sharedMaterial: {fileID: 2825272737718613350, guid: 31f5b9654f3a8e64c89d3be98d9bf3d4,
@@ -6618,9 +6619,9 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.01
+  near clip plane: 0.3
   far clip plane: 1000
-  field of view: 29.7
+  field of view: 99.4
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -6646,8 +6647,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1712716530}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0009782927, y: 0.9843286, z: -0.00546341, w: 0.1762565}
-  m_LocalPosition: {x: -3.1499996, y: 0.18, z: -4.28}
+  m_LocalRotation: {x: -0.014930768, y: 0.18769652, z: 0.0028535037, w: 0.9821094}
+  m_LocalPosition: {x: 2.5309968, y: 1.3110001, z: -2.909453}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7898,7 +7899,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Priority:
     Enabled: 1
-    m_Value: 0
+    m_Value: 205
   OutputChannel: 1
   StandbyUpdate: 2
   m_StreamingVersion: 20230301

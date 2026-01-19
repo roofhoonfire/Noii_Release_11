@@ -324,10 +324,18 @@ public class BattleManager : MonoBehaviour
         Debug.Log("=== SelectMode 진입: C=Card, I=Item (지금은 모드 없이 로그만) ===");
         selectModeUI.EnterSelectMode();
 
-        
-        // 3) 핸드 초기화
-      //  apData.hands = new List<string>();
 
+        // 3) 핸드 초기화
+        //  apData.hands = new List<string>();
+        // ─────────────────────────────
+        // [추가] 덱이 비어있으면 기본 카드 1장 보충 경콘진용
+        // ─────────────────────────────
+        if (apData.deckList.Count == 0)
+        {
+            string fallback = UnityEngine.Random.value < 0.5f ? "c1" : "c2";
+            apData.deckList.Add(fallback);
+            Debug.Log($"[SelectMode] deckList 비어있음 → {fallback} 추가");
+        }
         // 뽑을 카드 수 (덱이 5장 미만이면 가능한 만큼)
         int drawCount = Mathf.Min(5, apData.deckList.Count);
 
@@ -335,8 +343,9 @@ public class BattleManager : MonoBehaviour
 
         for (int i = 0; i < drawCount; i++)
         {
-            int idx = rng.Next(0, apData.deckList.Count);
-
+              int idx = rng.Next(0, apData.deckList.Count);
+            //경콘진 용 추후 수정
+            //int idx = i;
             string pickedCard = apData.deckList[idx];
 
             // 핸드에 추가

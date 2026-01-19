@@ -1,0 +1,99 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7617746012844444677
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 4
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: HatchingXHalftone_00_CaliforniaSunrise_TTS_RefMat
+  m_Shader: {fileID: 4800000, guid: cdb1479f619aff740b0cea7a60a84201, type: 3}
+  m_Parent: {fileID: 2100000, guid: 17a008a99faf4a74598db06894aa1dac, type: 2}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _SHADING_COLOR
+  m_InvalidKeywords:
+  - _ANCHORSSTOOBJECTSORIGIN_ON
+  - _CASTSHADOWSANCHORSSTOOBJECTSORIGIN_ON
+  - _ENABLECASTSHADOWSRANDOMIZER_ON
+  - _ENABLECASTSHADOWS_ON
+  - _ENABLERIM_ON
+  - _ENABLESHADINGRANDOMIZER_ON
+  - _ENABLESHADINGSTYLING_ON
+  - _ENABLESHADOWS_ON
+  - _ENABLESPECULARRANDOMIZER_ON
+  - _ENABLESPECULARSTYLING_ON
+  - _ENABLESPECULAR_ON
+  - _ENABLESTYLING_ON
+  - _ENABLETOONSHADING_ON
+  - _RIMAFFECTEDBYNORMALMAP_ON
+  - _RIMANCHORSSTOOBJECTSORIGIN_ON
+  - _SHADINGAFFECTEDBYNORMALMAP_ON
+  - _SPECULARANCHORSSTOOBJECTSORIGIN_ON
+  - _SPECULARUSELIGHTCOLORS_ON
+  - _SUMLIGHTSBEFOREPOSTERIZATION_ON
+  - _SYNCWITHRIM_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _GradientTex:
+        m_Texture: {fileID: 2800000, guid: dedd17e1ab575e144bedb1baa5b58665, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _CastShadowColorMode: 0
+    - _CastShadowsNumberOfCellsHatching: 1
+    - _CastShadowsSpacingRandomIntensity: 0.069
+    - _CastShadowsStyle: 0
+    - _EnableSpecular: 1
+    - _EnableSpecularRandomizer: 1
+    - _ShadingFunction: 1
+    - _SpacingRandomIntensity: 0.069
+    - _SpecularHardnessRandomIntensity: 0.171
+    - _SpecularLengthRandomIntensity: 0.116
+    - _SpecularSpacingRandomIntensity: 0
+    - _SpecularThicknessRandomMode: 0
+    - _SpecularThicknesshRandomIntensity: 0
+    - _StylingCastShadowsDensity: 78.28
+    - _StylingCastShadowsHalftonesOffset: 1
+    - _StylingCastShadowsHardness: 0.705
+    - _StylingCastShadowsSyncWithOtherStyling: 0
+    - _StylingCastShadowsThickness: 0.9
+    - _StylingShadingDensity: 86.2
+    - _StylingShadingHalftonesOffset: 1
+    - _StylingShadingHardness: 0.705
+    - _StylingShadingThickness: 0.9
+    - _StylingSpecularDensity: 77.8
+    - _StylingSpecularHardness: 0.573
+    - _StylingSpecularRotation: 0
+    - _StylingSpecularSize: 0.874
+    - _StylingSpecularSmoothness: 0.406
+    - _StylingSpecularThickness: 0.8
+    - _StylingSpecularThicknessFalloff: 0.1
+    m_Colors:
+    - _CoreShadowColor: {r: 0, g: 0, b: 0, a: 1}
+    - _FormShadowColor: {r: 0, g: 0, b: 0, a: 1}
+    - _StylingColor: {r: 0, g: 0, b: 0, a: 1}
+  m_BuildTextureStacks: []
