@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Burst.CompilerServices;
+using Unity.VisualScripting;
 using UnityEngine;
 using SRandom = System.Random;
 
@@ -80,7 +81,10 @@ public class BattleManager : MonoBehaviour
 
     [Header("Damage Popup")]
     [SerializeField] private DamageTextPopup popupPrefab;
+    [SerializeField] private DamageTextPopup popupPrefabOp;
+
     [SerializeField] private Transform popupSpawnPoint;
+    [SerializeField] private Transform popupSpawnPointOp;
 
     private void Awake()
     {
@@ -309,6 +313,8 @@ public class BattleManager : MonoBehaviour
 
         _pendingPlayerAction = null;
         _pendingPlayerCost = 0;
+
+        //드랍 페이즈 
     }
 
     /// <summary>
@@ -683,6 +689,7 @@ public class BattleManager : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.A))
                 {
+                    PlayerAnimationController.Instance.ForcePlayByClipName("Noii_Parry");
                     _parrySucceededThisWindow = true;
                     Debug.Log($"[Parry] Input success at hitIndex={_currentHitIndex}");
 
@@ -771,6 +778,7 @@ public class BattleManager : MonoBehaviour
             }
             if (!success)
             {
+                PlayerAnimationController.Instance.ForcePlayByClipName("Noii_Damaged");
 
                 GameObject instance = Instantiate(damageEffects, parryTransform.position, Quaternion.identity);
                 Destroy(instance, 2f); // Destroy in 2 seconds
@@ -784,5 +792,31 @@ public class BattleManager : MonoBehaviour
             
         }));
     }
-  
+  public void AttackSequencePhase(ActionData action)
+    {
+        //카드 효과 발동되는거랑 
+        if (popupPrefab != null && popupSpawnPointOp != null)
+        {
+            var pop = Instantiate(popupPrefabOp, popupSpawnPointOp.position, Quaternion.identity);
+            pop.Setup(action.damage.ToString());
+        }
+
+        HPBarManager.Instance.DamageOp(action.damage);
+
+    }
+
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            //카드 효과 발동되는거랑 
+            if (popupPrefab != null && popupSpawnPointOp != null)
+            {
+                var pop = Instantiate(popupPrefabOp, popupSpawnPointOp.position, Quaternion.identity);
+                pop.Setup("10");
+            }
+        }
+
+    }
 }

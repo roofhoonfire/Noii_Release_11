@@ -24,7 +24,7 @@ public class RemainingCostRenderer : MonoBehaviour
 
     [Header("Scale FX (액션 추가 시)")]
     [SerializeField] private float scaleUp = 1.08f;
-    [SerializeField] private float scaleDuration = 0.15f;
+    [SerializeField] private float scaleDuration = 5f;
     [SerializeField] private Ease scaleEase = Ease.OutQuad;
     [SerializeField] private bool useUnscaledTimeForScale = true;
 

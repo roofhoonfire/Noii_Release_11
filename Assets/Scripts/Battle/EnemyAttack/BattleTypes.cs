@@ -23,6 +23,14 @@ public class BattleActor
     // 필요하면 여기다가 디펜스, 상태이상, 덱/핸드 등 추가
 }
 
+public class BattleCharacterState
+{
+    public bool sudden = false;
+    public bool fullcast = false;
+
+
+}
+
 /// <summary>
 /// 몹 SO에 들어갈 "행동 템플릿"
 /// → 여기서 카드코드, 기본 데미지, 코스트 등을 정의하고

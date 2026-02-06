@@ -45,7 +45,7 @@ public class Card
     }
 
 }
-public enum HookType { Activate, Priority, IQA, Counter, Guard, BeforeRumble, RumbleWin, RumbleLose, Combo, Support, Dot }
+/*public enum HookType { Activate, Priority, IQA, Counter, Guard, BeforeRumble, RumbleWin, RumbleLose, Combo, Support, Dot }
 public enum EffectType
 {
     Add_ActionClock_Op, Add_Defense_Op, Add_Defense_Op_intheQ,
@@ -57,7 +57,7 @@ public enum EffectType
     Flag_Off, Remove_Element, Invincible_forOneAction, Stealth, Damage, whenAttackedFlagOn, Move, Get_Element, Heal, StackDamage, GetDefense, DamageMeBangMoo, AddDamage, MoveToSelectedTile, OpNextActionisMoveFlagOn,
     NotRumbleFlagOn, ExtraSelect_Kawari, NextTurn_AddDamage, ReplaceNextOpsMovetoStun, StunRecovery, SelectActionClockChange, UseEnergy, TrueDamage, MakeItTrue, PrevCycleClockFlagOn, ReduceMyNextTurnActionClock,
 }
-
+*/
 
 
 [CreateAssetMenu(fileName = "ItemSo", menuName = "Scriptable Object/CardSO")]

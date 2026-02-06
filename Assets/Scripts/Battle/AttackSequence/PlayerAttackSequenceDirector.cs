@@ -1,6 +1,8 @@
 using System.Collections;
 using Unity.Cinemachine;
+using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Splines;
 
 /// <summary>
@@ -163,7 +165,7 @@ public class PlayerAttackSequenceDirector : MonoBehaviour
         //  5~6) Cam3에서 피격 이펙트 연출(이펙트 애니 재생 중 Cam3 유지)
         if (seq.useEnemyHitEffect && enemyHitEffectObject != null && enemyHitEffectAnimator != null && seq.enemyHitEffectClip != null)
         {
-            yield return PlayEnemyHitEffectCam3(seq);
+            yield return PlayEnemyHitEffectCam3(seq, action);
         }
 
 
@@ -355,7 +357,7 @@ public class PlayerAttackSequenceDirector : MonoBehaviour
             yield return null;
         }
     }
-    private IEnumerator PlayEnemyHitEffectCam3(PlayerAttackSequenceSO seq)
+    private IEnumerator PlayEnemyHitEffectCam3(PlayerAttackSequenceSO seq, ActionData action)
     {
         // 1) 오브젝트 ON
         enemyHitEffectObject.SetActive(true);
@@ -395,8 +397,20 @@ public class PlayerAttackSequenceDirector : MonoBehaviour
         // 5) 이펙트 애니 끝날 때까지 대기 (Cam3 유지)
         yield return WaitAnimatorClipEnd(enemyHitEffectAnimator, seq.enemyHitEffectClip.name);
 
+
+        //어택시퀀스페이즈
+
+
+
+
+
+
+//        BattleManager.Instance.AttackSequencePhase(action);
+        // deal = action
+
+
         //5.5) 피격 
-        HPBarManager.Instance.DamageOp();
+    // HPBarManager.Instance.DamageOp(10);
 
         // 6) 오브젝트 OFF
         enemyHitEffectObject.SetActive(false);

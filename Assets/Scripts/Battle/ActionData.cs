@@ -20,7 +20,7 @@ public class ActionData //여기 뭐 추가할 거면 carddragHandler로 수정해야함
     public int zoneIndex;
     public List<AnimationClip> animations;//사실상 필요가 없어졌다
     public bool asCombo = false;
-   // public List<CardEffect> effects = new();
+    public List<CardEffect> effects = new();
     public int Dot_to; //도트 딜이 노리는 액터넘버
     public List<int> effectTiles = new();
     //public HitResolution? resolvedOutcome;

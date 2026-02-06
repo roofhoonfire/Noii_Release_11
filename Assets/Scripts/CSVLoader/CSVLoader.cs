@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -12,6 +13,7 @@ public class CSVLoader : MonoBehaviour //ÀÌÀÚ½ÄÀº Ä«µåÀÇ ¸ÞÅ¸µ¥ÀÌÅÍ //³ªÁß¿¡ ÀÌ°
     // ·±Å¸ÀÓ¿¡ »ý¼ºµÈ SO ÀÎ½ºÅÏ½º
     public CardSO runtimeCardSO; //Ä«µå ¸ÞÅ¸ µ¥ÀÌÅÍ
     public ItemSO runtimeItemSO;// ¾ÆÀÌÅÛ ¸ÞÅ¸ 
+    public CardEffectSO runtimeCardEffectSO;
     // ¾ÆÀÌÅÛ SOµµ ¿©±â ÇÏ³ª ¸¸µë
 
 
@@ -42,6 +44,8 @@ public class CSVLoader : MonoBehaviour //ÀÌÀÚ½ÄÀº Ä«µåÀÇ ¸ÞÅ¸µ¥ÀÌÅÍ //³ªÁß¿¡ ÀÌ°
 
         Debug.Log($"[ItemCSVLoader] ·±Å¸ÀÓ Ä«µå SO »ý¼º ¿Ï·á - ÃÑ {runtimeItemSO.items.Length}Àå");
 
+
+        runtimeCardEffectSO = CardEffectDatabase.LoadEffectsFromCSV();
         //    BoundLoader.LoadBoundsFromCSV(Resources.Load<TextAsset>("Bound"));
 
         //  JujuLoader.LoadJujuFromCSV(Resources.Load<TextAsset>("Juju"));
@@ -66,5 +70,28 @@ public class CSVLoader : MonoBehaviour //ÀÌÀÚ½ÄÀº Ä«µåÀÇ ¸ÞÅ¸µ¥ÀÌÅÍ //³ªÁß¿¡ ÀÌ°
                 return item;
         }
         return null; // ¾øÀ¸¸é null ¹ÝÈ¯
+    }
+
+
+    /// <summary>
+    /// Ä«µå ÄÚµå¿¡ ÇØ´çÇÏ´Â ¸ðµç CardEffect¸¦ ¸®½ºÆ®·Î ¹ÝÈ¯
+    /// </summary>
+    public List<CardEffect> GetEffectsByCode(string code)
+    {
+        var result = new List<CardEffect>();
+
+        if (runtimeCardEffectSO == null || runtimeCardEffectSO.cardeffects == null)
+            return result;
+
+        foreach (var effect in runtimeCardEffectSO.cardeffects)
+        {
+            if (effect == null)
+                continue;
+
+            if (effect.code == code)
+                result.Add(effect);
+        }
+
+        return result;
     }
 }

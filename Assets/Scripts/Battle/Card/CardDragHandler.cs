@@ -152,7 +152,7 @@ public class CardDragHandler : MonoBehaviour,
                 CardModeState.Instance.curAction.cardname = thisCardData.name;
                 CardModeState.Instance.curAction.zoneIndex = thisCardData.zoneIndex;
                 CardModeState.Instance.curAction.tileType = thisCardData.tileType;
-                //CardModeState.Instance.curAction.effects.AddRange(CardDEffectDatabase.GetEffects(thisCardData.code));
+               CardModeState.Instance.curAction.effects.AddRange(CSVLoader.Instance.GetEffectsByCode(thisCardData.code));
                 CardModeState.Instance.curAction.damage = Mathf.Max(0, thisCardData.damage + apData.tempDam + apData.permDam);
 
                 //btmPacketAdd(thisCardData.code);

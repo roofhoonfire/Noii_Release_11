@@ -71,9 +71,9 @@ public class HPBarManager : MonoBehaviour
 
         //leftAnimator.SetTrigger("Damage");
     }
-    public void DamageOp()
+    public void DamageOp(int deal)
     {
-        int newHP = opHP - 10;
+        int newHP = opHP - deal;
         //if (damageAmount < 0)
         //  return;
 
