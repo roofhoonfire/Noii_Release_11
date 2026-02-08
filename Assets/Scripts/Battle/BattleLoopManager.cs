@@ -35,6 +35,8 @@ public class BattleManager : MonoBehaviour
 
     public InGameAPData apData = new InGameAPData();
 
+    [Header("PlayerDeck")]
+    [SerializeField] List<string> CombFormula;
 
 
     [Header("Select Mode UI")]
@@ -54,6 +56,7 @@ public class BattleManager : MonoBehaviour
 
     // 플레이어 액션 선택 대기 플래그
     private bool _waitingForPlayerAction = false;
+    private bool _AnotherModeNow = false;
     private ActionData _pendingPlayerAction;
     private int _pendingPlayerCost;
 
@@ -302,7 +305,7 @@ public class BattleManager : MonoBehaviour
         {
             StopCoroutine(_playerSelectRoutine);
         }
-        _playerSelectRoutine = StartCoroutine(PlayerSelectLoop());
+        _playerSelectRoutine = StartCoroutine(new_PlayerSelectLoop());
 
         // 플레이어가 SubmitPlayerAction 호출할 때까지 대기
         yield return new WaitUntil(() => _waitingForPlayerAction == false);
@@ -353,6 +356,8 @@ public class BattleManager : MonoBehaviour
     /// I → ItemMode 예정 (현재는 로그만)
     /// ESC → 나중에 Card/Item 모드에서 셀렉트로 돌아올 때 쓸 예정, 지금은 그냥 로그
     /// </summary>
+    /// 
+    //이거 옛날거임
     private IEnumerator PlayerSelectLoop()
     {
        yield return BattleCameraDirector.Instance.SetShotAndWait(BattleCameraDirector.ShotId.Front);
@@ -430,6 +435,95 @@ public class BattleManager : MonoBehaviour
         Debug.Log("SelectMode 종료 (_waitingForPlayerAction == false)");
     }
 
+    private IEnumerator new_PlayerSelectLoop()
+    {
+        //    yield return BattleCameraDirector.Instance.SetShotAndWait(BattleCameraDirector.ShotId.Front);
+
+
+        _isSelectModeActive = true;
+        Debug.Log("=== SelectMode 진입: C=Card, I=Item (지금은 모드 없이 로그만) ===");
+        selectModeUI.EnterSelectMode();
+
+
+        // 3) 핸드 초기화
+        //  apData.hands = new List<string>();
+        // ─────────────────────────────
+        // [추가] 덱이 비어있으면 기본 카드 1장 보충 경콘진용
+        // ─────────────────────────────
+        if (apData.deckList.Count == 0)
+        {
+            string fallback = UnityEngine.Random.value < 0.5f ? "c1" : "c2";
+            apData.deckList.Add(fallback);
+            Debug.Log($"[SelectMode] deckList 비어있음 → {fallback} 추가");
+        }
+        // 뽑을 카드 수 (덱이 5장 미만이면 가능한 만큼)
+        int drawCount = Mathf.Min(5, apData.deckList.Count);
+
+        System.Random rng = new System.Random();
+
+        for (int i = 0; i < drawCount; i++)
+        {
+            int idx = rng.Next(0, apData.deckList.Count);
+            //경콘진 용 추후 수정
+            //int idx = i;
+            string pickedCard = apData.deckList[idx];
+
+            // 핸드에 추가
+            apData.hands.Add(pickedCard);
+
+            // 덱에서 제거
+            apData.deckList.RemoveAt(idx);
+        }
+        while (_waitingForPlayerAction)
+        {
+            selectModeUI.EnterSelectMode();
+
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                //  BattleCameraDirector.Instance.ExitSelectShot();
+                selectModeUI.ExitSelectMode();
+
+                AnotherModeStart();
+
+                CardModeState.Instance.SetActive(true);
+                Debug.Log("[SelectMode] C 입력 → 여기서 CardMode 진입 예정 (현재는 로그만)");
+
+                yield return new WaitUntil(() => _AnotherModeNow == false);
+
+                // 나중에: 여기서 CardModeState.Instance.SetActive(...) 같은 걸 호출하고,
+                // 카드 선택 완료 시 SubmitPlayerAction(...) 호출하는 구조로 확장
+            }
+            else if (Input.GetKeyDown(KeyCode.I))
+            {
+                Debug.Log("[SelectMode] I 입력 → 여기서 ItemMode 진입 예정 (현재는 로그만)");
+                // 나중에: ItemModeState.Instance.SetActive(...) → 사용 확정 시 SubmitPlayerAction(...)
+            }
+            else if (Input.GetKeyDown(KeyCode.R))
+            {
+                selectModeUI.ExitSelectMode();
+
+                yield return BattleCameraDirector.Instance.SetShotAndWait(BattleCameraDirector.ShotId.Front);
+                AnotherModeStart();
+                CardFusionState.Instance.SetActive(true);
+                Debug.Log("[SelectMode] R 입력 → 여기서 ItemMode 진입 예정 (현재는 로그만)");
+                yield return new WaitUntil(() => _AnotherModeNow == false);
+
+
+                // 나중에: ItemModeState.Instance.SetActive(...) → 사용 확정 시 SubmitPlayerAction(...)
+            }
+            else if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Debug.Log("[SelectMode] ESC 입력 → 현재는 아무 것도 안 하고 대기 유지");
+                // 나중에: Card/Item 모드 안에서 ESC → SelectMode 복귀 용도로 사용
+            }
+
+            yield return null;
+        }
+        selectModeUI.ExitSelectMode();
+
+        _isSelectModeActive = false;
+        Debug.Log("SelectMode 종료 (_waitingForPlayerAction == false)");
+    }
     private bool HasAnyActionForActor(int actorId)
     {
         return _actionQueue.Any(q => q.actorId == actorId && !q.action.isDot);
@@ -848,6 +942,17 @@ public class BattleManager : MonoBehaviour
 
     }
 
+    public void AnotherModeDone()
+    {
 
-   
+        _AnotherModeNow = false;
+
+    }
+    public void AnotherModeStart()
+    {
+
+        _AnotherModeNow = true;
+
+    }
+
 }

@@ -46,6 +46,7 @@ public class InGameAPData
     public List<string> trash = new List<string>();
 
     public List<Elem> elements = new List<Elem>();
+   
 
 }
 
@@ -73,6 +74,20 @@ public class CardModeState : MonoBehaviour
 
     private Coroutine _selectCardCoroutine;
     private int _populateVersion = 0;
+
+
+    [Header("Clear Hand Anim")]
+    [SerializeField] private CurvedHandLayoutTween handLayout; // Hands에 붙인 컴포넌트 연결
+
+    [SerializeField] private float gatherDuration = 0.12f;     // 펼쳐진 손패 -> 한 점으로 모으기
+    [SerializeField] private float toSpawnDuration = 0.12f;    // 모인 후 -> 스폰 위치로 이동
+    [SerializeField] private Ease gatherEase = Ease.InQuad;
+    [SerializeField] private Ease toSpawnEase = Ease.InQuad;
+
+    [SerializeField] private Vector2 gatherPoint = Vector2.zero;
+   
+    private Coroutine _clearRoutine;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -209,8 +224,8 @@ public class CardModeState : MonoBehaviour
     }
     private IEnumerator CloseHandsThenReturn()
     {
-        BattleCameraDirector.Instance.EnterSelectShot();
-        ClearAllCards();
+        //  BattleCameraDirector.Instance.EnterSelectShot();
+        ClearAllCardsandAnotherModeDone();
         //  yield return BothArmsAnimator.Instance.PlayExit();
 
         //if (LocalState.Instance?.alim) LocalState.Instance.alim.SetActive(false);
@@ -261,72 +276,106 @@ public class CardModeState : MonoBehaviour
 
     private IEnumerator CloseHandsThenSubmit(ActionData action)
     {
-        ClearAllCards();
+        ClearAllCardsandAnotherModeDone();
         BattleManager.Instance.SubmitPlayerAction(action, action.actionClock);
         yield return null;
 
     }
 
 
+
     public void PopulateCards()
     {
         spawnedCards.Clear();
-
-
-
 
         foreach (string code in BattleManager.Instance.apData.hands)
         {
             var cardGO = Instantiate(cardPrefab, cardContentArea);
             spawnedCards.Add(cardGO);
 
-            if (BattleManager.Instance.apData.isBlinded)
-            {
-                Transform visualRoot = cardGO.transform.Find("VisualRoot");
-                if (visualRoot != null)
-                {
-                    Transform blood = visualRoot.Find("BloodShed");
-                    if (blood != null) blood.gameObject.SetActive(true);
-                }
-            }
-
             var info = cardGO.GetComponent<EachCardInfo>();
             if (info == null) { Debug.LogWarning("EachCardInfo 없음"); continue; }
 
             info.cardData = CSVLoader.Instance.GetCardByCode(code);
-
-            var anim = cardGO.GetComponentInChildren<Animator>();
-       /*     if (anim != null)
-            {
-                var deferrer = cardGO.GetComponent<CardApplyDeferrer>();
-                if (deferrer == null) deferrer = cardGO.AddComponent<CardApplyDeferrer>();
-                deferrer.Bind(
-                    info, anim,
-                    idleStateName: "Card_Actioin_Idle",
-                    layerIndex: 0,
-                    requireInitStateName: "Card_Actioin_Init"
-                );
-            }*/
-            //else
-            //{
-                info.ApplyCardData(); // 애니 없으면 즉시 적용
-            //}
+            info.ApplyCardData();
         }
 
-        // ★ 여기 추가: 이번 생성 라운드 버전 고유값 부여 후, 모두 적용될 때까지 기다렸다가 업그레이드 호출
-        int myVersion = ++_populateVersion;
-      //  StartCoroutine(WaitCardsAppliedThenUpgrade(apData, myVersion));
+        //  생성 위치(덱) -> 손패(부채꼴)로 펼치기
+        handLayout.SpawnThenTweenToHand(spawnedCards);
 
         Debug.Log("손패 생성완료");
     }
 
-    public void ClearAllCards()
+    public void ClearAllCardsandAnotherModeDone()
+    {
+        BattleManager.Instance.AnotherModeDone();
+
+        if (_clearRoutine != null) StopCoroutine(_clearRoutine);
+        _clearRoutine = StartCoroutine(ClearWithGatherAnimRoutine());
+    }
+
+
+    private IEnumerator ClearWithGatherAnimRoutine()
+    {
+        // 안전장치: 이미 없으면 그냥 정리
+        if (spawnedCards == null || spawnedCards.Count == 0)
+        {
+            HardClear();
+            yield break;
+        }
+
+        // (1) 펼쳐진 손패 -> 한 점으로 "쇽" 모으기
+        for (int i = 0; i < spawnedCards.Count; i++)
+        {
+            var go = spawnedCards[i];
+            if (!go) continue;
+
+            var rt = go.GetComponent<RectTransform>();
+            if (!rt) continue;
+
+            rt.DOKill();
+
+            rt.DOAnchorPos(gatherPoint, gatherDuration).SetEase(gatherEase).SetUpdate(true);
+            rt.DOLocalRotate(Vector3.zero, gatherDuration).SetEase(gatherEase).SetUpdate(true);
+            rt.DOScale(0.98f, gatherDuration).SetEase(gatherEase).SetUpdate(true);
+        }
+
+        yield return new WaitForSecondsRealtime(gatherDuration);
+
+        // (2) 모인 점 -> handLayout의 "생성 위치(spawn)"로 이동
+        Vector2 spawnPos = handLayout != null ? handLayout.GetSpawnAnchoredPos() : gatherPoint;
+
+        for (int i = 0; i < spawnedCards.Count; i++)
+        {
+            var go = spawnedCards[i];
+            if (!go) continue;
+
+            var rt = go.GetComponent<RectTransform>();
+            if (!rt) continue;
+
+            rt.DOKill();
+
+            rt.DOAnchorPos(spawnPos, toSpawnDuration).SetEase(toSpawnEase).SetUpdate(true);
+            rt.DOLocalRotate(Vector3.zero, toSpawnDuration).SetEase(toSpawnEase).SetUpdate(true);
+            rt.DOScale(0.95f, toSpawnDuration).SetEase(toSpawnEase).SetUpdate(true);
+        }
+
+        yield return new WaitForSecondsRealtime(toSpawnDuration);
+
+        // (3) 이제 삭제/클리어
+        HardClear();
+    }
+
+    private void HardClear()
     {
         for (int i = cardContentArea.childCount - 1; i >= 0; i--)
             Destroy(cardContentArea.GetChild(i).gameObject);
 
         spawnedCards.Clear();
+        _clearRoutine = null;
     }
+
+
 
     private void SelectCard()
     {
