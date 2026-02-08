@@ -19,7 +19,7 @@ public class BattleActor
     public int maxHp = 100;
     public int curPos;       // 타일 인덱스 (필요 없다면 빼도 됨)
     public int energy = 3;
-
+    public BattleCharacterState bcs = new BattleCharacterState();
     // 필요하면 여기다가 디펜스, 상태이상, 덱/핸드 등 추가
 }
 

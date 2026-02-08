@@ -157,16 +157,16 @@ public class CardDragHandler : MonoBehaviour,
 
                 //btmPacketAdd(thisCardData.code);
 
-                Debug.Log("로컬 핸드를 위한 apdata 초기화!!");
+              //  Debug.Log("로컬 핸드를 위한 apdata 초기화!!");
 
                 // ── 여기부터 추가 ─────────────────────────────────────────────
                 // 1) 로컬 핸드 AP 임시 수치 리셋
 
-                      BattleManager.Instance.apData.tempDef = 0;
+                /*      BattleManager.Instance.apData.tempDef = 0;
                       BattleManager.Instance.apData.tempCast = 0;
                       BattleManager.Instance.apData.tempDam = 0;
                       BattleManager.Instance.apData.tempRum= 0;
-                    RemoveUsedFromHands(thisCardData.code);
+                  */  RemoveUsedFromHands(thisCardData.code);
 
                     BattleManager.Instance.apData.trash.Add(thisCardData.code);
 

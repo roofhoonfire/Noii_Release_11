@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Cinemachine;
 using Unity.Collections;
 using UnityEngine;
@@ -42,7 +43,12 @@ public class PlayerAttackSequenceDirector : MonoBehaviour
     [Header("Enemy Hit Effect Object (SpriteRenderer + Animator)")]
     [SerializeField] private GameObject enemyHitEffectObject;
     [SerializeField] private Animator enemyHitEffectAnimator;
-
+    // ─────────────────────────────
+    // Event-driven HitStop state
+    // ─────────────────────────────
+    private PlayerAttackSequenceSO _currentSeq;
+    private ActionData _currentAction;
+    private readonly HashSet<int> _firedHitStopIndices = new();
     private void Awake()
     {
         Instance = this;
@@ -362,60 +368,73 @@ public class PlayerAttackSequenceDirector : MonoBehaviour
         // 1) 오브젝트 ON
         enemyHitEffectObject.SetActive(true);
 
-        // 2) 애니 재생 (clip.name == stateName 가정)
+        // 2) 상태 세팅
+        _currentSeq = seq;
+        _currentAction = action;
+        _firedHitStopIndices.Clear();
+
+        // 3) 애니 재생 (clip.name == stateName 가정)
         enemyHitEffectAnimator.speed = 1f;
         enemyHitEffectAnimator.Play(seq.enemyHitEffectClip.name, 0, 0f);
 
-        // 3) 히트스톱 타이밍까지 대기 (프레임/초 기반)
-        float waitBeforeHitStop = 0f;
-
-        if (seq.hitStopEffectTimeSeconds > 0f)
-        {
-            waitBeforeHitStop = Mathf.Max(0f, seq.hitStopEffectTimeSeconds);
-        }
-        else if (seq.hitStopUseFrameIndex)
-        {
-            float fps = Mathf.Max(1f, seq.hitEffectFps);
-            waitBeforeHitStop = Mathf.Max(0f, seq.hitStopEffectFrameIndex / fps);
-        }
-
-        if (seq.useHitStop && waitBeforeHitStop > 0f)
-            yield return WaitUnscaledSeconds(waitBeforeHitStop);
-
-        // 4) HitStop 순간: timeScale=0 진입 후에 쉐이크를 터뜨린다
-        if (seq.useHitStop && HitStopController.Instance != null)
-        {
-            yield return HitStopController.Instance.DoHitStop(
-                seq.hitStopSeconds,
-                onEnterHitStop: () =>
-                {
-                    if (seq.useCameraShake && cameraDirector != null)
-                        cameraDirector.Shake(seq.cameraShakeStrength);
-                });
-        }
-
-        // 5) 이펙트 애니 끝날 때까지 대기 (Cam3 유지)
+        // 4) 애니 끝까지 대기 (Cam3 유지)
         yield return WaitAnimatorClipEnd(enemyHitEffectAnimator, seq.enemyHitEffectClip.name);
 
-
-        //어택시퀀스페이즈
-
-
-
-
-
-
-//        BattleManager.Instance.AttackSequencePhase(action);
-        // deal = action
-
-
-        //5.5) 피격 
-    // HPBarManager.Instance.DamageOp(10);
+        // 5) 상태 정리
+        _currentSeq = null;
+        _currentAction = null;
+        _firedHitStopIndices.Clear();
 
         // 6) 오브젝트 OFF
         enemyHitEffectObject.SetActive(false);
     }
 
+    /// <summary>
+    /// 애니 이벤트 리시버가 호출하는 진입점
+    /// </summary>
+    public void OnEnemyHitEvent(int hitStopIndex)
+    {
+        // 시퀀스 재생 중이 아니면 무시
+        if (_currentSeq == null) return;
+
+        // 같은 인덱스 중복 발동 방지 (원하면 제거 가능)
+        if (_firedHitStopIndices.Contains(hitStopIndex))
+            return;
+
+        _firedHitStopIndices.Add(hitStopIndex);
+
+        var info = _currentSeq.GetHitStopInfo(hitStopIndex);
+        if (info == null)
+        {
+            Debug.LogWarning($"[PlayerAttackSequenceDirector] HitStopInfo not found for index={hitStopIndex} (cardCode={_currentSeq.cardCode})");
+            return;
+        }
+
+        // 지금 요구사항: "히트스톱만" 처리
+        StartCoroutine(DoHitStopFromInfo(info));
+    }
+
+    private IEnumerator DoHitStopFromInfo(PlayerAttackSequenceSO.HitStopInfo info)
+    {
+        if (HitStopController.Instance == null)
+            yield break;
+
+
+        BattleManager.Instance.HitStopRendering(_currentAction);
+        
+        yield return HitStopController.Instance.DoHitStop(
+            info.hitStopSeconds,
+            onEnterHitStop: () =>
+            {
+                if (cameraDirector != null)
+                    cameraDirector.Shake(info.cameraShakeStrength);
+            });
+
+
+        // 추후 확장 포인트:
+        // - info.enemyHitTrigger 기반으로 데미지/이펙트/HP 처리
+        // - BattleManager.Instance.AttackSequencePhase(_currentAction) 같은 호출
+    }
     private static IEnumerator WaitAnimatorClipEnd(Animator anim, string stateName)
     {
         if (anim == null || string.IsNullOrEmpty(stateName)) yield break;

@@ -37,14 +37,16 @@ public static class CardEffectDatabase
 
         return so;
     }
-
     private static CardEffect ParseLine(string line, int lineNumber)
     {
-        // 포맷: code, Phase, effectType, amount, flag
+        // 포맷: code, Phase, effectType, amount, extraString, flag
         var cols = line.Split(',');
+
         if (cols.Length < 3)
         {
-            Debug.LogWarning($"[CardEffectDatabase] {lineNumber}번째 줄 열 부족: {cols.Length}개 (최소 3개 필요: code, phase, effectType)");
+            Debug.LogWarning(
+                $"[CardEffectDatabase] {lineNumber}번째 줄 열 부족: {cols.Length}개 (최소 3개 필요)"
+            );
             return null;
         }
 
@@ -68,7 +70,8 @@ public static class CardEffectDatabase
         }
 
         int amount = (cols.Length >= 4) ? TryParseInt(cols[3], 0) : 0;
-        int flag = (cols.Length >= 5) ? TryParseInt(cols[4], 0) : 0;
+        string extraString = (cols.Length >= 5) ? cols[4].Trim() : string.Empty;
+        int flag = (cols.Length >= 6) ? TryParseInt(cols[5], 0) : 0;
 
         return new CardEffect
         {
@@ -76,6 +79,7 @@ public static class CardEffectDatabase
             phase = phase,
             effectType = effectType,
             amount = amount,
+            extraString = extraString,
             flag = flag
         };
     }

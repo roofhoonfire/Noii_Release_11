@@ -11,6 +11,7 @@ public class CardEffect
     public EffectType effectType;
 
     public int amount;
+    public string extraString;   // 
     public int flag;
 }
 
@@ -28,6 +29,7 @@ public enum EffectType
     damage,
     add_Damage,
     SuddenAttack_On,
+    Chant,
 }
 
 [CreateAssetMenu(menuName = "Noii/Card Effect SO", fileName = "CardEffectSO")]

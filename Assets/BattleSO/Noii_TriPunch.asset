@@ -33,12 +33,16 @@ MonoBehaviour:
   stopDollyAtCutInPoint: 1
   enemyHitEffectClip: {fileID: 7400000, guid: 8a6a1927f89c8384498304ff98a9869b, type: 2}
   useEnemyHitEffect: 1
-  useHitStop: 1
-  hitStopSeconds: 0.01
-  hitStopUseFrameIndex: 1
-  hitStopEffectFrameIndex: 2
-  hitEffectFps: 12
-  hitStopEffectTimeSeconds: 0
-  useCameraShake: 1
-  cameraShakeStrength: 0.21
-  enemyHitTrigger: Hit
+  hitStopInfos:
+  - index: 0
+    hitStopSeconds: 0.05
+    cameraShakeStrength: 0.21
+    enemyHitTrigger: 0
+  - index: 1
+    hitStopSeconds: 0.05
+    cameraShakeStrength: 0.21
+    enemyHitTrigger: 0
+  - index: 2
+    hitStopSeconds: 0.05
+    cameraShakeStrength: 0.21
+    enemyHitTrigger: 0

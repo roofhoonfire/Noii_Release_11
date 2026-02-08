@@ -1,6 +1,10 @@
 code,cardType,name,sprite,animation,actionClock,rumblePoint,damage,defense,disappear,mana,tileType,zoneIndex,energy,cardText
 c1,0,십자베기,ActionCards/AC_C1,,13,2,10,5,0,0,0,0,,피해를 {damage} 줍니다 \n 선공 : 피해를 15 추가로 줍니다
-c2,0,삼연권,ActionCards/AC_C2,,4,3,15,5,0,0,0,2,,피해를 {damage} 줍니다 \n 
-c3,,임전태세,ActionCards/AC_C3,,3,2,12,,,,,,,피해를 {damage} 줍니다 \n 캐스팅 중 패링에 성공하면 추가 피해를 줍니다
+c2,0,삼연권,ActionCards/AC_C2,,4,3,5,5,0,0,0,2,,{damage}의 피해를 3회 줍니다 \n 
+c3,,반격,ActionCards/AC_C3,,10,2,10,0,,,,,,피해를 {damage} 줍니다 \n 캐스팅 중 패링에 성공할때마다 피해량이 5 증가합니다
 c4,,칩실드,ActionCards/AC_C4,,103,2,,,,,,,,단단한 방패를 앞세워 캐스팅 동안 방어합니다
 c5,,공방일체,ActionCards/AC_C5,,3,4,,,,,,,,캐스팅 중 패링에 성공하면 추가 피해를 줍니다
+c6,,마나건,ActionCards/AC_C6,,5,3,10,5,,,,,,피해를 {damage} 줍니다 영창 : 피해가 20추가 됩니다
+c7,,마나캐논,ActionCards/AC_C6,,5,3,30,5,,,,,,피해를 {damage} 줍니다
+c8,,소형 마나건,ActionCards/AC_C6,,2,3,10,5,,,,,,피해를 {damage} 줍니다
+c9,,임전태세,,,,,,,,,,,,기습 : 

@@ -141,6 +141,9 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     public void SubmitPlayerAction(ActionData action, int cost)
     {
+
+      
+
         if (!_waitingForPlayerAction)
         {
             Debug.LogWarning("지금은 플레이어 액션을 받을 타이밍이 아니다.");
@@ -151,6 +154,16 @@ public class BattleManager : MonoBehaviour
         _pendingPlayerCost = cost;
         _waitingForPlayerAction = false;
     }
+    public void SubmitPlayerAction_NotRegular(ActionData action, int cost)
+    {
+
+       
+
+        _pendingPlayerAction = action;
+        _pendingPlayerCost = cost;
+        _waitingForPlayerAction = false;
+    }
+
 
     // ====== 메인 배틀 루프 ======
 
@@ -159,6 +172,7 @@ public class BattleManager : MonoBehaviour
         // 메인 전투 루프
         while (!_battleEnded)
         {
+              
             // 1) 양쪽이 최소 1개씩 액션을 준비하게 보장
             yield return EnsureEnemyHasQueuedAction();
             
@@ -302,7 +316,24 @@ public class BattleManager : MonoBehaviour
             yield break;
         }
 
+
+
+
+
+        ///드랍페이즈 호출///
+        yield return EffectActivator.Instance.ActivateEffects(_pendingPlayerAction, Phase.Drop);
+
         InitActionBeforeInsert(_pendingPlayerAction, Player.actorId);
+
+
+
+
+
+
+        NextActionMonitor.Instance.SetMyNextAction(_pendingPlayerAction);
+
+
+
 
         _actionQueue.Add(new QueuedAction
         {
@@ -314,7 +345,6 @@ public class BattleManager : MonoBehaviour
         _pendingPlayerAction = null;
         _pendingPlayerCost = 0;
 
-        //드랍 페이즈 
     }
 
     /// <summary>
@@ -407,6 +437,18 @@ public class BattleManager : MonoBehaviour
 
     private void InitActionBeforeInsert(ActionData action, int actorId)
     {
+        Debug.LogWarning("제출후 temp apdata 초기화요");
+        if(actorId == 0)
+        {
+
+
+            apData.tempDef = 0;
+            apData.tempCast = 0;
+            apData.tempDam = 0;
+            apData.tempRum = 0;
+
+
+        }
         _globalActionCounter++;
         action.nthaction = _globalActionCounter;
         action.hasOtherExecutedSinceInsertion = false;
@@ -775,6 +817,7 @@ public class BattleManager : MonoBehaviour
                     var pop = Instantiate(popupPrefab, popupSpawnPoint.position, Quaternion.identity);
                     pop.Setup("PARRY!");
                 }
+                StartCoroutine(EffectActivator.Instance.ActivateEffects(NextActionMonitor.Instance.myNextAction, Phase.ParryingSucceed));
             }
             if (!success)
             {
@@ -792,7 +835,7 @@ public class BattleManager : MonoBehaviour
             
         }));
     }
-  public void AttackSequencePhase(ActionData action)
+  public void HitStopRendering(ActionData action)
     {
         //카드 효과 발동되는거랑 
         if (popupPrefab != null && popupSpawnPointOp != null)
@@ -806,17 +849,5 @@ public class BattleManager : MonoBehaviour
     }
 
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            //카드 효과 발동되는거랑 
-            if (popupPrefab != null && popupSpawnPointOp != null)
-            {
-                var pop = Instantiate(popupPrefabOp, popupSpawnPointOp.position, Quaternion.identity);
-                pop.Setup("10");
-            }
-        }
-
-    }
+   
 }

@@ -1,7 +1,5 @@
-#code,Phase,effectType,amount,flag
-c1,AttackSequence,damage,10,
-c2,AttackSequence,damage,10,
-c3,ParryingSucceed,add_Damage,5,
-c3,Activate,damage,10,
-c5,Drop,SuddenAttack_On,,
-c5,SuddenAttack,damage,15,
+#code,Phase,effectType,amount,extraString,flag
+c3,ParryingSucceed,add_Damage,5,,
+c5,Drop,SuddenAttack_On,,,
+c5,SuddenAttack,damage,15,,
+c6,Drop,Chant,,c7|c8,
