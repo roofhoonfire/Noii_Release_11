@@ -23,7 +23,10 @@ public enum CallableFunc
     // 네가 직접 늘려라
     AddStat,     // stats[flag] += value
     SetStat,     // stats[flag] = value
-    UnlockChoice // unlockedChoiceKeys.Add(stringKey)  (아래 Call에 stringKey도 지원)
+    UnlockChoice, // unlockedChoiceKeys.Add(stringKey)  (아래 Call에 stringKey도 지원)
+AddCard,
+AddItem,
+
 }
 
 [CreateAssetMenu(menuName = "Noii/Dialogue/Dialogue Graph Asset", fileName = "DialogueGraphAsset")]

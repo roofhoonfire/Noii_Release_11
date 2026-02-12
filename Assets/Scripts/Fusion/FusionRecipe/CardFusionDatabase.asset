@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: CardFusionDatabase
   m_EditorClassIdentifier: 
   recipes:
-  - outputCode: c5
+  - recipeId: f1
+    outputCode: c10
     inputCodes:
-    - c3
-    - c4
+    - c6
+    - c9
     cost: 0
     successRate: 1
-    note: 
+    note: "\uC554\uC2B5 + \uB9C8\uB098\uAC74 = \uD5C8\uC2DD \uBB34\uB77C\uC0AC\uD0A4"

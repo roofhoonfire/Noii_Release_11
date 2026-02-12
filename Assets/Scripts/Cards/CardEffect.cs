@@ -32,8 +32,3 @@ public enum EffectType
     Chant,
 }
 
-[CreateAssetMenu(menuName = "Noii/Card Effect SO", fileName = "CardEffectSO")]
-public class CardEffectSO : ScriptableObject
-{
-    public CardEffect[] cardeffects;
-}

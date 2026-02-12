@@ -1,0 +1,102 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0d3383e8f0d2248a79edee4f538755, type: 3}
+  m_Name: F1_D3_LangPatchVer1
+  m_EditorClassIdentifier: 
+  nodes:
+  - guid: 141fad358621440eafa064873329e887
+    speaker: 
+    text: "\uADF8\uC800 \uC4F8\uBAA8 \uC5C6\uB294 \uACE0\uCCA0\uC77C \uBFD0\uC77C\uC9C0\uB3C4
+      \uBAA8\uB978\uB2E4, \uB2E4\uB978 \uACF3\uC744 \uC0B4\uD3B4\uBCF4\uC790"
+    choices: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls: []
+    position: {x: 596, y: 220}
+  - guid: deff00485aba47baba02c31cf890edca
+    speaker: 
+    text: "\uB2E4\uB978 \uAE30\uACC4\uC7A5\uCE58\uB4E4\uACFC \uB3D9 \uB5A8\uC5B4\uC9C4
+      \uACF3\uC5D0 \uB179\uC774\uC2A8 \uD68C\uB85C\uD310\uC774 \uBCF4\uC778\uB2E4"
+    choices:
+    - choiceGuid: 6cf5a13faded4732a1616ae232e23572
+      text: "\uCC59\uACA8 \uAC04\uB2E4"
+      lockedAtFirst: 0
+      unlockKey: 
+      defaultNextGuid: 3aad8681c52f4210a04aa75328e91495
+      nextLinks: []
+      calls: []
+    - choiceGuid: 3c30ff8d6eaf44d6997dc048fec4938d
+      text: "\uADF8\uB9CC \uB454\uB2E4"
+      lockedAtFirst: 0
+      unlockKey: 
+      defaultNextGuid: 141fad358621440eafa064873329e887
+      nextLinks: []
+      calls: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 1
+    calls: []
+    position: {x: 93, y: 33}
+  - guid: 3aad8681c52f4210a04aa75328e91495
+    speaker: 
+    text: "\uB2F9\uC2E0\uC740 \uBCF8\uB2A5\uC801\uC73C\uB85C \uD68C\uB85C\uD310\uC774
+      \uC5B4\uB514\uC5D0 \uC4F0\uC774\uB294 \uC9C0 \uC54C\uACE0 \uC788\uB2E4"
+    choices: []
+    defaultNextGuid: a29f97b795204436adf9f4dcccddd51b
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls: []
+    position: {x: 634, y: -275}
+  - guid: a29f97b795204436adf9f4dcccddd51b
+    speaker: 
+    text: "\uB204\uAC00 \uAC00\uB974\uCCD0 \uC900 \uC801\uC740 \uC5C6\uC9C0\uB9CC,
+      \uB2F9\uC2E0\uC740 \uC790\uC5F0\uC2A4\uB7FD\uAC8C \uD68C\uB85C\uD310\uC744
+      \uBAB8\uC5D0 \uAC00\uC838\uB2E4 \uB304\uB2E4."
+    choices: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls:
+    - func: 4
+      flag: 0
+      value: 1
+      stringKey: i2
+    - func: 0
+      flag: 3
+      value: 20
+      stringKey: 
+    position: {x: 1151, y: -275}

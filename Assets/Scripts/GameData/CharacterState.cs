@@ -5,6 +5,7 @@ using UnityEngine;
 [Serializable]
 public class CharacterState
 {
+  
     public string characterId;
 
     public int maxHP = 100;
@@ -14,6 +15,11 @@ public class CharacterState
     public List<string> itemIds = new List<string>();
     public List<string> cardIds = new List<string>();
 
+    public int str = 5;
+    public int dex = 5;
+    public int def = 5;
+    public int intel = 5;
+    
     // 式式式式式式式式式式式式式式式式式式式式式式式式式式式式式
     // Dialogue / Graph State
     // (JsonUtility friendly)
@@ -76,4 +82,6 @@ public class CharacterState
         if (!unlockedChoiceKeys.Contains(unlockKey))
             unlockedChoiceKeys.Add(unlockKey);
     }
+
+ 
 }

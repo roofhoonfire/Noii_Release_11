@@ -41,7 +41,13 @@ public class SimpleTypewriterUI : MonoBehaviour
         if (panelRoot != null)
             panelRoot.SetActive(false);
     }
-
+ /*   public void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            Play("À¸¾Ó¾Ó");
+        }
+    }*/
     public void Play(string message)
     {
         if (_currentRoutine != null)

@@ -9,7 +9,7 @@ public class FieldPlayerController3D : MonoBehaviour
     public float moveSpeed = 5f;
 
     [Tooltip("물리 업데이트(FixedUpdate)에서 이동 처리할지 여부")]
-    public bool useFixedUpdate = true;
+    public bool useFixedUpdate = false;
 
 
     public Animator _animator;

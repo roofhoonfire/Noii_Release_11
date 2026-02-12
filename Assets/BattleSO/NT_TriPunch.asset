@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e96d5ce9341d0f54a89ab75df199a77c, type: 3}
+  m_Name: NT_TriPunch
+  m_EditorClassIdentifier: 
+  cardCode: c2
+  actionNotice: "\uC8FC\uBA39\uC744 \uBE60\uB974\uAC8C \uB0B4\uC9C0\uB985\uB2C8\uB2E4"
+  wideShot: 5
+  enemyShot: 3
+  playerPrepareClip: {fileID: 7400000, guid: 1a4925c9846a1e443b327c0425958f88, type: 2}
+  playerAttackClip: {fileID: 7400000, guid: 44fcb3e7c2f6f3442893b8bf2e352a2c, type: 2}
+  smallCutsceneClip: {fileID: 7400000, guid: a3f5f2df87f82c842a0ac0d5f9385cd6, type: 2}
+  enemyHitEffectClip: {fileID: 7400000, guid: 8a6a1927f89c8384498304ff98a9869b, type: 2}
+  useEnemyHitEffect: 1
+  hitStopInfos:
+  - index: 0
+    hitStopSeconds: 0.05
+    cameraShakeStrength: 0.21
+    enemyHitTrigger: 0
+  - index: 1
+    hitStopSeconds: 0.05
+    cameraShakeStrength: 0.21
+    enemyHitTrigger: 0
+  - index: 2
+    hitStopSeconds: 0.05
+    cameraShakeStrength: 0.21
+    enemyHitTrigger: 0

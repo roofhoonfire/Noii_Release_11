@@ -17,8 +17,8 @@ MonoBehaviour:
   maxHp: 100
   idleAnim: {fileID: 7400000, guid: 358d7e3f57cf1f14381e65c64484e2ec, type: 2}
   actions:
-  - cardCode: 
-    baseDamage: 0
+  - cardCode: noz1
+    baseDamage: 10
     baseDefense: 0
     baseRumble: 0
     baseActionClock: 7
@@ -35,7 +35,7 @@ MonoBehaviour:
     - startTime: 2.083333
       endTime: 2.25
       hitIndex: 2
-  - cardCode: 
+  - cardCode: noz2
     baseDamage: 0
     baseDefense: 0
     baseRumble: 0

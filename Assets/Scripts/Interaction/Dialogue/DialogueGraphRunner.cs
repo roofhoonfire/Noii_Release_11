@@ -237,9 +237,18 @@ public class DialogueGraphRunner
                     _state.UnlockChoice(c.stringKey);
                     break;
 
+                case CallableFunc.AddCard:
+                    break;
+
+                case CallableFunc.AddItem:
+                    _state.itemIds.Add(c.stringKey);
+                    break;
                 default:
                     Debug.LogWarning($"[DialogueGraphRunner] Unhandled func: {c.func}");
                     break;
+
+               
+            
             }
         }
     }

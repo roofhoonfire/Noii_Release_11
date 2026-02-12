@@ -99,7 +99,6 @@ public class OpenItemUI : MonoBehaviour
         cg.alpha = 0f;
         cg.DOFade(1f, 0.25f).SetEase(Ease.OutQuad);
 
-        // 현재 세이브 데이터에서 카드 목록 로드
         LoadOwnedItemsFromSave();
 
         // 페이지 정보 갱신
@@ -113,8 +112,7 @@ public class OpenItemUI : MonoBehaviour
     }
 
     /// <summary>
-    /// GameStateManager → CharacterState.cardIds 를 기반으로
-    /// 실제 Card 메타데이터 목록(_cards)을 채운다.
+    /// 아이템채움
     /// </summary>
     private void LoadOwnedItemsFromSave()
     {
@@ -134,7 +132,7 @@ public class OpenItemUI : MonoBehaviour
             return;
         }
 
-        // 카드 메타 DB(CSVLoader) 확인
+        // 아이템 메타 DB(CSVLoader) 확인
         if (CSVLoader.Instance == null || CSVLoader.Instance.runtimeItemSO == null ||
             CSVLoader.Instance.runtimeItemSO.items == null ||
             CSVLoader.Instance.runtimeItemSO.items.Length == 0)
@@ -143,7 +141,7 @@ public class OpenItemUI : MonoBehaviour
             return;
         }
 
-        // 보유 카드 ID 목록을 순회하며, 매칭되는 Card 메타를 찾아 리스트에 추가
+        // 보유 아이템 ID 목록을 순회하며, 매칭되는 아이템 메타를 찾아 리스트에 추가
         foreach (var code in ownerState.itemIds)
         {
             if (string.IsNullOrWhiteSpace(code))
@@ -152,7 +150,7 @@ public class OpenItemUI : MonoBehaviour
             Item item = CSVLoader.Instance.GetItemByCode(code);
             if (item != null)
             {
-                _items.Add(item); // 중복 코드가 있으면 여러 장으로 취급
+                _items.Add(item); // 
             }
             else
             {
@@ -164,7 +162,6 @@ public class OpenItemUI : MonoBehaviour
     }
 
     /// <summary>
-    /// 특정 페이지 인덱스의 카드들을 Grid에 인스턴스
     /// </summary>
     private void RenderPage(int pageIndex)
     {
@@ -214,7 +211,7 @@ public class OpenItemUI : MonoBehaviour
     }
 
     /// <summary>
-    /// Grid 내 기존 카드 오브젝트 삭제
+    /// Grid 내 기존 아이템 오브젝트 삭제
     /// </summary>
     private void ClearPage()
     {

@@ -68,18 +68,4 @@ public class ParryWindow
     // 선택: 몇 번째 타인지 표시하고 싶으면
     public int hitIndex;     // 0,1,2... (UI 연출 등에 쓸 수 있음)
 }
-[CreateAssetMenu(fileName = "EnemyDefinition", menuName = "Battle/EnemyDefinition")]
-public class EnemyDefinitionSO : ScriptableObject
-{
-    public string enemyId;
-    public string enemyName;
-    public int maxHp = 100;
 
-
-
-    [Header("Animations")]
-    public AnimationClip idleAnim;
-
-    [Tooltip("이 몹이 사용할 수 있는 액션 템플릿들")]
-    public List<EnemyActionTemplate> actions = new();
-}

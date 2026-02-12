@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0d3383e8f0d2248a79edee4f538755, type: 3}
+  m_Name: F1_D2_Garin'sLetter 1
+  m_EditorClassIdentifier: 
+  nodes:
+  - guid: e552db50f942403e91041557d081b86d
+    speaker: 
+    text: "\uBB34\uC5B8\uAC00 \uC5F4\uC2EC\uD788 \uC801\uD600\uC788\uC73C\uB098,
+      \uC804\uD600 \uD574\uC11D\uD560 \uC218 \uC5C6\uB2E4"
+    choices: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 1
+    entryRule:
+      flag: 2
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 1
+    calls: []
+    position: {x: -174, y: -1102}
+  - guid: b3d7b51eeb4e45a2bbe5c1ea82b59a5b
+    speaker: 
+    text: "\uB204\uAD70\uAC00\uAC00 \uC5F4\uC2EC\uD788 \uC801\uC740 \uD3B8\uC9C0\uC774\uB2E4"
+    choices: []
+    defaultNextGuid: 50dbb05439634fca87c38ed364101e11
+    nextLinks: []
+    isEntryCandidate: 1
+    entryRule:
+      flag: 3
+      op: 1
+      value: 10
+    entryPriority: 1
+    isDefaultEntry: 0
+    calls: []
+    position: {x: 258, y: -1102}
+  - guid: 50dbb05439634fca87c38ed364101e11
+    speaker: 
+    text: "\uB4A4\uB85C \uAC08\uC218\uB85D \uBB34\uC5B8\uAC00\uC5D0 \uCAD3\uAE30\uB4EF
+      \uD718\uAC08\uACA8 \uB0B4\uB824\uAC04 \uB290\uB08C\uC774\uB2E4"
+    choices: []
+    defaultNextGuid: eab520e15747453bbbc3a22ba7917f37
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls: []
+    position: {x: 624, y: -998}
+  - guid: eab520e15747453bbbc3a22ba7917f37
+    speaker: 
+    text: "\uD3B8\uC9C0\uC5D0 \uBB3B\uC740 \uC789\uD06C\uB294 \uC624\uB79C \uC2DC\uAC04\uC774
+      \uD758\uB800\uC74C\uC744 \uC554\uC2DC\uD558\uB4EF \uB531\uB531\uD558\uAC8C
+      \uAD73\uC5B4\uC788\uB2E4\n\uBB38\uC9C0\uB974\uBA74 \uC27D\uAC8C \uB5A8\uC5B4\uC9C8
+      \uAC83\uB9CC \uAC19\uB2E4"
+    choices: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls: []
+    position: {x: 1151, y: -1089}

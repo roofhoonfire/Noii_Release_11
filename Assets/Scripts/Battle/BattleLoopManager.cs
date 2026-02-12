@@ -35,7 +35,7 @@ public class BattleManager : MonoBehaviour
 
     public InGameAPData apData = new InGameAPData();
 
-    [Header("PlayerDeck")]
+    [Header("PlayerFormula")]
     [SerializeField] List<string> CombFormula;
 
 
@@ -88,6 +88,9 @@ public class BattleManager : MonoBehaviour
 
     [SerializeField] private Transform popupSpawnPoint;
     [SerializeField] private Transform popupSpawnPointOp;
+
+
+    public IReadOnlyList<string> OwnedFusionRecipeIds => CombFormula;
 
     private void Awake()
     {
@@ -270,6 +273,7 @@ public class BattleManager : MonoBehaviour
         }
 
         InitActionBeforeInsert(action, inGameEnemy.actorId);
+        NextActionMonitor.Instance.SetOpNextAction(action);
 
         _actionQueue.Add(new QueuedAction
         {
@@ -706,37 +710,72 @@ public class BattleManager : MonoBehaviour
             // TODO: 나중에 parrySuccessCount / wasParried 보고 데미지/카운터 처리
             yield break;
         }
+
+        //올드타입만 있는 경우임
+        /* if (actorId == Player.actorId)
+         {
+             // (예시) "공격 카드"라는 전제. 너의 게임 규칙에 맞춰 조건을 더 엄격히 하면 됨.
+             // myAction.cardcode로 SO를 찾는다.
+             var seq = PlayerAttackSequenceDatabase.Instance.Get(myAction.cardcode);
+             if (seq != null)
+             {
+
+                 //노티스 띄우기
+
+                 yield return SimpleTypewriterUI.Instance.TypeAndCloseRoutine(seq.actionNotice);
+
+                 // 여기서 “연출 전체”를 기다린다.
+                 yield return PlayerAttackSequenceDirector.Instance.Play(seq, myAction);
+
+                 // 연출이 끝난 뒤에 실제 데미지/상태이상 적용을 할지,
+                 // 아니면 연출 도중 특정 타이밍에 적용할지는 네가 선택.
+                 // (일단 지금은 연출 끝나고 적용하는 형태로 두자.)
+                // ApplyDamageToEnemy(myAction.damage);
+
+                 yield break;
+             }
+             else
+             {
+                 Debug.LogWarning($"[Battle] No PlayerAttackSequenceSO for cardcode={myAction.cardcode}");
+                 // 시퀀스 없으면 최소한의 처리라도
+                // ApplyDamageToEnemy(myAction.damage);
+                 yield break;
+             }
+         }*/
+
         if (actorId == Player.actorId)
         {
-            // (예시) "공격 카드"라는 전제. 너의 게임 규칙에 맞춰 조건을 더 엄격히 하면 됨.
-            // myAction.cardcode로 SO를 찾는다.
-            var seq = PlayerAttackSequenceDatabase.Instance.Get(myAction.cardcode);
-            if (seq != null)
+            if (myAction.tileType == 0)
             {
-
-                //노티스 띄우기
-
-                yield return SimpleTypewriterUI.Instance.TypeAndCloseRoutine(seq.actionNotice);
-
-                // 여기서 “연출 전체”를 기다린다.
-                yield return PlayerAttackSequenceDirector.Instance.Play(seq, myAction);
-
-                // 연출이 끝난 뒤에 실제 데미지/상태이상 적용을 할지,
-                // 아니면 연출 도중 특정 타이밍에 적용할지는 네가 선택.
-                // (일단 지금은 연출 끝나고 적용하는 형태로 두자.)
-               // ApplyDamageToEnemy(myAction.damage);
-
+                var seq = PlayerAttackSequenceDatabase.Instance.Get(myAction.cardcode);
+                if (seq != null)
+                {
+                    yield return SimpleTypewriterUI.Instance.TypeAndCloseRoutine(seq.actionNotice);
+                    yield return PlayerAttackSequenceDirector.Instance.Play(seq, myAction);
+                }
+                else
+                {
+                    Debug.LogWarning($"[Battle] No PlayerAttackSequenceSO for cardcode={myAction.cardcode}");
+                }
                 yield break;
             }
-            else
+            else if (myAction.tileType == 1)
             {
-                Debug.LogWarning($"[Battle] No PlayerAttackSequenceSO for cardcode={myAction.cardcode}");
-                // 시퀀스 없으면 최소한의 처리라도
-               // ApplyDamageToEnemy(myAction.damage);
+                var seq2 = NewTypePlayerAttackSequenceDatabase.Instance.Get(myAction.cardcode);
+                if (seq2 != null)
+                {
+                    // 노티스는 뉴타입 디렉터가 내부에서 처리함(요구사항)
+                    yield return NewTypePlayerAttackSequenceDirector.Instance.Play(seq2, myAction);
+                }
+                else
+                {
+                    Debug.LogWarning($"[Battle] No NewTypePlayerAttackSequenceSO for cardcode={myAction.cardcode}");
+                }
                 yield break;
             }
+
+            yield break;
         }
-
 
 
         // TODO: 여기 나중에 플레이어 공격, 이동, 몹 비패링 공격 등 집어넣기

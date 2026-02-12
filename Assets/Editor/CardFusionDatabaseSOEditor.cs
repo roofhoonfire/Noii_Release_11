@@ -114,6 +114,9 @@ public class CardFusionDatabaseSOEditor : Editor
             recipesProp.arraySize++;
             var el = recipesProp.GetArrayElementAtIndex(recipesProp.arraySize - 1);
 
+
+            el.FindPropertyRelative("recipeId").stringValue = ""; //  추가
+
             el.FindPropertyRelative("outputCode").stringValue = "";
 
             var inputs = el.FindPropertyRelative("inputCodes");
@@ -132,6 +135,8 @@ public class CardFusionDatabaseSOEditor : Editor
     // ─────────────────────────────
     private void DrawRecipeElement_Layout(SerializedProperty element, int index)
     {
+        var idProp = element.FindPropertyRelative("recipeId");   // 추가
+
         var outputProp = element.FindPropertyRelative("outputCode");
         var inputsProp = element.FindPropertyRelative("inputCodes");
         var costProp = element.FindPropertyRelative("cost");
@@ -148,6 +153,11 @@ public class CardFusionDatabaseSOEditor : Editor
 
         EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
         EditorGUILayout.Space(2);
+
+
+        if (idProp != null)
+            EditorGUILayout.PropertyField(idProp, new GUIContent("Fusion ID"));
+
 
         EditorGUILayout.PropertyField(outputProp, new GUIContent("Output Code"));
 
@@ -252,6 +262,8 @@ public class CardFusionDatabaseSOEditor : Editor
     // ─────────────────────────────
     private bool PassFilter(SerializedProperty element)
     {
+        var idProp = element.FindPropertyRelative("recipeId");   // 추가
+
         var outputProp = element.FindPropertyRelative("outputCode");
         var inputsProp = element.FindPropertyRelative("inputCodes");
         var noteProp = element.FindPropertyRelative("note");

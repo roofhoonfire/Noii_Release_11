@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0d3383e8f0d2248a79edee4f538755, type: 3}
+  m_Name: F1_D4_LangPatchUse
+  m_EditorClassIdentifier: 
+  nodes:
+  - guid: deff00485aba47baba02c31cf890edca
+    speaker: 
+    text: "\uD328\uCE58\uB294 \uC774\uBBF8 \uBAB8\uC5D0 \uBD80\uCC29\uB418\uC5B4\uC788\uB2E4"
+    choices: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 1
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 1
+    calls: []
+    position: {x: 125, y: 40}

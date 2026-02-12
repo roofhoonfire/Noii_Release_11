@@ -38,3 +38,11 @@ MonoBehaviour:
     hitStopSeconds: 0.05
     cameraShakeStrength: 0.21
     enemyHitTrigger: 0
+  - index: 1
+    hitStopSeconds: 0.05
+    cameraShakeStrength: 0.21
+    enemyHitTrigger: 0
+  - index: 2
+    hitStopSeconds: 0.05
+    cameraShakeStrength: 0.21
+    enemyHitTrigger: 0

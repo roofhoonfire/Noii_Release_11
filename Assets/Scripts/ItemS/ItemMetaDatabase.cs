@@ -56,7 +56,7 @@ public static class ItemMetaDatabase // 이름은 데이터 베이스지만 실제 메타 데이�
                 itemType= TryParseInt(cols[1], 0),
                 name = cols[2].Trim(),
                 sprite = LoadSprite(cols[3]),
-                itemText = cols[3].Trim(),  // 원문 템플릿 그대로 저장(개행은 표시 시 변환)
+                itemText = cols[4].Trim(),  // 원문 템플릿 그대로 저장(개행은 표시 시 변환)
             };
         }
         catch (Exception e)

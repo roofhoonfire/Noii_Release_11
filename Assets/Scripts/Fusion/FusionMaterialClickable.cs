@@ -6,6 +6,8 @@ public class FusionMaterialClickable : MonoBehaviour, IPointerClickHandler
     [Header("Refs")]
     [SerializeField] private EachCardInfo eachCardInfo;
 
+    [Header("Highlight")]
+    [SerializeField] private GameObject highlightGO;
     [Header("Options")]
     [SerializeField] private bool logClick = false;
 
@@ -19,6 +21,9 @@ public class FusionMaterialClickable : MonoBehaviour, IPointerClickHandler
     {
         if (eachCardInfo == null)
             eachCardInfo = GetComponent<EachCardInfo>();
+
+        SetHighlighted(false);
+
     }
 
     // UI 클릭(캔버스 위 카드라면 이쪽이 들어옴)
@@ -71,7 +76,10 @@ public class FusionMaterialClickable : MonoBehaviour, IPointerClickHandler
         if (logClick)
             Debug.Log($"[Fusion] material clicked: {code}");
 
-        CardFusionState.Instance.SelectMaterial(code);
+        //CardFusionState.Instance.SelectMaterial(code);
+        bool selectedNow = CardFusionState.Instance.ToggleMaterial(this, code);
+        SetHighlighted(selectedNow);
+
     }
 
     private string GetCodeFromCardData(Card cardData)
@@ -109,5 +117,10 @@ public class FusionMaterialClickable : MonoBehaviour, IPointerClickHandler
         }
        */
         return null;
+    }
+    public void SetHighlighted(bool on)
+    {
+        if (highlightGO != null)
+            highlightGO.SetActive(on);
     }
 }

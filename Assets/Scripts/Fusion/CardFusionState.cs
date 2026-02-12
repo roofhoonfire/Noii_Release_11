@@ -6,9 +6,10 @@ using UnityEngine;
 /// <summary>
 /// 배틀 씬에서 카드 합성(레시피 기반) 미리보기/생성 관리.
 /// - Singleton
-/// - 재료 선택 -> 재료 리스트에 추가
-/// - 재료 2개 이상이면 가능한 합성 결과(들) 프리뷰 생성
-/// - 합성 실행(현재는 Debug.Log만)
+/// - 재료(카드 오브젝트) 선택/토글
+/// - 보유 레시피(CombFormula) 기반 프리뷰 출력
+/// - 프리뷰 클릭으로 결과 선택 -> 합성 확정(데이터+UI 반영)
+/// - 연속 합성 가능
 /// </summary>
 public class CardFusionState : MonoBehaviour
 {
@@ -18,12 +19,12 @@ public class CardFusionState : MonoBehaviour
     [SerializeField] private CardFusionDatabaseSO fusionDB;
 
     [Header("Fusion Result Preview")]
-    [SerializeField] private Transform previewSpawnRoot;      // Canvas 하위에 지정 (FusionPreviewRoot)
-    [SerializeField] private GameObject previewCardPrefab;     // EachCardInfo가 붙은 프리뷰용 카드 프리팹
+    [SerializeField] private Transform previewSpawnRoot;
+    [SerializeField] private GameObject previewCardPrefab;
     [SerializeField] private bool clearPreviewOnNoResult = true;
-    
+
     [Header("Card UI")]
-    [Tooltip("재료로 쓰일 카드들 인포")]
+    [Tooltip("재료로 쓰일 카드들 프리팹")]
     [SerializeField] public GameObject cardPrefab;
     [SerializeField] public RectTransform cardContentArea;
     public List<GameObject> spawnedCards = new List<GameObject>();
@@ -31,7 +32,7 @@ public class CardFusionState : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private bool logSelection = true;
 
-    // 재료들(카드 코드)
+    // 재료들(카드 코드) - 결과 계산용(외부 노출용 유지)
     [SerializeField] private List<string> materials = new List<string>(3);
 
     // 현재 떠있는 프리뷰 인스턴스들
@@ -40,8 +41,16 @@ public class CardFusionState : MonoBehaviour
     // 현재 계산된 "가능한 결과 코드들"
     private readonly List<string> _currentResultCodes = new List<string>(8);
 
+    // 선택 관리(같은 오브젝트 토글을 위해)
+    private readonly Dictionary<FusionMaterialClickable, string> _selectedBySource = new();
+    private readonly List<FusionMaterialClickable> _selectedOrder = new(3);
 
-    //그,외
+    // 상태
+    private enum FusionPhase { SelectingMaterials, SelectingResult }
+    private FusionPhase _phase = FusionPhase.SelectingMaterials;
+    private bool IsSelectingResult => _phase == FusionPhase.SelectingResult;
+
+    // loop
     public bool isActive = false;
     private Coroutine _fusionCoroutine;
 
@@ -55,28 +64,24 @@ public class CardFusionState : MonoBehaviour
         Instance = this;
     }
 
-    /// <summary>
-    /// 재료 선택 함수
-    /// - code를 materials에 추가
-    /// - materials.Count >= 2면 결과 프리뷰 갱신
-    /// </summary>
-    /// 
-
+    // ─────────────────────────────────────────────
+    // Public control
+    // ─────────────────────────────────────────────
     public void SetActive(bool active)
     {
-        // 기존 호출 호환: ChooseLoop 경로는 인터랙티브로 취급
-
         if (active == isActive) return;
         isActive = active;
 
-        if (isActive)
-        {
-            //아직은 여기 코루틴으로 할 필요를 못느껴서 카드 포퓰레이트만 할예정 추후
-            //필요하다 싶으면 코루틴으로 바꿔주기
-            StartFusionLoop();
-        }
+        if (isActive) StartFusionLoop();
         else StopFusionLoop();
     }
+
+    private void StartFusionLoop()
+    {
+        if (_fusionCoroutine == null)
+            _fusionCoroutine = StartCoroutine(FusionLoop());
+    }
+
     private void StopFusionLoop()
     {
         if (_fusionCoroutine != null)
@@ -84,75 +89,79 @@ public class CardFusionState : MonoBehaviour
             StopCoroutine(_fusionCoroutine);
             _fusionCoroutine = null;
         }
+
         isActive = false;
-
-        // ★ 인터랙티브일 때만 Think_Done 트리거
-      
-
-       StartCoroutine(CloseHandsThenReturn());
+        StartCoroutine(CloseHandsThenReturn());
     }
 
-    private void StartFusionLoop()
-    {
-        // ★ 인터랙티브일 때만 생각 모션 트리거
-
-        //    var anim = meGo.GetComponentInChildren<Animator>();
-        //    if (anim) anim.SetTrigger("Trig_Think");
-
-
-        if (_fusionCoroutine == null)
-            _fusionCoroutine = StartCoroutine(FusionLoop());
-    }
-
-    private IEnumerator FusionLoop()
-    {
-        PopulateCards();
-        materials.Clear();
-        while (isActive)
-        {
-           
-            // ESC 취소
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                CancelAndReturn();     // ← 필드로 체크
-                yield break;
-            }
-
-            yield return null;
-        }
-    }
     public void CancelAndReturn()
     {
-       
         if (_fusionCoroutine != null)
         {
             StopCoroutine(_fusionCoroutine);
             _fusionCoroutine = null;
         }
-        isActive = false;
 
-        // 카드 제거 → 손 사라짐 애니 → ChooseLoop 복귀
+        isActive = false;
         StartCoroutine(CloseHandsThenReturn());
     }
 
     private IEnumerator CloseHandsThenReturn()
     {
-     
+        // 선택/프리뷰/버퍼 모두 정리
+        ClearPreview();
+        ClearMaterials();
+        ExitResultSelection();
+
         ClearAllCards();
-     
+
+        // 기존 흐름 유지
+        yield return BattleCameraDirector.Instance.SetShotAndWait(BattleCameraDirector.ShotId.Back);
+        BattleManager.Instance.AnotherModeDone();
         yield return null;
     }
+
+    // ─────────────────────────────────────────────
+    // Main Loop
+    // ─────────────────────────────────────────────
+    private IEnumerator FusionLoop()
+    {
+        PopulateCards();
+        ClearMaterials();
+        ExitResultSelection();
+
+        while (isActive)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                CancelAndReturn();
+                yield break;
+            }
+
+            // 결과 선택 모드면 버퍼 소비
+            if (IsSelectingResult)
+                TryConsumeSelectionBuffer();
+
+            yield return null;
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // Card UI Spawn
+    // ─────────────────────────────────────────────
     private void ClearAllCards()
     {
-        for (int i = cardContentArea.childCount - 1; i >= 0; i--)
-            Destroy(cardContentArea.GetChild(i).gameObject);
-
+        if (cardContentArea != null)
+        {
+            for (int i = cardContentArea.childCount - 1; i >= 0; i--)
+                Destroy(cardContentArea.GetChild(i).gameObject);
+        }
         spawnedCards.Clear();
     }
+
     private void PopulateCards()
     {
         spawnedCards.Clear();
-
 
         foreach (string code in BattleManager.Instance.apData.hands)
         {
@@ -173,95 +182,157 @@ public class CardFusionState : MonoBehaviour
             if (info == null) { Debug.LogWarning("EachCardInfo 없음"); continue; }
 
             info.cardData = CSVLoader.Instance.GetCardByCode(code);
-
-            /*     if (anim != null)
-                 {
-                     var deferrer = cardGO.GetComponent<CardApplyDeferrer>();
-                     if (deferrer == null) deferrer = cardGO.AddComponent<CardApplyDeferrer>();
-                     deferrer.Bind(
-                         info, anim,
-                         idleStateName: "Card_Actioin_Idle",
-                         layerIndex: 0,
-                         requireInitStateName: "Card_Actioin_Init"
-                     );
-                 }*/
-            //else
-            //{
-            info.ApplyCardData(); // 애니 없으면 즉시 적용
-            //}
+            info.ApplyCardData();
         }
-
-        // ★ 여기 추가: 이번 생성 라운드 버전 고유값 부여 후, 모두 적용될 때까지 기다렸다가 업그레이드 호출
-        //  StartCoroutine(WaitCardsAppliedThenUpgrade(apData, myVersion));
 
         Debug.Log("합성재료 생성완료");
     }
-    public void SelectMaterial(string code)
+
+    private void SpawnResultCardUI(string code)
     {
-        if (string.IsNullOrWhiteSpace(code))
+        if (string.IsNullOrWhiteSpace(code)) return;
+        code = code.Trim();
+
+        var cardGO = Instantiate(cardPrefab, cardContentArea);
+        spawnedCards.Add(cardGO);
+
+        if (BattleManager.Instance.apData.isBlinded)
+        {
+            Transform visualRoot = cardGO.transform.Find("VisualRoot");
+            if (visualRoot != null)
+            {
+                Transform blood = visualRoot.Find("BloodShed");
+                if (blood != null) blood.gameObject.SetActive(true);
+            }
+        }
+
+        var info = cardGO.GetComponent<EachCardInfo>();
+        if (info == null)
+        {
+            Debug.LogWarning("[Fusion] 결과 카드에 EachCardInfo 없음");
             return;
+        }
+
+        var cardData = CSVLoader.Instance.GetCardByCode(code);
+        if (cardData == null)
+        {
+            Debug.LogWarning($"[Fusion] 결과 카드 코드 못 찾음: {code}");
+            return;
+        }
+
+        info.cardData = cardData;
+        info.ApplyCardData();
+    }
+
+    // ─────────────────────────────────────────────
+    // Material selection (object-based toggle)
+    // ─────────────────────────────────────────────
+    public bool ToggleMaterial(FusionMaterialClickable source, string code)
+    {
+        if (source == null) return false;
+        if (string.IsNullOrWhiteSpace(code)) return false;
 
         code = code.Trim();
 
-        // 재료 최대 3개. 초과하면 무시(원하면 FIFO로 바꿔도 됨)
-        if (materials.Count >= 3)
+        // 이미 선택된 오브젝트면 해제
+        if (_selectedBySource.ContainsKey(source))
         {
-            Debug.LogWarning("[Fusion] 재료는 최대 3개입니다.");
-            return;
+            _selectedBySource.Remove(source);
+            _selectedOrder.Remove(source);
+
+            RebuildMaterialsFromSelection();
+
+            // 선택이 바뀌었으니 프리뷰/모드 갱신
+            RefreshPreview();
+
+            // 1개 남았으면 “가능 여부” 로그
+            if (materials.Count == 1)
+                LogIfNoCraftableFromSingle(materials[0]);
+
+            // 결과 선택 모드였는데 재료가 바뀌면 버퍼 꼬이기 쉬우니
+            if (materials.Count < 2)
+                ExitResultSelection();
+
+            return false;
         }
 
-        materials.Add(code);
+        // 새 선택
+        if (_selectedOrder.Count >= 3)
+        {
+            Debug.LogWarning("[Fusion] 재료는 최대 3개입니다.");
+            return false;
+        }
+
+        _selectedBySource[source] = code;
+        _selectedOrder.Add(source);
+
+        RebuildMaterialsFromSelection();
 
         if (logSelection)
-            Debug.Log($"[Fusion] SelectMaterial: {code} (count={materials.Count})");
+            Debug.Log($"[Fusion] SelectMaterial(Obj): {code} (count={materials.Count})");
+
+        // 1개 선택인데 아무 레시피도 없으면 로그
+        if (materials.Count == 1)
+            LogIfNoCraftableFromSingle(materials[0]);
 
         RefreshPreview();
+        return true;
     }
 
-    /// <summary>
-    /// 재료 전체 초기화
-    /// </summary>
-    public void ClearMaterials()
+    private void RebuildMaterialsFromSelection()
     {
         materials.Clear();
+        for (int i = 0; i < _selectedOrder.Count; i++)
+        {
+            var src = _selectedOrder[i];
+            if (src == null) continue;
+
+            if (_selectedBySource.TryGetValue(src, out var c) && !string.IsNullOrWhiteSpace(c))
+                materials.Add(c);
+        }
+    }
+
+    public void ClearMaterials()
+    {
+        // 하이라이트 OFF
+        for (int i = 0; i < _selectedOrder.Count; i++)
+        {
+            var src = _selectedOrder[i];
+            if (src != null) src.SetHighlighted(false);
+        }
+
+        _selectedBySource.Clear();
+        _selectedOrder.Clear();
+        materials.Clear();
+
         RefreshPreview();
     }
 
-    /// <summary>
-    /// 마지막 재료 하나 취소
-    /// </summary>
     public void UndoLastMaterial()
     {
-        if (materials.Count == 0) return;
-        materials.RemoveAt(materials.Count - 1);
-        RefreshPreview();
-    }
+        if (_selectedOrder.Count == 0) return;
 
-    /// <summary>
-    /// 합성될 카드 생성 함수 (현재는 로그만)
-    /// </summary>
-    public void CreateFusedCard(string code)
-    {
-        if (string.IsNullOrWhiteSpace(code)) return;
-        Debug.Log($"{code.Trim()} 카드 생성!");
+        var last = _selectedOrder[_selectedOrder.Count - 1];
+        _selectedOrder.RemoveAt(_selectedOrder.Count - 1);
+        if (last != null)
+        {
+            _selectedBySource.Remove(last);
+            last.SetHighlighted(false);
+        }
+
+        RebuildMaterialsFromSelection();
+        RefreshPreview();
     }
 
     // ─────────────────────────────────────────────
-    // Preview
+    // Preview (owned recipe only)
     // ─────────────────────────────────────────────
     private void RefreshPreview()
     {
-        if (fusionDB == null)
+        if (fusionDB == null || previewSpawnRoot == null || previewCardPrefab == null)
         {
-            Debug.LogWarning("[Fusion] fusionDB가 연결되지 않음");
             ClearPreview();
-            return;
-        }
-
-        if (previewSpawnRoot == null || previewCardPrefab == null)
-        {
-            Debug.LogWarning("[Fusion] previewSpawnRoot / previewCardPrefab이 연결되지 않음");
-            ClearPreview();
+            ExitResultSelection();
             return;
         }
 
@@ -269,42 +340,57 @@ public class CardFusionState : MonoBehaviour
         if (materials.Count < 2)
         {
             ClearPreview();
+            ExitResultSelection();
             return;
         }
 
-        // 가능한 결과 코드들 계산
         _currentResultCodes.Clear();
         CollectPossibleOutputs(materials, _currentResultCodes);
 
         if (_currentResultCodes.Count == 0)
         {
             if (clearPreviewOnNoResult) ClearPreview();
+            ExitResultSelection();
             return;
         }
 
-        // 프리뷰 재생성(간단하고 확실)
         RebuildPreviewObjects(_currentResultCodes);
+        EnterResultSelection();
     }
 
-    /// <summary>
-    /// 현재 materials 상태에서 가능한 output들을 모은다.
-    /// 규칙:
-    /// - 재료가 2개면: 그 2개 조합 결과 + (추가 재료 1개로 확장 가능한 3재료 레시피의 "후보"도 보여줄지?) -> 여기선 "현재 재료로 완성되는 것만" 표시
-    /// - 재료가 3개면: 3개 조합 결과
-    ///
-    /// 중요: 지금은 "현재 재료로 완성되는 레시피"만 프리뷰한다.
-    /// </summary>
-    private void CollectPossibleOutputs(List<string> currentMaterials, List<string> outputs)
+    private HashSet<string> BuildOwnedRecipeIdSet()
     {
-        // 현재 재료 그대로 완성되는 결과만 체크
-        if (fusionDB.TryGetOutput(currentMaterials, out var output))
+        var set = new HashSet<string>(StringComparer.Ordinal);
+
+        if (BattleManager.Instance == null) return set;
+
+        // BattleManager에 OwnedFusionRecipeIds 게터를 만들어둔 상태를 가정
+        var owned = BattleManager.Instance.OwnedFusionRecipeIds;
+        if (owned == null) return set;
+
+        for (int i = 0; i < owned.Count; i++)
         {
-            outputs.Add(output);
+            var id = owned[i];
+            if (!string.IsNullOrWhiteSpace(id))
+                set.Add(id.Trim());
         }
 
-        // 만약 "한 재료가 여러 카드(동일 키 중복)"를 허용하고 싶으면
-        // DB 구조를 key->List로 바꿔야 하는데, 우리는 중복을 경고로 막는 구조라 여기선 1개만 나옴.
-        // 향후 "복수 결과"가 필요하면 DB를 확장해줄게.
+        return set;
+    }
+
+    private void CollectPossibleOutputs(List<string> currentMaterials, List<string> outputs)
+    {
+        var owned = BuildOwnedRecipeIdSet();
+
+        // 현재 재료로 완성되는 레시피를 얻고, 그 레시피ID를 내가 보유했을 때만 출력
+        if (fusionDB.TryGetRecipe(currentMaterials, out var recipe) && recipe != null)
+        {
+            if (!string.IsNullOrWhiteSpace(recipe.recipeId) && owned.Contains(recipe.recipeId.Trim()))
+            {
+                if (!string.IsNullOrWhiteSpace(recipe.outputCode))
+                    outputs.Add(recipe.outputCode.Trim());
+            }
+        }
     }
 
     private void RebuildPreviewObjects(List<string> resultCodes)
@@ -318,11 +404,14 @@ public class CardFusionState : MonoBehaviour
 
             var cardGO = Instantiate(previewCardPrefab, previewSpawnRoot);
 
-            // EachCardInfo 적용
+            // WhichCardSelected가 프리팹에 없다면 보장
+            if (cardGO.GetComponent<WhichCardSelected>() == null)
+                cardGO.AddComponent<WhichCardSelected>();
+
             var info = cardGO.GetComponent<EachCardInfo>();
             if (info == null)
             {
-                Debug.LogWarning("[Fusion] EachCardInfo 없음");
+                Debug.LogWarning("[Fusion] Preview EachCardInfo 없음");
                 Destroy(cardGO);
                 continue;
             }
@@ -330,7 +419,7 @@ public class CardFusionState : MonoBehaviour
             var cardData = CSVLoader.Instance.GetCardByCode(code);
             if (cardData == null)
             {
-                Debug.LogWarning($"[Fusion] CSVLoader에서 카드 코드 못 찾음: {code}");
+                Debug.LogWarning($"[Fusion] Preview 카드 코드 못 찾음: {code}");
                 Destroy(cardGO);
                 continue;
             }
@@ -353,7 +442,152 @@ public class CardFusionState : MonoBehaviour
     }
 
     // ─────────────────────────────────────────────
-    // (선택) 외부에서 현재 결과를 쓰고 싶을 때
+    // SelectionBuffer phase handling
+    // ─────────────────────────────────────────────
+    private void EnterResultSelection()
+    {
+        if (_phase == FusionPhase.SelectingResult) return;
+
+        _phase = FusionPhase.SelectingResult;
+
+        if (SelectionBuffer.Instance != null)
+            SelectionBuffer.Instance.BeginSelection();
+        else
+            Debug.LogWarning("[Fusion] SelectionBuffer.Instance가 없음 (결과 선택 불가)");
+    }
+
+    private void ExitResultSelection()
+    {
+        _phase = FusionPhase.SelectingMaterials;
+
+        // 버퍼 꼬임 방지용 리셋
+        if (SelectionBuffer.Instance != null)
+            SelectionBuffer.Instance.BeginSelection();
+    }
+
+    private void TryConsumeSelectionBuffer()
+    {
+        var buf = SelectionBuffer.Instance;
+        if (buf == null) return;
+
+        if (!buf.isSelectingDone) return;
+
+        string resultCode = buf.selectedResultCode;
+        if (string.IsNullOrWhiteSpace(resultCode))
+        {
+            buf.BeginSelection();
+            return;
+        }
+
+        resultCode = resultCode.Trim();
+
+        // 안전장치: 현재 후보 중 하나만 허용
+        if (!_currentResultCodes.Contains(resultCode))
+        {
+            Debug.LogWarning($"[Fusion] 선택된 결과가 현재 후보에 없음: {resultCode}");
+            buf.BeginSelection();
+            return;
+        }
+
+        ExecuteFusion(resultCode);
+
+        // 다음 합성을 위해 버퍼 리셋
+        buf.BeginSelection();
+        ExitResultSelection();
+    }
+
+    // ─────────────────────────────────────────────
+    // Execute Fusion (data + UI)
+    // ─────────────────────────────────────────────
+    private void ExecuteFusion(string resultCode)
+    {
+        // 스냅샷
+        var usedCodes = new List<string>(materials);
+        var usedSources = new List<FusionMaterialClickable>(_selectedOrder);
+
+        var apData = BattleManager.Instance.apData;
+
+        // 1) apData 업데이트
+        for (int i = 0; i < usedCodes.Count; i++)
+        {
+            string c = usedCodes[i];
+            if (string.IsNullOrWhiteSpace(c)) continue;
+
+            apData.hands.Remove(c);
+
+            //  여기 필드명은 너 프로젝트에 맞춰라 (trash / trahs 등)
+            apData.trash.Add(c);
+        }
+
+        apData.hands.Add(resultCode);
+
+        // 2) UI에서 재료 카드 제거
+        for (int i = 0; i < usedSources.Count; i++)
+        {
+            var src = usedSources[i];
+            if (src == null) continue;
+
+            var go = src.gameObject;
+            if (go != null)
+            {
+                spawnedCards.Remove(go);
+                Destroy(go);
+            }
+        }
+
+        // 3) 프리뷰 제거
+        ClearPreview();
+        _currentResultCodes.Clear();
+
+        // 4) 선택 상태 초기화
+        ClearMaterials();
+
+        // 5) 결과 카드 UI 생성
+        SpawnResultCardUI(resultCode);
+    }
+
+    // ─────────────────────────────────────────────
+    // Single material log
+    // ─────────────────────────────────────────────
+    private void LogIfNoCraftableFromSingle(string singleCode)
+    {
+        if (fusionDB == null) return;
+        if (string.IsNullOrWhiteSpace(singleCode)) return;
+        singleCode = singleCode.Trim();
+
+        var owned = BuildOwnedRecipeIdSet();
+        var recipes = fusionDB.Recipes;
+        if (owned.Count == 0 || recipes == null || recipes.Count == 0)
+        {
+            Debug.Log("그 카드로는 아무것도 못만들지롱~~");
+            return;
+        }
+
+        for (int i = 0; i < recipes.Count; i++)
+        {
+            var r = recipes[i];
+            if (r == null) continue;
+
+            if (string.IsNullOrWhiteSpace(r.recipeId)) continue;
+            if (!owned.Contains(r.recipeId.Trim())) continue;
+
+            if (r.inputCodes == null) continue;
+
+            for (int k = 0; k < r.inputCodes.Count; k++)
+            {
+                var inCode = r.inputCodes[k];
+                if (string.IsNullOrWhiteSpace(inCode)) continue;
+
+                if (string.Equals(inCode.Trim(), singleCode, StringComparison.Ordinal))
+                    return; // 하나라도 있으면 로그 X
+            }
+        }
+
+        Debug.Log("그 카드로는 아무것도 못만들지롱~~");
+    }
+
+    // ─────────────────────────────────────────────
+    // External (optional)
     // ─────────────────────────────────────────────
     public IReadOnlyList<string> GetCurrentMaterials() => materials;
     public IReadOnlyList<string> GetCurrentResultCodes() => _currentResultCodes;

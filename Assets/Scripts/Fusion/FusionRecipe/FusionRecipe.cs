@@ -6,6 +6,9 @@ using UnityEngine;
 [Serializable]
 public class FusionRecipe
 {
+    [Tooltip("레시피 고유 ID (예: FUS_001, slime_sword_v1 등)")]
+    public string recipeId;
+
     [Tooltip("결과 카드 코드")]
     public string outputCode;
 
@@ -17,11 +20,11 @@ public class FusionRecipe
     [Range(0f, 1f)] public float successRate = 1f;
     [TextArea] public string note;
 
-    /// <summary>
-    /// 입력 코드를 정렬/정리한다. (null/공백 제거, Trim, 정렬)
-    /// </summary>
     public void Normalize()
     {
+        recipeId = recipeId?.Trim();
+        outputCode = outputCode?.Trim();
+
         if (inputCodes == null) inputCodes = new List<string>(3);
 
         inputCodes = inputCodes
@@ -35,6 +38,12 @@ public class FusionRecipe
     public bool IsValid(out string reason)
     {
         reason = null;
+
+        if (string.IsNullOrWhiteSpace(recipeId))
+        {
+            reason = "recipeId가 비어있음";
+            return false;
+        }
 
         if (string.IsNullOrWhiteSpace(outputCode))
         {
@@ -55,7 +64,6 @@ public class FusionRecipe
             return false;
         }
 
-        // 입력 중복 방지 (A,A 같은 레시피 막기)
         var normalized = inputCodes.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.Trim()).ToList();
         if (normalized.Count != normalized.Distinct(StringComparer.Ordinal).Count())
         {
@@ -63,7 +71,6 @@ public class FusionRecipe
             return false;
         }
 
-        // 출력이 입력에 포함되는 건 대부분 설계 실수라 막는 쪽 추천
         if (normalized.Contains(outputCode.Trim(), StringComparer.Ordinal))
         {
             reason = "outputCode가 inputCodes에 포함됨";
@@ -79,6 +86,7 @@ public class FusionRecipe
         return FusionKeyUtil.MakeKey(inputCodes);
     }
 }
+
 
 public static class FusionKeyUtil
 {

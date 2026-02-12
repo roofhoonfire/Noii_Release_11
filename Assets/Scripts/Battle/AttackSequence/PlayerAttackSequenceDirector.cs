@@ -21,7 +21,7 @@ using UnityEngine.Splines;
 /// - seq.cutInSprite는 "캐릭터 컷인 이미지"로 사용한다.
 /// - CutInUIController는 더 이상 사용하지 않는다.
 /// </summary>
-public class PlayerAttackSequenceDirector : MonoBehaviour
+public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
 {
     public static PlayerAttackSequenceDirector Instance { get; private set; }
 
@@ -365,29 +365,35 @@ public class PlayerAttackSequenceDirector : MonoBehaviour
     }
     private IEnumerator PlayEnemyHitEffectCam3(PlayerAttackSequenceSO seq, ActionData action)
     {
-        // 1) 오브젝트 ON
+        // 0) Hub에 "지금 나야" 등록
+        EnemyHitEventHub.Instance?.SetActive(this);
+
         enemyHitEffectObject.SetActive(true);
 
-        // 2) 상태 세팅
         _currentSeq = seq;
         _currentAction = action;
         _firedHitStopIndices.Clear();
 
-        // 3) 애니 재생 (clip.name == stateName 가정)
-        enemyHitEffectAnimator.speed = 1f;
-        enemyHitEffectAnimator.Play(seq.enemyHitEffectClip.name, 0, 0f);
+        try
+        {
+            enemyHitEffectAnimator.speed = 1f;
+            enemyHitEffectAnimator.Play(seq.enemyHitEffectClip.name, 0, 0f);
 
-        // 4) 애니 끝까지 대기 (Cam3 유지)
-        yield return WaitAnimatorClipEnd(enemyHitEffectAnimator, seq.enemyHitEffectClip.name);
+            yield return WaitAnimatorClipEnd(enemyHitEffectAnimator, seq.enemyHitEffectClip.name);
+        }
+        finally
+        {
+            _currentSeq = null;
+            _currentAction = null;
+            _firedHitStopIndices.Clear();
 
-        // 5) 상태 정리
-        _currentSeq = null;
-        _currentAction = null;
-        _firedHitStopIndices.Clear();
+            enemyHitEffectObject.SetActive(false);
 
-        // 6) 오브젝트 OFF
-        enemyHitEffectObject.SetActive(false);
+            // 1) Hub 해제
+            EnemyHitEventHub.Instance?.ClearActive(this);
+        }
     }
+
 
     /// <summary>
     /// 애니 이벤트 리시버가 호출하는 진입점
