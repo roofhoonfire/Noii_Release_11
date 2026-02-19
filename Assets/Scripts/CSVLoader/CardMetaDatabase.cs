@@ -67,7 +67,7 @@ public static class CardMetaDatabase // 이름은 데이터 베이스지만 실제 메타 데이�
                 defense = TryParseInt(cols[8], 0),
                 disappear = TryParseInt(cols[9], 0),
                 mana = TryParseInt(cols[10], 0),
-                tileType = TryParseInt(cols[11], 0),
+                seqType = TryParseInt(cols[11], 0),
                 zoneIndex = TryParseInt(cols[12], 0),
                 energy = TryParseInt(cols[13], 0),
                 cardText = cardTextRaw.Trim(),  // 원문 템플릿 그대로 저장(개행은 표시 시 변환)

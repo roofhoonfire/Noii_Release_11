@@ -5,6 +5,7 @@ using System.Linq;
 using Unity.Burst.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 using SRandom = System.Random;
 
 /// <summary>
@@ -39,6 +40,9 @@ public class BattleManager : MonoBehaviour
     [SerializeField] List<string> CombFormula;
 
 
+    public List<string> boundList;
+
+    public List<string> jujuList;
     [Header("Select Mode UI")]
     [SerializeField] private SelectModeUIController selectModeUI;
     // --- 액션 큐 ---
@@ -89,6 +93,9 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private Transform popupSpawnPoint;
     [SerializeField] private Transform popupSpawnPointOp;
 
+    [Header("Chakra")]
+    [SerializeField] private int yougetChakrainEvery;
+
 
     public IReadOnlyList<string> OwnedFusionRecipeIds => CombFormula;
 
@@ -105,8 +112,9 @@ public class BattleManager : MonoBehaviour
     private void Start()
     {
         InitActors();
-        StartCoroutine(BattleLoop());
         HPBarManager.Instance.HPBar_Init(100);
+
+        StartCoroutine(BattleLoop());
     }
 
     // ====== 초기화 ======
@@ -175,10 +183,24 @@ public class BattleManager : MonoBehaviour
 
     private IEnumerator BattleLoop()
     {
+        //광폭화, 같은거 여기 집어넣기... . . . .. . . . .. 
+
+
         // 메인 전투 루프
         while (!_battleEnded)
         {
-              
+
+
+            if (FinaleController.Instance != null && FinaleController.Instance.IsFinaleActive)
+            {
+                _battleEnded = true;
+                break;
+            }
+
+
+          
+
+
             // 1) 양쪽이 최소 1개씩 액션을 준비하게 보장
             yield return EnsureEnemyHasQueuedAction();
             
@@ -203,7 +225,7 @@ public class BattleManager : MonoBehaviour
 
             // 4) 실제 시간 흐름 + 액션 처리 루프
             yield return ProcessQueueTick();
-
+        
             // 5) 전투 종료 체크
             if (IsBattleOver())
             {
@@ -214,7 +236,10 @@ public class BattleManager : MonoBehaviour
         Debug.Log("배틀 종료!");
         // 여기서 결과 처리 (승리/패배) 호출하면 됨.
     }
-
+    public void FinalizeBattle()
+    {
+        _battleEnded = true;
+    }
     // ====== 액션 준비 단계 ======
 
     /// <summary>
@@ -361,86 +386,10 @@ public class BattleManager : MonoBehaviour
     /// ESC → 나중에 Card/Item 모드에서 셀렉트로 돌아올 때 쓸 예정, 지금은 그냥 로그
     /// </summary>
     /// 
-    //이거 옛날거임
-    private IEnumerator PlayerSelectLoop()
-    {
-       yield return BattleCameraDirector.Instance.SetShotAndWait(BattleCameraDirector.ShotId.Front);
-        _isSelectModeActive = true;
-        Debug.Log("=== SelectMode 진입: C=Card, I=Item (지금은 모드 없이 로그만) ===");
-        selectModeUI.EnterSelectMode();
-
-
-        // 3) 핸드 초기화
-        //  apData.hands = new List<string>();
-        // ─────────────────────────────
-        // [추가] 덱이 비어있으면 기본 카드 1장 보충 경콘진용
-        // ─────────────────────────────
-        if (apData.deckList.Count == 0)
-        {
-            string fallback = UnityEngine.Random.value < 0.5f ? "c1" : "c2";
-            apData.deckList.Add(fallback);
-            Debug.Log($"[SelectMode] deckList 비어있음 → {fallback} 추가");
-        }
-        // 뽑을 카드 수 (덱이 5장 미만이면 가능한 만큼)
-        int drawCount = Mathf.Min(5, apData.deckList.Count);
-
-        System.Random rng = new System.Random();
-
-        for (int i = 0; i < drawCount; i++)
-        {
-              int idx = rng.Next(0, apData.deckList.Count);
-            //경콘진 용 추후 수정
-            //int idx = i;
-            string pickedCard = apData.deckList[idx];
-
-            // 핸드에 추가
-            apData.hands.Add(pickedCard);
-
-            // 덱에서 제거
-            apData.deckList.RemoveAt(idx);
-        }
-        while (_waitingForPlayerAction)
-        {
-            if (Input.GetKeyDown(KeyCode.C))
-            {
-                BattleCameraDirector.Instance.ExitSelectShot();
-
-                CardModeState.Instance.SetActive(true);
-                Debug.Log("[SelectMode] C 입력 → 여기서 CardMode 진입 예정 (현재는 로그만)");
-                selectModeUI.ExitSelectMode();
-
-                // 나중에: 여기서 CardModeState.Instance.SetActive(...) 같은 걸 호출하고,
-                // 카드 선택 완료 시 SubmitPlayerAction(...) 호출하는 구조로 확장
-            }
-            else if (Input.GetKeyDown(KeyCode.I))
-            {
-                Debug.Log("[SelectMode] I 입력 → 여기서 ItemMode 진입 예정 (현재는 로그만)");
-                // 나중에: ItemModeState.Instance.SetActive(...) → 사용 확정 시 SubmitPlayerAction(...)
-            }
-            else if (Input.GetKeyDown(KeyCode.R))
-            {
-                CardFusionState.Instance.SetActive(true);
-                Debug.Log("[SelectMode] R 입력 → 여기서 ItemMode 진입 예정 (현재는 로그만)");
-                selectModeUI.ExitSelectMode();
-
-                // 나중에: ItemModeState.Instance.SetActive(...) → 사용 확정 시 SubmitPlayerAction(...)
-            }
-            else if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                Debug.Log("[SelectMode] ESC 입력 → 현재는 아무 것도 안 하고 대기 유지");
-                // 나중에: Card/Item 모드 안에서 ESC → SelectMode 복귀 용도로 사용
-            }
-
-            yield return null;
-        }
-        selectModeUI.ExitSelectMode();
-
-        _isSelectModeActive = false;
-        Debug.Log("SelectMode 종료 (_waitingForPlayerAction == false)");
-    }
-
+   
     private IEnumerator new_PlayerSelectLoop()
     {
+        
         //    yield return BattleCameraDirector.Instance.SetShotAndWait(BattleCameraDirector.ShotId.Front);
 
 
@@ -454,30 +403,53 @@ public class BattleManager : MonoBehaviour
         // ─────────────────────────────
         // [추가] 덱이 비어있으면 기본 카드 1장 보충 경콘진용
         // ─────────────────────────────
-        if (apData.deckList.Count == 0)
+        int targetHandSize = 5;
+
+        // 현재 핸드 기준으로 부족한 수 계산
+        int needToDraw = targetHandSize - apData.hands.Count;
+
+        if (needToDraw <= 0)
+           yield return null;
+
+        // 덱이 부족하면 trash에서 계속 보충
+        while (apData.deckList.Count < needToDraw && apData.trash.Count > 0)
         {
-            string fallback = UnityEngine.Random.value < 0.5f ? "c1" : "c2";
-            apData.deckList.Add(fallback);
-            Debug.Log($"[SelectMode] deckList 비어있음 → {fallback} 추가");
+            int randIndex = UnityEngine.Random.Range(0, apData.trash.Count);
+            string picked = apData.trash[randIndex];
+
+            apData.deckList.Add(picked);
+            apData.trash.RemoveAt(randIndex);
+
+            Debug.Log($"[SelectMode] trash → deck 이동: {picked}");
         }
-        // 뽑을 카드 수 (덱이 5장 미만이면 가능한 만큼)
-        int drawCount = Mathf.Min(5, apData.deckList.Count);
+
+        // 실제 뽑을 수 계산 (덱이 모자랄 수도 있으니까)
+        int drawCount = Mathf.Min(needToDraw, apData.deckList.Count);
 
         System.Random rng = new System.Random();
 
         for (int i = 0; i < drawCount; i++)
         {
             int idx = rng.Next(0, apData.deckList.Count);
-            //경콘진 용 추후 수정
-            //int idx = i;
             string pickedCard = apData.deckList[idx];
 
-            // 핸드에 추가
             apData.hands.Add(pickedCard);
-
-            // 덱에서 제거
             apData.deckList.RemoveAt(idx);
         }
+
+        //주술포인트(차크라 생성)
+
+        if (NextActionMonitor.Instance.prevActor == 0 && NextActionMonitor.Instance.preprevActor !=0) {
+            if (apData.currentChakra < apData.maxChakraPoint)
+            {
+                apData.currentChakra++;
+                // 연출
+                yield return BoundManager.Instance.RefreshChakraRoutine();
+
+            }
+        }
+
+
         while (_waitingForPlayerAction)
         {
             selectModeUI.EnterSelectMode();
@@ -649,6 +621,11 @@ public class BattleManager : MonoBehaviour
                 continue;
             }
 
+
+
+
+            yield return EffectActivator.Instance.ActivateEffects(q.action, Phase.Dot);
+
             // 도트 훅은 일단 주석 처리 (훅 시스템 이후에 다시 연결)
             /*
             yield return q.action.Norm_ProcessHook(
@@ -689,69 +666,46 @@ public class BattleManager : MonoBehaviour
         var opMainAction = FindMainActionOfActor(opId);
         var myMainAction = FindMainActionOfActor(actorId);
 
+        // ✅ 반복 제거: 실행 기록 갱신
+        void CommitExecuted()
+        {
+            var m = NextActionMonitor.Instance;
+            m.preprevExecuted = m.prevExecuted;
+            m.preprevActor = m.prevActor;
+            m.prevExecuted = q.action;
+            m.prevActor = q.actorId;
+        }
+
         // --- 몹 공격 + 패링 가능일 때 ---
-        if (actorId == inGameEnemy.actorId && myAction.parryable &&
-            myAction.parryWindows != null && myAction.parryWindows.Count > 0)
-
-
+        if (actorId == inGameEnemy.actorId &&
+            myAction.parryable &&
+            myAction.parryWindows != null &&
+            myAction.parryWindows.Count > 0)
         {
             BattleCameraDirector.Instance.SetShot(BattleCameraDirector.ShotId.Cam4);
 
             yield return SimpleTypewriterUI.Instance.TypeAndCloseRoutine(q.action.actionNotice);
-            //   BattleCameraDirector.Instance.SetShot(BattleCameraDirector.ShotId.Back);
-            //카메라 블렌드 이후 공격 연출
             yield return BattleCameraDirector.Instance.SetShotAndWait(BattleCameraDirector.ShotId.E_Attack_Cam1);
 
             yield return StartCoroutine(EnemyAttackWithParryWindows(q));
 
-
             yield return BattleCameraDirector.Instance.SetShotAndWait(BattleCameraDirector.ShotId.Back);
 
-            // TODO: 나중에 parrySuccessCount / wasParried 보고 데미지/카운터 처리
+            CommitExecuted();   //  동일 기능
             yield break;
         }
 
-        //올드타입만 있는 경우임
-        /* if (actorId == Player.actorId)
-         {
-             // (예시) "공격 카드"라는 전제. 너의 게임 규칙에 맞춰 조건을 더 엄격히 하면 됨.
-             // myAction.cardcode로 SO를 찾는다.
-             var seq = PlayerAttackSequenceDatabase.Instance.Get(myAction.cardcode);
-             if (seq != null)
-             {
-
-                 //노티스 띄우기
-
-                 yield return SimpleTypewriterUI.Instance.TypeAndCloseRoutine(seq.actionNotice);
-
-                 // 여기서 “연출 전체”를 기다린다.
-                 yield return PlayerAttackSequenceDirector.Instance.Play(seq, myAction);
-
-                 // 연출이 끝난 뒤에 실제 데미지/상태이상 적용을 할지,
-                 // 아니면 연출 도중 특정 타이밍에 적용할지는 네가 선택.
-                 // (일단 지금은 연출 끝나고 적용하는 형태로 두자.)
-                // ApplyDamageToEnemy(myAction.damage);
-
-                 yield break;
-             }
-             else
-             {
-                 Debug.LogWarning($"[Battle] No PlayerAttackSequenceSO for cardcode={myAction.cardcode}");
-                 // 시퀀스 없으면 최소한의 처리라도
-                // ApplyDamageToEnemy(myAction.damage);
-                 yield break;
-             }
-         }*/
-
         if (actorId == Player.actorId)
         {
-            if (myAction.tileType == 0)
+            if (myAction.seqType == 0)
             {
                 var seq = PlayerAttackSequenceDatabase.Instance.Get(myAction.cardcode);
                 if (seq != null)
                 {
                     yield return SimpleTypewriterUI.Instance.TypeAndCloseRoutine(seq.actionNotice);
                     yield return PlayerAttackSequenceDirector.Instance.Play(seq, myAction);
+
+                    CommitExecuted();   //  동일 기능
                 }
                 else
                 {
@@ -759,13 +713,14 @@ public class BattleManager : MonoBehaviour
                 }
                 yield break;
             }
-            else if (myAction.tileType == 1)
+            else if (myAction.seqType == 1)
             {
                 var seq2 = NewTypePlayerAttackSequenceDatabase.Instance.Get(myAction.cardcode);
                 if (seq2 != null)
                 {
-                    // 노티스는 뉴타입 디렉터가 내부에서 처리함(요구사항)
                     yield return NewTypePlayerAttackSequenceDirector.Instance.Play(seq2, myAction);
+
+                    CommitExecuted();   //  동일 기능
                 }
                 else
                 {
@@ -777,9 +732,7 @@ public class BattleManager : MonoBehaviour
             yield break;
         }
 
-
-        // TODO: 여기 나중에 플레이어 공격, 이동, 몹 비패링 공격 등 집어넣기
-
+        // TODO: 이후 분기 추가
         yield break;
     }
 
@@ -958,7 +911,10 @@ public class BattleManager : MonoBehaviour
 
                 GameObject instance = Instantiate(damageEffects, parryTransform.position, Quaternion.identity);
                 Destroy(instance, 2f); // Destroy in 2 seconds
-                HPBarManager.Instance.DamageMe();
+                var damageReal = Math.Max(0,NextActionMonitor.Instance.opNextAction.damage - NextActionMonitor.Instance.myNextAction.defense);
+                
+                
+                HPBarManager.Instance.DamageMe(damageReal);
                 if (popupPrefab != null && popupSpawnPoint != null)
                 {
                     var pop = Instantiate(popupPrefab, popupSpawnPoint.position, Quaternion.identity);
@@ -968,17 +924,22 @@ public class BattleManager : MonoBehaviour
             
         }));
     }
-  public void HitStopRendering(ActionData action)
+    public bool HitStopRendering(ActionData action)
     {
-        //카드 효과 발동되는거랑 
+        var realDamage = Mathf.Max(0, action.damage - NextActionMonitor.Instance.opNextAction.defense);
+
         if (popupPrefab != null && popupSpawnPointOp != null)
         {
             var pop = Instantiate(popupPrefabOp, popupSpawnPointOp.position, Quaternion.identity);
-            pop.Setup(action.damage.ToString());
+            
+            
+            pop.Setup(realDamage.ToString());
         }
 
-        HPBarManager.Instance.DamageOp(action.damage);
+        HPBarManager.Instance.DamageOp(realDamage);
 
+        //  여기서 lethal 판정
+        return HPBarManager.Instance.OpHP <= 0;
     }
 
     public void AnotherModeDone()
@@ -993,5 +954,7 @@ public class BattleManager : MonoBehaviour
         _AnotherModeNow = true;
 
     }
+
+   
 
 }

@@ -8,6 +8,10 @@ public class NextActionMonitor : MonoBehaviour
     public ActionData myNextAction;
     public ActionData opNextAction;
 
+    public ActionData preprevExecuted=null;
+    public ActionData prevExecuted = null;
+    public int prevActor = 1;
+    public int preprevActor = 1;
     private void Awake()
     {
         if (Instance != null && Instance != this)

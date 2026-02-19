@@ -2,20 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DialogueGraphRunner
 {
     private readonly DialogueGraphAsset _graph;
     private readonly CharacterState _state;
+    private readonly GameObject _owner; //  대화를 시작한 상호작용 대상(파괴할 대상)
 
     private string _currentGuid;
 
     private Action _onFinished;
 
-    public DialogueGraphRunner(DialogueGraphAsset graph, CharacterState state)
+    public DialogueGraphRunner(DialogueGraphAsset graph, CharacterState state, GameObject owner)
     {
         _graph = graph;
         _state = state;
+        _owner = owner;
+
         _graph.BuildCache();
     }
 
@@ -243,6 +247,24 @@ public class DialogueGraphRunner
                 case CallableFunc.AddItem:
                     _state.itemIds.Add(c.stringKey);
                     break;
+
+
+                case CallableFunc.MatChange:
+                    SpriteMaterialSwapper.Instance.Apply();
+                    break;
+                case CallableFunc.Destroy:
+                    {
+                        if (_owner != null)
+                            UnityEngine.Object.Destroy(_owner);
+                        else
+                            Debug.LogWarning("[DialogueGraphRunner] Destroy 호출됐지만 owner가 null임!");
+                        break;
+                    }
+                case CallableFunc.Temp_Load_Battle1:
+                    {
+                        SceneManager.LoadScene("Battle_1 Real");
+                        break;
+                    }
                 default:
                     Debug.LogWarning($"[DialogueGraphRunner] Unhandled func: {c.func}");
                     break;

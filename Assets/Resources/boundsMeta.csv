@@ -1,0 +1,8 @@
+#code,name,sprite,boundPoint,boundType,text
+b1,???,,3,force,들고 있는 카드 맨 왼쪽 사용
+b2,??,,2,force,피해량 10감소
+b3,??? ????,,4,force,같은 카드를 낼 때마다 피해 10 받음
+b4,??,,3,condition,20턴 동안 모든 공격을 패리함ㅋ
+b5,????,,2,force,캐스팅 5증가
+b6,?? ??,,5,condition,체력이 10 이하 남아야함
+b7,,,,,

@@ -1,0 +1,144 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0d3383e8f0d2248a79edee4f538755, type: 3}
+  m_Name: F1_D5_MainCom
+  m_EditorClassIdentifier: 
+  nodes:
+  - guid: deff00485aba47baba02c31cf890edca
+    speaker: 
+    text: "\uB4A4\uC5D0 \uBCF4\uC774\uB294 \uCEE4\uB2E4\uB780 \uD654\uBA74\uACFC
+      \uC5F0\uACB0\uB418\uC5B4 \uC788\uB294 \uB4EF\uD55C \uC7A5\uCE58\uC774\uB2E4"
+    choices:
+    - choiceGuid: 1f001c92f32d4436acb89420a5f82396
+      text: "\uC791\uB3D9\uD55C\uB2E4"
+      lockedAtFirst: 0
+      unlockKey: 
+      defaultNextGuid: 8487f1a9e90c47d0a3f4a137f4fdb21a
+      nextLinks: []
+      calls: []
+    - choiceGuid: 52f67d416648485da83c25d2ca27e56b
+      text: "\uADF8\uB9CC\uB454\uB2E4"
+      lockedAtFirst: 0
+      unlockKey: 
+      defaultNextGuid: 
+      nextLinks: []
+      calls: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 1
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 1
+    calls: []
+    position: {x: 681, y: 130}
+  - guid: 8487f1a9e90c47d0a3f4a137f4fdb21a
+    speaker: 
+    text: "\uAD49\uC74C\uACFC \uD568\uAED8 \uAE30\uACC4 \uC7A5\uCE58\uAC00 \uC791\uB3D9\uB41C\uB2E4"
+    choices: []
+    defaultNextGuid: eb3767461f524e62b7efa138d8665e64
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls:
+    - func: 5
+      flag: 0
+      value: 1
+      stringKey: 
+    position: {x: 1256, y: 130}
+  - guid: eb3767461f524e62b7efa138d8665e64
+    speaker: 
+    text: ...
+    choices: []
+    defaultNextGuid: 86650ab4fefb4d4ea953476cbd3800dc
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls: []
+    position: {x: 1808, y: 130}
+  - guid: 268385d68e414f51b3dfbac08c8c1f23
+    speaker: "\uAE30\uACC4\uC7A5\uCE58"
+    text: "\uAE30\uBCF8 \uC561\uC158 \uD504\uB85C\uD1A0\uCF5C\uC744 \uC2E4\uC2DC\uD569\uB2C8\uB2E4 "
+    choices: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls:
+    - func: 7
+      flag: 0
+      value: 1
+      stringKey: 
+    position: {x: 2540, y: -30}
+  - guid: 86650ab4fefb4d4ea953476cbd3800dc
+    speaker: "\uAE30\uACC4\uC7A5\uCE58"
+    text: "\uC0DD\uC874\uC790 \uD655\uC778, \uAE30\uBCF8 \uC561\uC158 \uD504\uB85C\uD1A0\uCF5C\uC744
+      \uC2E4\uC2DC \uD558\uACA0\uC2B5\uB2C8\uAE4C?"
+    choices:
+    - choiceGuid: ed49fd3cef904386bb766f729226ae67
+      text: "\uC2E4\uC2DC \uD55C\uB2E4"
+      lockedAtFirst: 0
+      unlockKey: 
+      defaultNextGuid: 268385d68e414f51b3dfbac08c8c1f23
+      nextLinks: []
+      calls: []
+    - choiceGuid: 56d9a276f688436b8ee8bdad0bb0f1c7
+      text: "\uADF8\uB9CC \uB454\uB2E4"
+      lockedAtFirst: 0
+      unlockKey: 
+      defaultNextGuid: 741e44d0f60448ffa1bd861e59098967
+      nextLinks: []
+      calls: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls: []
+    position: {x: 2055, y: -30}
+  - guid: 741e44d0f60448ffa1bd861e59098967
+    speaker: 
+    text: "\uAE30\uACC4\uC7A5\uCE58\uB294 \uC5EC\uC804\uD788 \uAD49\uC74C\uC744 \uB0B4\uBA70
+      \uB3CC\uC544\uAC00\uACE0 \uC788\uB2E4"
+    choices: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls: []
+    position: {x: 2317, y: 654}

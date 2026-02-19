@@ -20,7 +20,9 @@ public class GameStateManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+    
+        //나중에 수정
+        //   DontDestroyOnLoad(gameObject);
 
         // 필요하면 시작 시 자동 로드
         // TryLoadGame();

@@ -99,4 +99,8 @@ MonoBehaviour:
       flag: 3
       value: 20
       stringKey: 
+    - func: 6
+      flag: 3
+      value: 20
+      stringKey: 
     position: {x: 1151, y: -275}

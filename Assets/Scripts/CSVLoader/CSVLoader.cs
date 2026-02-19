@@ -14,6 +14,10 @@ public class CSVLoader : MonoBehaviour //ÀÌÀÚ½ÄÀº Ä«µåÀÇ ¸ÞÅ¸µ¥ÀÌÅÍ //³ªÁß¿¡ ÀÌ°
     public CardSO runtimeCardSO; //Ä«µå ¸ÞÅ¸ µ¥ÀÌÅÍ
     public ItemSO runtimeItemSO;// ¾ÆÀÌÅÛ ¸ÞÅ¸ 
     public CardEffectSO runtimeCardEffectSO;
+    public BoundSO runtimeBoundSO;
+    public BoundEffectSO runtimeBoundEffectSO;
+    public JujuSO runtimeJujuSO;
+    public JujuEffectSO runtimeJujuEffectSO;
     // ¾ÆÀÌÅÛ SOµµ ¿©±â ÇÏ³ª ¸¸µë
 
 
@@ -48,6 +52,11 @@ public class CSVLoader : MonoBehaviour //ÀÌÀÚ½ÄÀº Ä«µåÀÇ ¸ÞÅ¸µ¥ÀÌÅÍ //³ªÁß¿¡ ÀÌ°
         runtimeCardEffectSO = CardEffectDatabase.LoadEffectsFromCSV();
         //    BoundLoader.LoadBoundsFromCSV(Resources.Load<TextAsset>("Bound"));
 
+        runtimeBoundSO = BoundMetaDatabase.LoadMetaFromCSV();
+        runtimeBoundEffectSO = BoundEffectDatabase.LoadEffectFromCSV();
+        runtimeJujuSO = JujuMetaDatabase.LoadMetaFromCSV();
+        runtimeJujuEffectSO = JujuEffectDatabase.LoadEffectFromCSV();
+
         //  JujuLoader.LoadJujuFromCSV(Resources.Load<TextAsset>("Juju"));
     }
 
@@ -72,11 +81,33 @@ public class CSVLoader : MonoBehaviour //ÀÌÀÚ½ÄÀº Ä«µåÀÇ ¸ÞÅ¸µ¥ÀÌÅÍ //³ªÁß¿¡ ÀÌ°
         return null; // ¾øÀ¸¸é null ¹ÝÈ¯
     }
 
+    public Bound GetBoundByCode(string code)
+    {
+        foreach (var bound in runtimeBoundSO.bounds)
+        {
+            if (bound.code == code)
+                return bound;
+        }
+        return null; // ¾øÀ¸¸é null ¹ÝÈ¯
+
+    }
+
+    public Juju GetJujuByCode(string code)
+    {
+        foreach (var juju in runtimeJujuSO.jujus)
+        {
+            if (juju.code == code)
+                return juju;
+        }
+        return null; // ¾øÀ¸¸é null ¹ÝÈ¯
+
+    }
+  
 
     /// <summary>
     /// Ä«µå ÄÚµå¿¡ ÇØ´çÇÏ´Â ¸ðµç CardEffect¸¦ ¸®½ºÆ®·Î ¹ÝÈ¯
     /// </summary>
-    public List<CardEffect> GetEffectsByCode(string code)
+    public List<CardEffect> GetCardEffectsByCode(string code)
     {
         var result = new List<CardEffect>();
 
@@ -93,5 +124,41 @@ public class CSVLoader : MonoBehaviour //ÀÌÀÚ½ÄÀº Ä«µåÀÇ ¸ÞÅ¸µ¥ÀÌÅÍ //³ªÁß¿¡ ÀÌ°
         }
 
         return result;
+    }
+
+    public List<BoundEffect> GetBoundEffectsByCode(string code)
+    {
+        var result = new List<BoundEffect>();
+
+        if (runtimeBoundEffectSO == null || runtimeBoundEffectSO.effects == null)
+            return result;
+
+        foreach (var effect in runtimeBoundEffectSO.effects)
+        {
+            if (effect == null)
+                continue;
+
+            if (effect.code == code)
+                result.Add(effect);
+        }
+
+        return result;
+    }
+
+    public List<JujuEffect> GetJujuEffectByCode(string code)
+    {
+        var result = new List<JujuEffect>();
+        if (runtimeJujuEffectSO == null || runtimeJujuEffectSO.effects == null)
+            return result;
+        foreach (var effect in runtimeJujuEffectSO.effects)
+        {
+            if (effect == null)
+                continue;
+
+            if (effect.code == code)
+                result.Add(effect);
+        }
+        return result; // ¾øÀ¸¸é null ¹ÝÈ¯
+
     }
 }

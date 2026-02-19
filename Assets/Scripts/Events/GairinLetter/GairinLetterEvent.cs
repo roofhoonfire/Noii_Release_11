@@ -1,7 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.EventSystems;
-
+using UnityEngine.UI;
 public class GairinLetterEvent : MonoBehaviour
 {
     public static GairinLetterEvent Instance { get; private set; }
@@ -31,6 +31,11 @@ public class GairinLetterEvent : MonoBehaviour
 
 
 
+    [Header("garinLetterImage")]
+
+    [SerializeField] private Image targetImage;          // 이미지 적용 대상
+[SerializeField] private Sprite readableSprite;      // 10 이상
+[SerializeField] private Sprite unreadableSprite;    // 10 미만
 
 
 
@@ -38,7 +43,7 @@ public class GairinLetterEvent : MonoBehaviour
 
 
 
-    public bool IsEventActive { get; private set; }
+public bool IsEventActive { get; private set; }
 
     private CanvasGroup _cg1;
     private CanvasGroup _cg2;
@@ -85,6 +90,21 @@ public class GairinLetterEvent : MonoBehaviour
     /// </summary>
     public void StartGairinEvent()
     {
+
+        var state = GameStateManager.Instance.GetCharacterState("player");
+
+        //  LanguageLev 체크
+        if (targetImage != null)
+        {
+            int languageLevel = state.GetStat(DialogueFlag.LanguageLev);
+
+            if (languageLevel >= 10)
+                targetImage.sprite = readableSprite;
+            else
+                targetImage.sprite = unreadableSprite;
+        }
+
+
         if (fadeOutAndDisableObj == null || fadeInObj == null)
         {
             Debug.LogWarning("[GairinLetterEvent] 오브젝트 참조가 비어있습니다.");

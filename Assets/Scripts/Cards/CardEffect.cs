@@ -22,6 +22,8 @@ public enum Phase
     ParryingSucceed,
     Drop,
     SuddenAttack,
+    Dot,
+    End,
 }
 
 public enum EffectType
@@ -30,5 +32,8 @@ public enum EffectType
     add_Damage,
     SuddenAttack_On,
     Chant,
+    add_Chakra,
+    add_n1inQ,
+    ifPrevWasTemp,
 }
 

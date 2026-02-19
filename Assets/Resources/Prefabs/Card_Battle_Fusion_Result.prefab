@@ -309,7 +309,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 52}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 135.6581, y: 180.1333}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3927338784492268857
@@ -373,7 +373,7 @@ MonoBehaviour:
     defense: 0
     disappear: 0
     mana: 0
-    tileType: 0
+    seqType: 0
     zoneIndex: 0
     energy: 0
     damage: 0

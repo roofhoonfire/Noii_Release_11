@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Drawing.Imaging;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ public class EffectActivator : MonoBehaviour
     //임시긴함
     [Header("Effects")]
     [SerializeField] private GameObject Buff;
+    [SerializeField] private GameObject Debuff;
 
     private void Awake()
     {
@@ -61,7 +63,24 @@ public class EffectActivator : MonoBehaviour
                 case EffectType.Chant:
                     yield return ActivateChant(effect);
                     break;
+                case EffectType.add_Chakra:
+                    var BIap = BattleManager.Instance.apData;
+                    if (BIap.currentChakra < BIap.maxChakraPoint)
+                    {
+                        BIap.currentChakra++;
+                        // 연출
+                        yield return BoundManager.Instance.RefreshChakraRoutine();
 
+                    }
+                    break;
+                case EffectType.ifPrevWasTemp:
+                    if (NextActionMonitor.Instance.prevExecuted != null && NextActionMonitor.Instance.prevExecuted.cardcode == effect.extraString)
+                    {
+                        actionData.damage += effect.amount;
+                        Debuff.SetActive(true);
+
+                    }
+                    break;
                 default:
                     Debug.LogWarning($"[EffectActivator] 처리되지 않은 EffectType: {effect.effectType}");
                     break;
@@ -129,10 +148,10 @@ public class EffectActivator : MonoBehaviour
         chantedAction.actionClock = Mathf.Max(apData.CastingMinumum, thisCardData.actionClock + apData.permCast + apData.tempCast);
         chantedAction.cardname = thisCardData.name;
         chantedAction.zoneIndex = thisCardData.zoneIndex;
-        chantedAction.tileType = thisCardData.tileType;
+        chantedAction.seqType = thisCardData.seqType;
 
         // effects 리스트가 null일 가능성 있으면 여기서 new 해줘야 함 (네 ActionData 구현에 따라)
-        chantedAction.effects.AddRange(CSVLoader.Instance.GetEffectsByCode(thisCardData.code));
+        chantedAction.effects.AddRange(CSVLoader.Instance.GetCardEffectsByCode(thisCardData.code));
 
         chantedAction.damage = Mathf.Max(0, thisCardData.damage + apData.tempDam + apData.permDam);
 

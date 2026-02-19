@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0d3383e8f0d2248a79edee4f538755, type: 3}
+  m_Name: F1_D7_Door
+  m_EditorClassIdentifier: 
+  nodes:
+  - guid: deff00485aba47baba02c31cf890edca
+    speaker: 
+    text: "\uBB38\uC740 \uAD73\uAC8C \uB2EB\uD600 \uC788\uB2E4"
+    choices: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 1
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 1
+    calls: []
+    position: {x: 681, y: 130}
+  - guid: 1671fcc0482f47db8569b67664a447c7
+    speaker: NPC
+    text: "\uC0C8 \uB300\uC0AC"
+    choices: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls: []
+    position: {x: 1190, y: 503}

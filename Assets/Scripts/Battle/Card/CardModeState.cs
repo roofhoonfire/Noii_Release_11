@@ -46,7 +46,8 @@ public class InGameAPData
     public List<string> trash = new List<string>();
 
     public List<Elem> elements = new List<Elem>();
-   
+    public int currentChakra=0; //³ª
+    public int maxChakraPoint=3;
 
 }
 

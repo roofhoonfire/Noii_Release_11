@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Cinemachine; // Cinemachine 3.x 네임스페이스
 
 public class F1FieldCameraController : MonoBehaviour
 {
@@ -9,31 +10,22 @@ public class F1FieldCameraController : MonoBehaviour
     [Serializable]
     public class TriggerCamPair
     {
-        public BoxCollider trigger;      // IsTrigger 체크
-        public Transform cameraTarget;   // 카메라가 이동할 위치(포지션)
+        public BoxCollider trigger;                 // IsTrigger 체크
+        public CinemachineCamera cinemachineCam;    // ★ 예전 vcam 자리에 해당
     }
 
-    [Header("Camera")]
-    [SerializeField] private Transform cameraTransform; // 메인 카메라 or 시네머신 리그(움직일 트랜스폼)
-
-    [Header("Pairs (Trigger -> Camera Target)")]
+    [Header("Pairs (Trigger -> Cinemachine Camera)")]
     [SerializeField] private List<TriggerCamPair> pairs = new();
 
-    [Header("Move Tuning")]
-    [Tooltip("이동시간 = 거리 * 이 값 (초/유닛)")]
-    [SerializeField] private float secondsPerUnit = 0.12f;
+    [Header("Priority")]
+    [Tooltip("기본 우선순위(평소엔 이 값으로 유지)")]
+    [SerializeField] private int basePriority = 0;
 
-    [Tooltip("최소 이동 시간")]
-    [SerializeField] private float minDuration = 0.15f;
+    [Tooltip("트리거 진입 시 줄 우선순위(이 값이 가장 높아져 LIVE가 됨)")]
+    [SerializeField] private int activePriority = 10;
 
-    [Tooltip("최대 이동 시간")]
-    [SerializeField] private float maxDuration = 1.25f;
-
-    [Tooltip("스무스 이동 속도(값이 클수록 빨리 수렴)")]
-    [SerializeField] private float smooth = 12f;
-
-    private readonly Dictionary<Collider, Transform> _map = new();
-    private Transform _currentTarget;
+    private readonly Dictionary<Collider, CinemachineCamera> _map = new();
+    private CinemachineCamera _currentLive;
     private bool _initialized;
 
     private void Awake()
@@ -56,72 +48,51 @@ public class F1FieldCameraController : MonoBehaviour
         for (int i = 0; i < pairs.Count; i++)
         {
             var p = pairs[i];
-            if (p == null || p.trigger == null || p.cameraTarget == null) continue;
+            if (p == null || p.trigger == null || p.cinemachineCam == null) continue;
 
-            // 트리거 강제
             p.trigger.isTrigger = true;
+            _map[p.trigger] = p.cinemachineCam;
 
-            _map[p.trigger] = p.cameraTarget;
-
-            // 트리거에 리스너가 없으면 자동으로 붙여줌 (실수 방지)
+            // 실수 방지: 트리거 리스너 자동 부착
             var listener = p.trigger.GetComponent<F1FieldCameraTrigger>();
             if (listener == null)
                 listener = p.trigger.gameObject.AddComponent<F1FieldCameraTrigger>();
-        }
 
-        if (cameraTransform == null && Camera.main != null)
-            cameraTransform = Camera.main.transform;
+            // 초기에는 전부 basePriority로 깔아두기
+            p.cinemachineCam.Priority = basePriority;
+        }
 
         _initialized = true;
     }
 
-    private void Update()
-    {
-        if (cameraTransform == null || _currentTarget == null) return;
-
-        // SmoothDamp도 가능하지만, 시간기반 요구(거리*조절값) 때문에 exp-smooth로 처리
-        // 프레임레이트 독립 수렴
-        float t = 1f - Mathf.Exp(-smooth * Time.deltaTime);
-
-        cameraTransform.position = Vector3.Lerp(cameraTransform.position, _currentTarget.position, t);
-        cameraTransform.rotation = Quaternion.Slerp(cameraTransform.rotation, _currentTarget.rotation, t);
-    }
-
     /// <summary>
-    /// 트리거에 들어갔을 때 호출: 해당 트리거에 매핑된 타겟으로 카메라 이동 시작
-    /// "겹쳐서 연속 진입"되면 새로 들어간 놈이 우선(기존은 즉시 교체)
+    /// 트리거에 들어갔을 때 호출: 해당 트리거에 매핑된 CinemachineCam을 LIVE로 만든다.
     /// </summary>
     public void NotifyEnter(Collider triggerCollider)
     {
         if (triggerCollider == null) return;
         if (!_initialized) BuildMap();
 
-        if (!_map.TryGetValue(triggerCollider, out var target) || target == null)
+        if (!_map.TryGetValue(triggerCollider, out var cam) || cam == null)
             return;
 
-        // 새로 진입한 타겟으로 즉시 교체 (요구사항: 박고있는 중에도 새로 박은 놈으로)
-        SetTarget(target);
+        SetLive(cam);
     }
 
-    private void SetTarget(Transform target)
+    private void SetLive(CinemachineCamera cam)
     {
-        _currentTarget = target;
+        if (_currentLive == cam) return;
 
-        // 거리 기반 “느낌”을 주고 싶으면 smooth를 거리로 역산해서 조절할 수도 있는데,
-        // 오늘은 안정성/속도 우선이라 secondsPerUnit을 기반으로 smooth를 순간 조정해준다.
-        if (cameraTransform == null || _currentTarget == null) return;
+        // 이전 LIVE를 basePriority로 내림
+        if (_currentLive != null)
+            _currentLive.Priority = basePriority;
 
-        float dist = Vector3.Distance(cameraTransform.position, _currentTarget.position);
-        float duration = Mathf.Clamp(dist * secondsPerUnit, minDuration, maxDuration);
-
-        // duration이 작을수록 빨리 수렴해야 하니까 smooth를 크게
-        // (대충: 95% 수렴을 duration 안에)
-        // exp(-smooth*duration) ≈ 0.05 → smooth ≈ -ln(0.05)/duration
-        smooth = Mathf.Clamp(-Mathf.Log(0.05f) / Mathf.Max(0.01f, duration), 3f, 40f);
+        // 새 LIVE를 activePriority로 올림
+        cam.Priority = activePriority;
+        _currentLive = cam;
     }
 
 #if UNITY_EDITOR
-    // 인스펙터에서 값 바꾸면 자동 리빌드
     private void OnValidate()
     {
         if (!Application.isPlaying) return;

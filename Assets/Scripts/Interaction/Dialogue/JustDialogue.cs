@@ -80,7 +80,7 @@ public class JustDialogue : MonoBehaviour
         // 이동 잠금
         playerController.SetInputEnabled(false);
 
-        _runner = new DialogueGraphRunner(graph, charState);
+        _runner = new DialogueGraphRunner(graph, charState, gameObject);
         _runner.Start(onFinished: () =>
         {
             // 이동 다시 켜기

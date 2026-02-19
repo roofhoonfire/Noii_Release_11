@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using Unity.Cinemachine;
 using Unity.Collections;
@@ -7,19 +7,19 @@ using UnityEngine.Rendering;
 using UnityEngine.Splines;
 
 /// <summary>
-/// Back -> Cam2(CM_Attack) ºí·»µå ¿Ï·á ÈÄ:
-/// - ·çÆ® ºñÁÖ¾ó OFF + ÇÃ·¹ÀÌ¾î ºôº¸µå ¿¬Ãâ ON
-/// - ¿À¹ö·¹ÀÌ(¹è°æ/Ä³¸¯ÅÍÄÆÀÎ/ÄÆ¶óÀÎ) ¿¬Ãâ
-/// - Cam2 Dolly ÀÌµ¿ Áß triggerPos µµ´Ş ¼ø°£:
-///     * ÇÃ·¹ÀÌ¾î Freeze
-///     * (¿É¼Ç) Dolly Á¤Áö
-///     * ÄÆ¶óÀÎ ON
-///     * ÄÆ¾À À¯Áö½Ã°£(cutInHoldSeconds) È¦µå
-/// - Cam3 -> EnemyHit + HitStop -> Back º¹±Í
+/// Back -> Cam2(CM_Attack) ë¸”ë Œë“œ ì™„ë£Œ í›„:
+/// - ë£¨íŠ¸ ë¹„ì£¼ì–¼ OFF + í”Œë ˆì´ì–´ ë¹Œë³´ë“œ ì—°ì¶œ ON
+/// - ì˜¤ë²„ë ˆì´(ë°°ê²½/ìºë¦­í„°ì»·ì¸/ì»·ë¼ì¸) ì—°ì¶œ
+/// - Cam2 Dolly ì´ë™ ì¤‘ triggerPos ë„ë‹¬ ìˆœê°„:
+///     * í”Œë ˆì´ì–´ Freeze
+///     * (ì˜µì…˜) Dolly ì •ì§€
+///     * ì»·ë¼ì¸ ON
+///     * ì»·ì”¬ ìœ ì§€ì‹œê°„(cutInHoldSeconds) í™€ë“œ
+/// - Cam3 -> EnemyHit + HitStop -> Back ë³µê·€
 ///
 /// IMPORTANT:
-/// - seq.cutInSprite´Â "Ä³¸¯ÅÍ ÄÆÀÎ ÀÌ¹ÌÁö"·Î »ç¿ëÇÑ´Ù.
-/// - CutInUIController´Â ´õ ÀÌ»ó »ç¿ëÇÏÁö ¾Ê´Â´Ù.
+/// - seq.cutInSpriteëŠ” "ìºë¦­í„° ì»·ì¸ ì´ë¯¸ì§€"ë¡œ ì‚¬ìš©í•œë‹¤.
+/// - CutInUIControllerëŠ” ë” ì´ìƒ ì‚¬ìš©í•˜ì§€ ì•ŠëŠ”ë‹¤.
 /// </summary>
 public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
 {
@@ -36,16 +36,20 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
     [SerializeField] private GameObject rootPlayerVisual;
 
     [Header("Overlay UI")]
-    [Tooltip("Canvas¿¡ ºÙÀº AttackOverlayUIController. ºñ¿öµÎ¸é Instance »ç¿ë.")]
+    [Tooltip("Canvasì— ë¶™ì€ AttackOverlayUIController. ë¹„ì›Œë‘ë©´ Instance ì‚¬ìš©.")]
     [SerializeField] private AttackOverlayUIController overlayUI;
-    // PlayerAttackSequenceDirector.cs »ó´Ü¿¡ Ãß°¡
+    // PlayerAttackSequenceDirector.cs ìƒë‹¨ì— ì¶”ê°€
 
     [Header("Enemy Hit Effect Object (SpriteRenderer + Animator)")]
     [SerializeField] private GameObject enemyHitEffectObject;
     [SerializeField] private Animator enemyHitEffectAnimator;
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+
+    [Header("Finale Enemy Visual")]
+    [SerializeField] private Animator enemyVisualAnimator;
+    [SerializeField] private AnimationClip enemyFinaleClip;
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Event-driven HitStop state
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private PlayerAttackSequenceSO _currentSeq;
     private ActionData _currentAction;
     private readonly HashSet<int> _firedHitStopIndices = new();
@@ -76,20 +80,20 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
 
 
 
-        // 0) ´ÙÀ½ ½ÃÄö½º ¹øÂ½ÀÓ ¹æÁö:
-        // Cam2°¡ Live µÇ±â Àü¿¡ Dolly PositionÀ» start·Î ¹Ú¾ÆµĞ´Ù
+        // 0) ë‹¤ìŒ ì‹œí€€ìŠ¤ ë²ˆì©ì„ ë°©ì§€:
+        // Cam2ê°€ Live ë˜ê¸° ì „ì— Dolly Positionì„ startë¡œ ë°•ì•„ë‘”ë‹¤
         if (seq.useCam2Dolly && cam2SplineDolly != null)
             SetCam2DollyPos(seq.cam2DollyStart);
 
-        // 1) Back À§¿¡ Cam2 Çª½Ã (ºí·»µå ½ÃÀÛ)
+        // 1) Back ìœ„ì— Cam2 í‘¸ì‹œ (ë¸”ë Œë“œ ì‹œì‘)
         if (cameraDirector != null)
             cameraDirector.PushShot(seq.cam2Shot);
 
-        // 1.5) Cam2 ºí·»µå ¿Ï·á±îÁö ´ë±â
+        // 1.5) Cam2 ë¸”ë Œë“œ ì™„ë£Œê¹Œì§€ ëŒ€ê¸°
         if (cameraDirector != null)
             yield return cameraDirector.WaitForBlendComplete();
 
-        // 2) ºí·»µå ¿Ï·á ÈÄ: ·çÆ® ºñÁÖ¾ó OFF + ºôº¸µå ON
+        // 2) ë¸”ë Œë“œ ì™„ë£Œ í›„: ë£¨íŠ¸ ë¹„ì£¼ì–¼ OFF + ë¹Œë³´ë“œ ON
         if (rootPlayerVisual != null)
             rootPlayerVisual.SetActive(false);
 
@@ -99,83 +103,85 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
             playerSequenceActor.Play(seq.playerSequenceClip);
         }
 
-        // 2.1) ¿À¹ö·¹ÀÌ ÁØºñ (¹è°æ + Ä³¸¯ÅÍ ÄÆÀÎ ½ºÄÉÁÙ)
-        // - ¹è°æ: DollyDuration µ¿¾È 0->1
-        // - Ä³¸¯ÅÍ ÄÆÀÎ: (DollyDuration - fadeSeconds) µÚ¿¡ È°¼ºÈ­(¾ËÆÄ0) -> fadeSeconds µ¿¾È 0->1
+        // 2.1) ì˜¤ë²„ë ˆì´ ì¤€ë¹„ (ë°°ê²½ + ìºë¦­í„° ì»·ì¸ ìŠ¤ì¼€ì¤„)
+        // - ë°°ê²½: DollyDuration ë™ì•ˆ 0->1
+        // - ìºë¦­í„° ì»·ì¸: (DollyDuration - fadeSeconds) ë’¤ì— í™œì„±í™”(ì•ŒíŒŒ0) -> fadeSeconds ë™ì•ˆ 0->1
         if (overlayUI != null)
         {
             overlayUI.HardReset();
 
             if (seq.useCam2Dolly)
             {
-                /*ÀÌ°Å ¹è°æ ¸ÕÀú »ı±â°í ±×´ã¿¡ ÄÆ¾À
+                /*ì´ê±° ë°°ê²½ ë¨¼ì € ìƒê¸°ê³  ê·¸ë‹´ì— ì»·ì”¬
                  * 
                  * overlayUI.BeginBackgroundFadeIn(seq.cam2DollyDuration);
 
                 float fade = Mathf.Clamp(seq.characterCutInFadeSeconds, 0f, seq.cam2DollyDuration);
                 float delay = Mathf.Max(0f, seq.cam2DollyDuration - fade);
 
-                // ¡Ú seq.cutInSprite¸¦ "Ä³¸¯ÅÍ ÄÆÀÎ ÀÌ¹ÌÁö"·Î »ç¿ë
+                // â˜… seq.cutInSpriteë¥¼ "ìºë¦­í„° ì»·ì¸ ì´ë¯¸ì§€"ë¡œ ì‚¬ìš©
                 overlayUI.PrepareAndScheduleCharacterCutIn(seq.cutInSprite, delay, fade);
            */
 
                 float fade = Mathf.Clamp(seq.characterCutInFadeSeconds, 0f, seq.cam2DollyDuration);
                 float delay = Mathf.Max(0f, seq.cam2DollyDuration - fade);
 
-                // ¹è°æµµ Ä³¸¯ÅÍ ÄÆÀÎ°ú "µ¿½Ã¿¡" ÄÑÁö°í °°ÀÌ ÆäÀÌµå
+                // ë°°ê²½ë„ ìºë¦­í„° ì»·ì¸ê³¼ "ë™ì‹œì—" ì¼œì§€ê³  ê°™ì´ í˜ì´ë“œ
                 overlayUI.PrepareAndScheduleBackground(null, delay, fade);
 
-                // Ä³¸¯ÅÍ ÄÆÀÎµµ µ¿ÀÏ
+                // ìºë¦­í„° ì»·ì¸ë„ ë™ì¼
                 overlayUI.PrepareAndScheduleCharacterCutIn(seq.cutInSprite, delay, fade);
             }
             else
             {
-                // Dolly ¾È ¾²¸é ¿©±â¼­ º°µµ ·êÀ» Á¤ÀÇÇØ¾ß ÇÔ.
-                // Áö±İÀº ¿ä±¸»çÇ×ÀÌ Dolly ±â¹İÀÌ¹Ç·Î »ı·«.
+                // Dolly ì•ˆ ì“°ë©´ ì—¬ê¸°ì„œ ë³„ë„ ë£°ì„ ì •ì˜í•´ì•¼ í•¨.
+                // ì§€ê¸ˆì€ ìš”êµ¬ì‚¬í•­ì´ Dolly ê¸°ë°˜ì´ë¯€ë¡œ ìƒëµ.
             }
         }
 
-        // 3) Cam2 Dolly ÀÌµ¿ + triggerPos¿¡¼­ ÄÆ¾À È¦µå
+        // 3) Cam2 Dolly ì´ë™ + triggerPosì—ì„œ ì»·ì”¬ í™€ë“œ
         if (seq.useCam2Dolly && cam2SplineDolly != null)
         {
             yield return MoveCam2DollyAndHoldAtTrigger(seq);
         }
         else
         {
-            // Dolly ¾È ¾²´Â °æ¿ì: ±âÁ¸ ½Ã°£±â¹İÀ¸·Î "ÄÆ¾À È¦µå"¸¦ ¸¸µé·Á¸é ¿©±â¼­ Ã³¸®
-            // Áö±İÀº Dolly ±â¹İÀÌ ÇÙ½ÉÀÌ¶ó »ı·«.
+            // Dolly ì•ˆ ì“°ëŠ” ê²½ìš°: ê¸°ì¡´ ì‹œê°„ê¸°ë°˜ìœ¼ë¡œ "ì»·ì”¬ í™€ë“œ"ë¥¼ ë§Œë“¤ë ¤ë©´ ì—¬ê¸°ì„œ ì²˜ë¦¬
+            // ì§€ê¸ˆì€ Dolly ê¸°ë°˜ì´ í•µì‹¬ì´ë¼ ìƒëµ.
         }
-        // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-        // 3.5) (Ãß°¡) ÄÆÀÎ È¦µå Á¾·á ÈÄ:
-        //      Cam2¸¦ À¯ÁöÇÑ Ã¤ ÈÄ¹İºÎ ºôº¸µå ¾Ö´Ï Àç»ı
-        //      ÇØ´ç ¾Ö´Ï°¡ "³¡³ª¸é" Cam3·Î ºí·»µå
-        // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // 3.5) (ì¶”ê°€) ì»·ì¸ í™€ë“œ ì¢…ë£Œ í›„:
+        //      Cam2ë¥¼ ìœ ì§€í•œ ì±„ í›„ë°˜ë¶€ ë¹Œë³´ë“œ ì• ë‹ˆ ì¬ìƒ
+        //      í•´ë‹¹ ì• ë‹ˆê°€ "ëë‚˜ë©´" Cam3ë¡œ ë¸”ë Œë“œ
+        // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if (playerSequenceActor != null && seq.playerSequenceClipAfterCutIn != null)
         {
-            // ¡Ø ÁÖÀÇ:
-            // ÀÌÀü ´Ü°è¿¡¼­ FreezeAtÀ¸·Î animator.speed=0ÀÌ µÇ¾úÀ» ¼ö ÀÖÀ½.
-            // Play()°¡ speed=1·Î ¿Ã·ÁÁÖ¹Ç·Î ±×´ë·Î È£ÃâÇØµµ µÊ.
+            // â€» ì£¼ì˜:
+            // ì´ì „ ë‹¨ê³„ì—ì„œ FreezeAtìœ¼ë¡œ animator.speed=0ì´ ë˜ì—ˆì„ ìˆ˜ ìˆìŒ.
+            // Play()ê°€ speed=1ë¡œ ì˜¬ë ¤ì£¼ë¯€ë¡œ ê·¸ëŒ€ë¡œ í˜¸ì¶œí•´ë„ ë¨.
             playerSequenceActor.Play(seq.playerSequenceClipAfterCutIn);
 
-            // ¾Ö´Ï 1È¸ Àç»ıÀÌ ³¡³¯ ¶§±îÁö Cam2 À¯Áö
+            // ì• ë‹ˆ 1íšŒ ì¬ìƒì´ ëë‚  ë•Œê¹Œì§€ Cam2 ìœ ì§€
             yield return WaitForClipFinished(playerSequenceActor, seq.playerSequenceClipAfterCutIn);
         }
-        // 4) Cam3·Î ³Ñ¾î°¨
+        // 4) Cam3ë¡œ ë„˜ì–´ê°
         if (cameraDirector != null)
             cameraDirector.PushShot(seq.cam3Shot);
 
-        //  Cam3 ºí·»µå ¿Ï·á±îÁö ´ë±â (ÇÊ¼ö)
+        //  Cam3 ë¸”ë Œë“œ ì™„ë£Œê¹Œì§€ ëŒ€ê¸° (í•„ìˆ˜)
         if (cameraDirector != null)
             yield return cameraDirector.WaitForBlendComplete();
 
-        //  5~6) Cam3¿¡¼­ ÇÇ°İ ÀÌÆåÆ® ¿¬Ãâ(ÀÌÆåÆ® ¾Ö´Ï Àç»ı Áß Cam3 À¯Áö)
+        //  5~6) Cam3ì—ì„œ í”¼ê²© ì´í™íŠ¸ ì—°ì¶œ(ì´í™íŠ¸ ì• ë‹ˆ ì¬ìƒ ì¤‘ Cam3 ìœ ì§€)
         if (seq.useEnemyHitEffect && enemyHitEffectObject != null && enemyHitEffectAnimator != null && seq.enemyHitEffectClip != null)
         {
             yield return PlayEnemyHitEffectCam3(seq, action);
         }
+        if (FinaleController.Instance != null && FinaleController.Instance.IsFinaleActive)
+            yield break;
 
 
-        // 7) Á¤¸®
+        // 7) ì •ë¦¬
         if (playerSequenceActor != null)
             playerSequenceActor.UnfreezeAndHide();
 
@@ -185,18 +191,18 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
         if (rootPlayerVisual != null)
             rootPlayerVisual.SetActive(prevRootActive);
 
-        // ¿À¹ö·¹ÀÌ Á¾·á + ¾ËÆÄ ¸®¼Â(´ÙÀ½ ½ÃÄö½º ´ëºñ)
+        // ì˜¤ë²„ë ˆì´ ì¢…ë£Œ + ì•ŒíŒŒ ë¦¬ì…‹(ë‹¤ìŒ ì‹œí€€ìŠ¤ ëŒ€ë¹„)
         if (overlayUI != null)
             overlayUI.HideAllAndResetAlpha();
 
-        // Cam2 Dollyµµ start·Î º¹±Í(¾ÈÀü)
+        // Cam2 Dollyë„ startë¡œ ë³µê·€(ì•ˆì „)
         if (seq.useCam2Dolly && cam2SplineDolly != null)
             SetCam2DollyPos(seq.cam2DollyStart);
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
-    // Dolly ÀÌµ¿ + Æ®¸®°Å µµ´Ş ½Ã ÄÆ¾À È¦µå(= cutInHoldSeconds)
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Dolly ì´ë™ + íŠ¸ë¦¬ê±° ë„ë‹¬ ì‹œ ì»·ì”¬ í™€ë“œ(= cutInHoldSeconds)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private IEnumerator MoveCam2DollyAndHoldAtTrigger(PlayerAttackSequenceSO seq)
     {
         float start = Mathf.Clamp01(seq.cam2DollyStart);
@@ -222,11 +228,11 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
                 {
                     reachedTrigger = true;
 
-                    // 1) Dolly¸¦ Æ®¸®°Å ÁöÁ¡À¸·Î "Á¤È®È÷" ¹Ú´Â´Ù(¼±ÅÃ)
+                    // 1) Dollyë¥¼ íŠ¸ë¦¬ê±° ì§€ì ìœ¼ë¡œ "ì •í™•íˆ" ë°•ëŠ”ë‹¤(ì„ íƒ)
                     if (seq.stopDollyAtCutInPoint)
                         SetCam2DollyPos(triggerPos);
 
-                    // 2) ÇÃ·¹ÀÌ¾î ¾Ö´Ï¸¦ ÁöÁ¤ ½ÃÁ¡¿¡¼­ Freeze
+                    // 2) í”Œë ˆì´ì–´ ì• ë‹ˆë¥¼ ì§€ì • ì‹œì ì—ì„œ Freeze
                     if (playerSequenceActor != null)
                     {
                         yield return playerSequenceActor.WaitUntilNormalizedTime(seq.playerFreezeNormalizedTime);
@@ -234,22 +240,22 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
                             playerSequenceActor.FreezeAt(seq.playerFreezeNormalizedTime);
                     }
 
-                    // 3) ÄÆ¶óÀÎ ON (Æ®¸®°Å ½ÃÁ¡¿¡)
+                    // 3) ì»·ë¼ì¸ ON (íŠ¸ë¦¬ê±° ì‹œì ì—)
                     if (overlayUI != null)
                         overlayUI.ShowCutLine();
 
-                    // 4) ÄÆ¾À À¯Áö½Ã°£ µ¿¾È "Á¤Áö"
+                    // 4) ì»·ì”¬ ìœ ì§€ì‹œê°„ ë™ì•ˆ "ì •ì§€"
                     if (seq.cutInHoldSeconds > 0f)
                         yield return WaitUnscaledSeconds(seq.cutInHoldSeconds);
 
-                    // 5) ÄÆ¾À ³¡³ª¸é ¿À¹ö·¹ÀÌ ÀüºÎ ²ô°í ¾ËÆÄ ¸®¼Â + (¼±ÅÃ) ÂªÀº µô·¹ÀÌ ÈÄ Cam3·Î ³Ñ¾î°¡°Ô
+                    // 5) ì»·ì”¬ ëë‚˜ë©´ ì˜¤ë²„ë ˆì´ ì „ë¶€ ë„ê³  ì•ŒíŒŒ ë¦¬ì…‹ + (ì„ íƒ) ì§§ì€ ë”œë ˆì´ í›„ Cam3ë¡œ ë„˜ì–´ê°€ê²Œ
                     if (overlayUI != null)
                         overlayUI.HideAllAndResetAlpha();
 
                     if (seq.afterCutInDelayBeforeCam3 > 0f)
                         yield return WaitUnscaledSeconds(seq.afterCutInDelayBeforeCam3);
 
-                    // ¿©±â¼­ ¹Ù·Î ºüÁ®³ª°¡¼­ Cam3·Î ÀüÈ¯
+                    // ì—¬ê¸°ì„œ ë°”ë¡œ ë¹ ì ¸ë‚˜ê°€ì„œ Cam3ë¡œ ì „í™˜
                     yield break;
                 }
             }
@@ -257,7 +263,7 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
             yield return null;
         }
 
-        // duration ³¡³µ´Âµ¥µµ trigger¸¦ ¸ø ½úÀ¸¸é º¸Á¤
+        // duration ëë‚¬ëŠ”ë°ë„ triggerë¥¼ ëª» ìˆìœ¼ë©´ ë³´ì •
         if (!reachedTrigger)
         {
             SetCam2DollyPos(end);
@@ -283,9 +289,9 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
         }
     }
 
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Dolly setter
-    // ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private void SetCam2DollyPos(float normalized01)
     {
         if (cam2SplineDolly == null) return;
@@ -294,7 +300,7 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
         cam2SplineDolly.CameraPosition = Mathf.Clamp01(normalized01);
     }
 
-    // timeScale ¿µÇâ ¹ŞÁö ¾Ê´Â ´ë±â
+    // timeScale ì˜í–¥ ë°›ì§€ ì•ŠëŠ” ëŒ€ê¸°
     private static IEnumerator WaitUnscaledSeconds(float seconds)
     {
         float t = 0f;
@@ -326,9 +332,9 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
     {
         if (actor == null || clip == null) yield break;
 
-        // PlayerSequenceActor°¡ animator¸¦ privateÀ¸·Î ¼û±â°í ÀÖÀ¸´Ï,
-        // ¿©±â¼­´Â actor¿¡ Animator Á¢±Ù¿ë ÇÁ·ÎÆÛÆ¼¸¦ Ãß°¡ÇÏ´Â ÆíÀÌ °¡Àå ±ò²ûÇÏ´Ù.
-        //  ¾Æ·¡Ã³·³ PlayerSequenceActor¿¡ ÇÁ·ÎÆÛÆ¼ 1ÁÙ Ãß°¡ ÃßÃµ:
+        // PlayerSequenceActorê°€ animatorë¥¼ privateìœ¼ë¡œ ìˆ¨ê¸°ê³  ìˆìœ¼ë‹ˆ,
+        // ì—¬ê¸°ì„œëŠ” actorì— Animator ì ‘ê·¼ìš© í”„ë¡œí¼í‹°ë¥¼ ì¶”ê°€í•˜ëŠ” í¸ì´ ê°€ì¥ ê¹”ë”í•˜ë‹¤.
+        //  ì•„ë˜ì²˜ëŸ¼ PlayerSequenceActorì— í”„ë¡œí¼í‹° 1ì¤„ ì¶”ê°€ ì¶”ì²œ:
         // public Animator Animator => animator;
 
         var anim = actor.Animator;
@@ -336,8 +342,8 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
 
         string stateName = clip.name;
 
-        // 1) ÇØ´ç Å¬¸³ »óÅÂ·Î "ÁøÀÔ"ÇÒ ¶§±îÁö Àá±ñ ´ë±â (ÀüÈ¯ ÇÁ·¹ÀÓ º¸Á¤)
-        //    (animator.Play¸¦ Çß¾îµµ, ¾î¶² °æ¿ì¿£ ´ÙÀ½ ÇÁ·¹ÀÓ¿¡ stateinfo°¡ °»½ÅµÊ)
+        // 1) í•´ë‹¹ í´ë¦½ ìƒíƒœë¡œ "ì§„ì…"í•  ë•Œê¹Œì§€ ì ê¹ ëŒ€ê¸° (ì „í™˜ í”„ë ˆì„ ë³´ì •)
+        //    (animator.Playë¥¼ í–ˆì–´ë„, ì–´ë–¤ ê²½ìš°ì—” ë‹¤ìŒ í”„ë ˆì„ì— stateinfoê°€ ê°±ì‹ ë¨)
         for (int i = 0; i < 3; i++)
         {
             var st0 = anim.GetCurrentAnimatorStateInfo(0);
@@ -345,18 +351,18 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
             yield return null;
         }
 
-        // 2) Å¬¸³ Àç»ı ¿Ï·á ´ë±â
+        // 2) í´ë¦½ ì¬ìƒ ì™„ë£Œ ëŒ€ê¸°
         while (true)
         {
             var st = anim.GetCurrentAnimatorStateInfo(0);
 
-            // ´Ù¸¥ »óÅÂ·Î Æ¢¾úÀ¸¸é(ÀüÀÌ/ÀÎÅÍ·´Æ®) "³¡³­ °É·Î" º¸°í ºüÁ®³ª°¥Áö,
-            // ¾Æ´Ï¸é ±â´Ù¸±Áö Á¤Ã¥ÀÌ ÇÊ¿äÇÑµ¥, ¿©±â¼± '³¡³­ °ÍÀ¸·Î °£ÁÖ'°¡ ¾ÈÀü.
+            // ë‹¤ë¥¸ ìƒíƒœë¡œ íŠ€ì—ˆìœ¼ë©´(ì „ì´/ì¸í„°ëŸ½íŠ¸) "ëë‚œ ê±¸ë¡œ" ë³´ê³  ë¹ ì ¸ë‚˜ê°ˆì§€,
+            // ì•„ë‹ˆë©´ ê¸°ë‹¤ë¦´ì§€ ì •ì±…ì´ í•„ìš”í•œë°, ì—¬ê¸°ì„  'ëë‚œ ê²ƒìœ¼ë¡œ ê°„ì£¼'ê°€ ì•ˆì „.
             if (!st.IsName(stateName))
                 yield break;
 
-            // normalizedTimeÀº ·çÇÁ¸é 1À» °è¼Ó ³Ñ´Â´Ù.
-            // Áö±İÀº "ÇÑ ¹ø ³¡³¯ ¶§"¸¦ ¿øÇÏ´Ï 1 ÀÌ»óÀÌ¸é Á¾·á.
+            // normalizedTimeì€ ë£¨í”„ë©´ 1ì„ ê³„ì† ë„˜ëŠ”ë‹¤.
+            // ì§€ê¸ˆì€ "í•œ ë²ˆ ëë‚  ë•Œ"ë¥¼ ì›í•˜ë‹ˆ 1 ì´ìƒì´ë©´ ì¢…ë£Œ.
             if (st.normalizedTime >= 1f)
                 yield break;
 
@@ -365,45 +371,87 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
     }
     private IEnumerator PlayEnemyHitEffectCam3(PlayerAttackSequenceSO seq, ActionData action)
     {
-        // 0) Hub¿¡ "Áö±İ ³ª¾ß" µî·Ï
+        // âœ… Hubì— "ì§€ê¸ˆ ë‚˜" ë“±ë¡ (í”¼ê²© ì• ë‹ˆ êµ¬ê°„ë§Œ)
         EnemyHitEventHub.Instance?.SetActive(this);
 
+        // 1) ì˜¤ë¸Œì íŠ¸ ON
         enemyHitEffectObject.SetActive(true);
 
+        // 2) ìƒíƒœ ì„¸íŒ…
         _currentSeq = seq;
         _currentAction = action;
         _firedHitStopIndices.Clear();
 
         try
         {
+            // 3) ì• ë‹ˆ ì¬ìƒ
             enemyHitEffectAnimator.speed = 1f;
             enemyHitEffectAnimator.Play(seq.enemyHitEffectClip.name, 0, 0f);
 
-            yield return WaitAnimatorClipEnd(enemyHitEffectAnimator, seq.enemyHitEffectClip.name);
+            // âœ… ê¸°ì¡´ WaitAnimatorClipEnd ëŒ€ì‹  "í”¼ë‚ ë ˆ ê°ì‹œ" ë²„ì „
+            yield return WaitAnimatorClipEnd_OrFinale(enemyHitEffectAnimator, seq.enemyHitEffectClip.name);
         }
         finally
         {
+            // 4) ìƒíƒœ ì •ë¦¬
             _currentSeq = null;
             _currentAction = null;
             _firedHitStopIndices.Clear();
 
+            // 5) ì˜¤ë¸Œì íŠ¸ OFF
             enemyHitEffectObject.SetActive(false);
 
-            // 1) Hub ÇØÁ¦
+            // âœ… Hub í•´ì œ(ë¬´ì¡°ê±´)
             EnemyHitEventHub.Instance?.ClearActive(this);
+        }
+    }
+
+    private static IEnumerator WaitAnimatorClipEnd_OrFinale(Animator anim, string stateName)
+    {
+        if (anim == null || string.IsNullOrEmpty(stateName)) yield break;
+
+        // state ì§„ì… ë³´ì •
+        for (int i = 0; i < 3; i++)
+        {
+            if (FinaleController.Instance != null && FinaleController.Instance.IsFinaleActive)
+                yield break;
+
+            var st0 = anim.GetCurrentAnimatorStateInfo(0);
+            if (st0.IsName(stateName)) break;
+            yield return null;
+        }
+
+        while (true)
+        {
+            // âœ… í”¼ë‚ ë ˆê°€ ì¼œì§„ ìˆœê°„ ì¦‰ì‹œ íƒˆì¶œ
+            if (FinaleController.Instance != null && FinaleController.Instance.IsFinaleActive)
+                yield break;
+
+            var st = anim.GetCurrentAnimatorStateInfo(0);
+
+            // ë‹¤ë¥¸ ìƒíƒœë¡œ íŠ€ë©´ ëë‚œ ê±¸ë¡œ ê°„ì£¼(ì•ˆì „)
+            if (!st.IsName(stateName))
+                yield break;
+
+            if (st.normalizedTime >= 1f)
+                yield break;
+
+            yield return null;
         }
     }
 
 
     /// <summary>
-    /// ¾Ö´Ï ÀÌº¥Æ® ¸®½Ã¹ö°¡ È£ÃâÇÏ´Â ÁøÀÔÁ¡
+    /// ì• ë‹ˆ ì´ë²¤íŠ¸ ë¦¬ì‹œë²„ê°€ í˜¸ì¶œí•˜ëŠ” ì§„ì…ì 
     /// </summary>
     public void OnEnemyHitEvent(int hitStopIndex)
     {
-        // ½ÃÄö½º Àç»ı ÁßÀÌ ¾Æ´Ï¸é ¹«½Ã
+        if (FinaleController.Instance != null && FinaleController.Instance.IsFinaleActive)
+            return;
+        // ì‹œí€€ìŠ¤ ì¬ìƒ ì¤‘ì´ ì•„ë‹ˆë©´ ë¬´ì‹œ
         if (_currentSeq == null) return;
 
-        // °°Àº ÀÎµ¦½º Áßº¹ ¹ßµ¿ ¹æÁö (¿øÇÏ¸é Á¦°Å °¡´É)
+        // ê°™ì€ ì¸ë±ìŠ¤ ì¤‘ë³µ ë°œë™ ë°©ì§€ (ì›í•˜ë©´ ì œê±° ê°€ëŠ¥)
         if (_firedHitStopIndices.Contains(hitStopIndex))
             return;
 
@@ -416,7 +464,7 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
             return;
         }
 
-        // Áö±İ ¿ä±¸»çÇ×: "È÷Æ®½ºÅé¸¸" Ã³¸®
+        // ì§€ê¸ˆ ìš”êµ¬ì‚¬í•­: "íˆíŠ¸ìŠ¤í†±ë§Œ" ì²˜ë¦¬
         StartCoroutine(DoHitStopFromInfo(info));
     }
 
@@ -425,9 +473,20 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
         if (HitStopController.Instance == null)
             yield break;
 
+        bool lethal = false;
+        if (BattleManager.Instance != null)
+            lethal = BattleManager.Instance.HitStopRendering(_currentAction);
 
-        BattleManager.Instance.HitStopRendering(_currentAction);
-        
+        //  lethalì´ë©´ í”¼ë‚ ë ˆë¡œ â€œíƒˆì¶œâ€ (ì´í›„ íˆíŠ¸ìŠ¤í†±/ë‹¤ìŒ íˆíŠ¸ ì§„í–‰ ë§‰ìŒ)
+        if (lethal && FinaleController.Instance != null)
+        {
+            if (BattleManager.Instance != null)
+                BattleManager.Instance.FinalizeBattle();
+
+            yield return FinaleController.Instance.PlayFinale(enemyVisualAnimator, enemyFinaleClip);
+            yield break;
+        }
+
         yield return HitStopController.Instance.DoHitStop(
             info.hitStopSeconds,
             onEnterHitStop: () =>
@@ -435,17 +494,13 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
                 if (cameraDirector != null)
                     cameraDirector.Shake(info.cameraShakeStrength);
             });
-
-
-        // ÃßÈÄ È®Àå Æ÷ÀÎÆ®:
-        // - info.enemyHitTrigger ±â¹İÀ¸·Î µ¥¹ÌÁö/ÀÌÆåÆ®/HP Ã³¸®
-        // - BattleManager.Instance.AttackSequencePhase(_currentAction) °°Àº È£Ãâ
     }
+
     private static IEnumerator WaitAnimatorClipEnd(Animator anim, string stateName)
     {
         if (anim == null || string.IsNullOrEmpty(stateName)) yield break;
 
-        // state ÁøÀÔ º¸Á¤
+        // state ì§„ì… ë³´ì •
         for (int i = 0; i < 3; i++)
         {
             var st0 = anim.GetCurrentAnimatorStateInfo(0);
@@ -457,7 +512,7 @@ public class PlayerAttackSequenceDirector : MonoBehaviour, IEnemyHitEventHandler
         {
             var st = anim.GetCurrentAnimatorStateInfo(0);
 
-            // ´Ù¸¥ »óÅÂ·Î Æ¢¸é ³¡³­ °É·Î °£ÁÖ(¾ÈÀü)
+            // ë‹¤ë¥¸ ìƒíƒœë¡œ íŠ€ë©´ ëë‚œ ê±¸ë¡œ ê°„ì£¼(ì•ˆì „)
             if (!st.IsName(stateName))
                 yield break;
 

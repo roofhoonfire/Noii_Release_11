@@ -15,7 +15,8 @@ public class HPBarManager : MonoBehaviour
 
     int myHP;
     int opHP;
-
+    public int OpHP => opHP;
+    public int MyHP => myHP;
     //추후 데이터값으로 초기화 
 
     public static HPBarManager Instance { get; private set; }
@@ -54,9 +55,9 @@ public class HPBarManager : MonoBehaviour
 
 
 
-    public void DamageMe()
+    public void DamageMe(int deal)
     {
-        int newHP = myHP - 10;
+        int newHP = myHP - deal;
         // if (damageAmount < 0)
         //   return;
 
@@ -71,25 +72,12 @@ public class HPBarManager : MonoBehaviour
 
         //leftAnimator.SetTrigger("Damage");
     }
-    public void DamageOp(int deal)
+    public int DamageOp(int deal)
     {
         int newHP = opHP - deal;
-        //if (damageAmount < 0)
-        //  return;
-
-        //  soundSource.clip = hurtSound;
-        // if(soundOn) soundSource.Play();
-
-        // Update HealthBar
-        if (enemBarHolder != null)
-       {
-           enemBarHolder.UpdateBar(newHP);
-          Debug.Log("된겨 안된겨");
-       }
-
-      //  test.UpdateBar(newHP);
+        if (enemBarHolder != null) enemBarHolder.UpdateBar(newHP);
         opHP = newHP;
-        //leftAnimator.SetTrigger("Damage");
+        return newHP;
     }
 
     #endregion

@@ -10,6 +10,8 @@ public class CardDragHandler : MonoBehaviour,
     IPointerClickHandler
 {
     public static bool AnyCardDragging { get; private set; }
+    public static bool GlobalDragEnabled { get; private set; } = true;
+    private bool dragEnabled = true; //특정 카드만 드래그 안되게 ㅎ
 
     [Header("FX")]
     [SerializeField] private GameObject inZoneFlame;
@@ -35,6 +37,18 @@ public class CardDragHandler : MonoBehaviour,
     private bool wasInside;
     private bool draggingThis;
 
+
+    public void SetDragEnabled(bool enabled)
+    {
+        dragEnabled = enabled;
+    }
+    public static void SetGlobalDragEnabled(bool enabled)
+    {
+        GlobalDragEnabled = enabled;
+
+        if (!enabled)
+            AnyCardDragging = false;
+    }
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -64,6 +78,8 @@ public class CardDragHandler : MonoBehaviour,
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if (!dragEnabled || !GlobalDragEnabled)
+            return;
         if (CardModeState.Instance == null ||
             !CardModeState.Instance.isActive ||
             !CardModeState.Instance.isInteractiveSession)
@@ -170,9 +186,9 @@ public class CardDragHandler : MonoBehaviour,
                         thisCardData.actionClock + apData.permCast + apData.tempCast);
                 CardModeState.Instance.curAction.cardname = thisCardData.name;
                 CardModeState.Instance.curAction.zoneIndex = thisCardData.zoneIndex;
-                CardModeState.Instance.curAction.tileType = thisCardData.tileType;
+                CardModeState.Instance.curAction.seqType = thisCardData.seqType;
                 CardModeState.Instance.curAction.effects
-                    .AddRange(CSVLoader.Instance.GetEffectsByCode(thisCardData.code));
+                    .AddRange(CSVLoader.Instance.GetCardEffectsByCode(thisCardData.code));
                 CardModeState.Instance.curAction.damage =
                     Mathf.Max(0, thisCardData.damage + apData.tempDam + apData.permDam);
 

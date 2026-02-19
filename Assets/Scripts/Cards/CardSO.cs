@@ -25,7 +25,7 @@ public class Card
     public int defense;
     public int disappear;
     public int mana;
-    public int tileType;
+    public int seqType;
     public int zoneIndex;
     public int energy;
     public int damage;

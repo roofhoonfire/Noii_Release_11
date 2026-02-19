@@ -287,7 +287,12 @@ public class BattleCameraDirector : MonoBehaviour
             StopCoroutine(_watchBlendRoutine);
         _watchBlendRoutine = null;
     }
-
+    public CinemachineCamera GetCurrentLiveCamera()
+    {
+        if (_map.TryGetValue(_currentShot, out var cam))
+            return cam;
+        return null;
+    }
     private IEnumerator WatchBlendProgressRoutine(BlendDir dir)
     {
         // Brain 없으면 즉시 이벤트 발사하고 종료

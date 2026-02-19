@@ -132,32 +132,6 @@ AnimatorController:
     m_IKPass: 0
     m_SyncedLayerAffectsTiming: 0
     m_Controller: {fileID: 9100000}
---- !u!1102 &276890222718840460
-AnimatorState:
-  serializedVersion: 6
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Noii_NT_TriPunch_Prep
-  m_Speed: 1
-  m_CycleOffset: 0
-  m_Transitions: []
-  m_StateMachineBehaviours: []
-  m_Position: {x: 50, y: 50, z: 0}
-  m_IKOnFeet: 0
-  m_WriteDefaultValues: 1
-  m_Mirror: 0
-  m_SpeedParameterActive: 0
-  m_MirrorParameterActive: 0
-  m_CycleOffsetParameterActive: 0
-  m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 02eea03b70bfe7d4aa1eddb784fab1c4, type: 2}
-  m_Tag: 
-  m_SpeedParameter: 
-  m_MirrorParameter: 
-  m_CycleOffsetParameter: 
-  m_TimeParameter: 
 --- !u!1107 &760352062750175580
 AnimatorStateMachine:
   serializedVersion: 6
@@ -180,14 +154,11 @@ AnimatorStateMachine:
     m_State: {fileID: 1247380281145176913}
     m_Position: {x: 560, y: 240, z: 0}
   - serializedVersion: 1
-    m_State: {fileID: 276890222718840460}
-    m_Position: {x: 595, y: 305, z: 0}
-  - serializedVersion: 1
     m_State: {fileID: -3064964014644971706}
     m_Position: {x: 800, y: 330, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 3623140251522413881}
-    m_Position: {x: 665, y: 435, z: 0}
+    m_Position: {x: 660, y: 440, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 3890235285983653054}
     m_Position: {x: 830, y: 240, z: 0}

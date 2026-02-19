@@ -16,7 +16,7 @@ public class ActionData //여기 뭐 추가할 거면 carddragHandler로 수정해야함
     public List<int> flags = new List<int>();//
     public bool isfirstStrikeSuccess = false; //이것도 사실상 의미가 없어졌지만, 일단 냅두자
     public string cardname;
-    public int tileType;
+    public int seqType;
     public int zoneIndex;
     public List<AnimationClip> animations;//사실상 필요가 없어졌다
     public bool asCombo = false;
@@ -100,7 +100,7 @@ public class ActionData //여기 뭐 추가할 거면 carddragHandler로 수정해야함
         int hOpActorNum,
         ActionData ttAction,
         ActionData hOpMainAction,
-        ActionData hMainAction)
+        ActionData hMainAction)s
        {
            if (effects == null)
                yield break;

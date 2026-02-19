@@ -26,6 +26,10 @@ public enum CallableFunc
     UnlockChoice, // unlockedChoiceKeys.Add(stringKey)  (아래 Call에 stringKey도 지원)
 AddCard,
 AddItem,
+MatChange,
+Destroy,
+Temp_Load_Battle1
+
 
 }
 

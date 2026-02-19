@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,7 +20,10 @@ public class NewTypePlayerAttackSequenceDirector : MonoBehaviour ,IEnemyHitEvent
     [SerializeField] private GameObject enemyHitEffectObject;
     [SerializeField] private Animator enemyHitEffectAnimator;
 
-    // »óÅÂ
+    [Header("Finale Enemy Visual")]
+    [SerializeField] private Animator enemyVisualAnimator;
+    [SerializeField] private AnimationClip enemyFinaleClip;
+    // ìƒíƒœ
     private NewTypePlayerAttackSequenceSO _currentSeq;
     private ActionData _currentAction;
     private readonly HashSet<int> _firedHitStopIndices = new();
@@ -51,18 +54,18 @@ public class NewTypePlayerAttackSequenceDirector : MonoBehaviour ,IEnemyHitEvent
             yield break;
         }
 
-        // 0) ³ëÆ¼½º
+        // 0) ë…¸í‹°ìŠ¤
         if (!string.IsNullOrEmpty(seq.actionNotice) && SimpleTypewriterUI.Instance != null)
             yield return SimpleTypewriterUI.Instance.TypeAndCloseRoutine(seq.actionNotice);
 
-        // 1) ¿ÍÀÌµå¼¦
+        // 1) ì™€ì´ë“œìƒ·
         if (cameraDirector != null)
         {
             cameraDirector.PushShot(seq.wideShot);
             yield return cameraDirector.WaitForBlendComplete();
         }
 
-        // 2) ·çÆ® ÇÃ·¹ÀÌ¾î: ÁØºñ ¾Ö´Ï
+        // 2) ë£¨íŠ¸ í”Œë ˆì´ì–´: ì¤€ë¹„ ì• ë‹ˆ
         if (seq.playerPrepareClip != null)
         {
             rootPlayerAnimator.speed = 1f;
@@ -70,13 +73,13 @@ public class NewTypePlayerAttackSequenceDirector : MonoBehaviour ,IEnemyHitEvent
             yield return WaitAnimatorClipEnd(rootPlayerAnimator, seq.playerPrepareClip.name);
         }
 
-        // 3) °ø°İ¹ßµ¿ ¾Ö´Ï ½ÃÀÛ + ½º¸ôÄÆ¾À ON + ½º¸ôÄÆ¾À ¾Ö´Ï ½ÃÀÛ(µ¿½Ã¿¡)
+        // 3) ê³µê²©ë°œë™ ì• ë‹ˆ ì‹œì‘ + ìŠ¤ëª°ì»·ì”¬ ON + ìŠ¤ëª°ì»·ì”¬ ì• ë‹ˆ ì‹œì‘(ë™ì‹œì—)
         if (seq.playerAttackClip != null)
         {
             rootPlayerAnimator.speed = 1f;
             rootPlayerAnimator.Play(seq.playerAttackClip.name, 0, 0f);
 
-            // ½º¸ôÄÆ¾À µ¿½Ã Àç»ı
+            // ìŠ¤ëª°ì»·ì”¬ ë™ì‹œ ì¬ìƒ
             if (smallCutsceneObject != null && smallCutsceneAnimator != null && seq.smallCutsceneClip != null)
             {
                 smallCutsceneObject.SetActive(true);
@@ -84,35 +87,35 @@ public class NewTypePlayerAttackSequenceDirector : MonoBehaviour ,IEnemyHitEvent
                 smallCutsceneAnimator.Play(seq.smallCutsceneClip.name, 0, 0f);
             }
 
-            // °ø°İ¹ßµ¿ ¾Ö´Ï ³¡±îÁö ´ë±â
+            // ê³µê²©ë°œë™ ì• ë‹ˆ ëê¹Œì§€ ëŒ€ê¸°
             yield return WaitAnimatorClipEnd(rootPlayerAnimator, seq.playerAttackClip.name);
         }
 
-        // ½º¸ôÄÆ¾ÀÀº °ø°İ¹ßµ¿ ³¡³ª¸é OFF (¿ä±¸»çÇ×)
+        // ìŠ¤ëª°ì»·ì”¬ì€ ê³µê²©ë°œë™ ëë‚˜ë©´ OFF (ìš”êµ¬ì‚¬í•­)
         if (smallCutsceneObject != null)
             smallCutsceneObject.SetActive(false);
 
-        // 4) °ø°İ¹ßµ¿ ³¡³ª´Â ¼ø°£ -> ¿¡³Ê¹Ì ¼¦ ÀüÈ¯
+        // 4) ê³µê²©ë°œë™ ëë‚˜ëŠ” ìˆœê°„ -> ì—ë„ˆë¯¸ ìƒ· ì „í™˜
         if (cameraDirector != null)
         {
             cameraDirector.PushShot(seq.enemyShot);
             yield return cameraDirector.WaitForBlendComplete();
         }
 
-        // 5) Cam3¿¡¼­ ÇÇ°İ ÀÌÆåÆ® + È÷Æ®½ºÅé(±âÁ¸ ¹æ½Ä µ¿ÀÏ)
+        // 5) Cam3ì—ì„œ í”¼ê²© ì´í™íŠ¸ + íˆíŠ¸ìŠ¤í†±(ê¸°ì¡´ ë°©ì‹ ë™ì¼)
         if (seq.useEnemyHitEffect && enemyHitEffectObject != null && enemyHitEffectAnimator != null && seq.enemyHitEffectClip != null)
         {
             yield return PlayEnemyHitEffectAndHitStop(seq, action);
         }
+        if (FinaleController.Instance != null && FinaleController.Instance.IsFinaleActive)
+            yield break;
 
-        // 6) Á¤¸®: (Ä«¸Ş¶ó Back º¹±Í´Â ±âÁ¸ ½Ã½ºÅÛÀÌ ÇÏ´Â ¹æ½ÄÀÌ ÀÖÀ¸´Ï ¿©±â¼­´Â ResetToBack¸¸)
+        // 6) ì •ë¦¬: (ì¹´ë©”ë¼ Back ë³µê·€ëŠ” ê¸°ì¡´ ì‹œìŠ¤í…œì´ í•˜ëŠ” ë°©ì‹ì´ ìˆìœ¼ë‹ˆ ì—¬ê¸°ì„œëŠ” ResetToBackë§Œ)
         if (cameraDirector != null)
             cameraDirector.ResetToBack();
     }
-
     private IEnumerator PlayEnemyHitEffectAndHitStop(NewTypePlayerAttackSequenceSO seq, ActionData action)
     {
-        //Çãºê µîÀå~!!!!
         EnemyHitEventHub.Instance?.SetActive(this);
 
         enemyHitEffectObject.SetActive(true);
@@ -120,32 +123,62 @@ public class NewTypePlayerAttackSequenceDirector : MonoBehaviour ,IEnemyHitEvent
         _currentSeq = seq;
         _currentAction = action;
         _firedHitStopIndices.Clear();
+
         try
         {
             enemyHitEffectAnimator.speed = 1f;
             enemyHitEffectAnimator.Play(seq.enemyHitEffectClip.name, 0, 0f);
 
-            yield return WaitAnimatorClipEnd(enemyHitEffectAnimator, seq.enemyHitEffectClip.name);
+            // âœ… ê¸°ì¡´: yield return WaitAnimatorClipEnd(...)
+            // âœ… ë³€ê²½: "í”¼ë‚ ë ˆ ê°ì‹œ" í•˜ë©´ì„œ ê¸°ë‹¤ë¦¬ê¸°
+            yield return WaitAnimatorClipEnd_OrFinale(enemyHitEffectAnimator, seq.enemyHitEffectClip.name);
         }
         finally
         {
-            // 1) »óÅÂ Á¤¸®
             _currentSeq = null;
             _currentAction = null;
             _firedHitStopIndices.Clear();
 
             enemyHitEffectObject.SetActive(false);
-
-            // 2) Hub ÇØÁ¦ (¹«Á¶°Ç!)
             EnemyHitEventHub.Instance?.ClearActive(this);
         }
     }
 
+    private static IEnumerator WaitAnimatorClipEnd_OrFinale(Animator anim, string stateName)
+    {
+        if (anim == null || string.IsNullOrEmpty(stateName)) yield break;
+
+        for (int i = 0; i < 3; i++)
+        {
+            if (FinaleController.Instance != null && FinaleController.Instance.IsFinaleActive)
+                yield break;
+
+            var st0 = anim.GetCurrentAnimatorStateInfo(0);
+            if (st0.IsName(stateName)) break;
+            yield return null;
+        }
+
+        while (true)
+        {
+            if (FinaleController.Instance != null && FinaleController.Instance.IsFinaleActive)
+                yield break;
+
+            var st = anim.GetCurrentAnimatorStateInfo(0);
+            if (!st.IsName(stateName)) yield break;
+            if (st.normalizedTime >= 1f) yield break;
+
+            yield return null;
+        }
+    }
+
+
     /// <summary>
-    /// EnemyHitEffect ¾Ö´Ï¸ŞÀÌ¼Ç ÀÌº¥Æ®¿¡¼­ int ÆÄ¶ó¹ÌÅÍ·Î È£ÃâÇÒ °Í
+    /// EnemyHitEffect ì• ë‹ˆë©”ì´ì…˜ ì´ë²¤íŠ¸ì—ì„œ int íŒŒë¼ë¯¸í„°ë¡œ í˜¸ì¶œí•  ê²ƒ
     /// </summary>
     public void OnEnemyHitEvent(int hitStopIndex)
     {
+        if (FinaleController.Instance != null && FinaleController.Instance.IsFinaleActive)
+            return;
         if (_currentSeq == null) return;
 
         if (_firedHitStopIndices.Contains(hitStopIndex))
@@ -168,9 +201,19 @@ public class NewTypePlayerAttackSequenceDirector : MonoBehaviour ,IEnemyHitEvent
         if (HitStopController.Instance == null)
             yield break;
 
-        // ³× ±âÁ¸ Ã³¸® ±×´ë·Î
+        bool lethal = false;
         if (BattleManager.Instance != null)
-            BattleManager.Instance.HitStopRendering(_currentAction);
+            lethal = BattleManager.Instance.HitStopRendering(_currentAction);
+
+        //  lethalì´ë©´ í”¼ë‚ ë ˆë¡œ â€œíƒˆì¶œâ€ (ì´í›„ íˆíŠ¸ìŠ¤í†±/ë‹¤ìŒ íˆíŠ¸ ì§„í–‰ ë§‰ìŒ)
+        if (lethal && FinaleController.Instance != null)
+        {
+            if (BattleManager.Instance != null)
+                BattleManager.Instance.FinalizeBattle();
+
+            yield return FinaleController.Instance.PlayFinale(enemyVisualAnimator, enemyFinaleClip);
+            yield break;
+        }
 
         yield return HitStopController.Instance.DoHitStop(
             info.hitStopSeconds,
@@ -185,7 +228,7 @@ public class NewTypePlayerAttackSequenceDirector : MonoBehaviour ,IEnemyHitEvent
     {
         if (anim == null || string.IsNullOrEmpty(stateName)) yield break;
 
-        // state ÁøÀÔ º¸Á¤
+        // state ì§„ì… ë³´ì •
         for (int i = 0; i < 3; i++)
         {
             var st0 = anim.GetCurrentAnimatorStateInfo(0);
@@ -197,7 +240,7 @@ public class NewTypePlayerAttackSequenceDirector : MonoBehaviour ,IEnemyHitEvent
         {
             var st = anim.GetCurrentAnimatorStateInfo(0);
 
-            // ´Ù¸¥ »óÅÂ·Î Æ¢¸é ³¡³­ °É·Î °£ÁÖ
+            // ë‹¤ë¥¸ ìƒíƒœë¡œ íŠ€ë©´ ëë‚œ ê±¸ë¡œ ê°„ì£¼
             if (!st.IsName(stateName))
                 yield break;
 

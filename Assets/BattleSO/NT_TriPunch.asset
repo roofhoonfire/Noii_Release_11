@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: NT_TriPunch
   m_EditorClassIdentifier: 
   cardCode: c2
-  actionNotice: "\uC8FC\uBA39\uC744 \uBE60\uB974\uAC8C \uB0B4\uC9C0\uB985\uB2C8\uB2E4"
+  actionNotice: "\uB178\uC774\uAC00 \uC8FC\uBA39\uC744 \uBE60\uB974\uAC8C \uB0B4\uC9C0\uB985\uB2C8\uB2E4"
   wideShot: 5
   enemyShot: 3
   playerPrepareClip: {fileID: 7400000, guid: 1a4925c9846a1e443b327c0425958f88, type: 2}

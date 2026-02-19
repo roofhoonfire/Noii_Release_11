@@ -58,7 +58,7 @@ public class DialogueInteractable : FieldInteractableBase
         // 아래처럼 "GameStateManager에서 다시 가져오는" 방식이 가장 안전하다.
         var charState = GameStateManager.Instance.GetCharacterState(_playerStatus.characterId);
 
-        _runner = new DialogueGraphRunner(graph, charState);
+        _runner = new DialogueGraphRunner(graph, charState, gameObject);
         _runner.Start(onFinished: () =>
         {
             // 이동 다시 켜기

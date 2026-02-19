@@ -62,6 +62,10 @@ MonoBehaviour:
       flag: 0
       value: 0
       stringKey: i1
+    - func: 6
+      flag: 0
+      value: 0
+      stringKey: i1
     position: {x: 415, y: -1096}
   - guid: 19dd80895b724dcf9156bf37488b263a
     speaker: 

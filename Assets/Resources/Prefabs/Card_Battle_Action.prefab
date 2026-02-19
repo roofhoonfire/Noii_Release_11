@@ -374,7 +374,7 @@ MonoBehaviour:
     defense: 0
     disappear: 0
     mana: 0
-    tileType: 0
+    seqType: 0
     zoneIndex: 0
     energy: 0
     damage: 0
