@@ -97,6 +97,15 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private int yougetChakrainEvery;
 
 
+    [Header ("Stellar")]
+    public List<KnowledgeType> tempKnowledges;
+
+    [Header("Runtime spawned knowledge prefabs")]
+    public List<EachKnowledgeInfo> spawnedKnowledgeUIs = new List<EachKnowledgeInfo>();
+
+   
+    
+    
     public IReadOnlyList<string> OwnedFusionRecipeIds => CombFormula;
 
     private void Awake()

@@ -1,5 +1,5 @@
 code,cardType,name,sprite,animation,actionClock,rumblePoint,damage,defense,disappear,mana,seqType,zoneIndex,energy,cardText
-c1,0,십자베기,ActionCards/AC_C1,,6,2,15,5,0,0,0,0,,피해를 {damage} 줍니다 \n 선공 : 피해를 15 추가로 줍니다
+c1,0,크로스 블로우,ActionCards/AC_C1,,6,2,30,0,0,0,0,0,,피해를 {damage} 줍니다 \n 상대의 다음 행동까지 1턴 남았다면 피해량이 2배가 됩니다
 c2,0,삼연권,ActionCards/AC_C2,,6,3,5,0,0,0,1,2,,{damage}의 피해를 3회 줍니다 \n 
 c3,,반격,ActionCards/AC_C3,,7,2,10,0,,,1,,,피해를 {damage} 줍니다 \n 캐스팅 중 패링에 성공할때마다 \n피해량이 5 증가합니다
 c4,,칩실드,ActionCards/AC_C4,,103,2,,,,,,,,단단한 방패를 앞세워 캐스팅 동안 방어합니다
@@ -10,7 +10,11 @@ c8,,소형 마나건,ActionCards/AC_C6,,4,3,10,5,,,1,,,피해를 {damage} 줍니
 c9,,암습,ActionCards/AC_C6,,3,1,15,0,1,,1,,,피해를 {damage} 줍니다 \n 연속으로 사용할 경우 \n피해량이 감소합니다
 c10,,마나 흉탄,ActionCards/AC_C6,,5,1,40,0,,,0,,,피해를 {damage} 줍니다 
 c11,,예민한 일격,ActionCards/AC_C6,,,,,,,,,,,"캐스팅 중 피해를 입으면, 피해를 주지 못합니다 ㅠㅠ"
-,,,,,,,,,,,,,,
+c12,,세로베기,ActionCards/AC_C6,,3,1,15,0,,,1,,,피해를 {damage} 줍니다
+c13,,가로베기,ActionCards/AC_C6,,5,1,25,0,,,1,,,피해를 {damage} 줍니다
+c14,,순간 포착,ActionCards/AC_C6,,4,,,15,,,,,,패링 : 손에 들고 있는 카드들의 캐스팅이 1턴 감소합니다
+c15,,하프소딩,ActionCards/AC_C6,,6,,,30,,,,,,패링 : 다음 공격의 피해량이 5 증가합니다
+c16,,숨고르기,ActionCards/AC_C6,,1,0,0,0,,,2,,,숨을 고릅니다
 noz1,0,삼단 베기,ActionCards/noz1,,7,0,15,0,,,,,,크게 팔을 3회 휘둘러 매 공격 마다 \n{damage}의 피해를 입힙니다. 
 noz2,0,허리 끊기,ActionCards/noz2,,5,0,15,10,,,,,,자세를 안정적으로 고쳐 잡고 한번 크게 휘둘러 \n{damage}의 피해를 입힙니다
 noz3,0,곡예 베기 ,ActionCards/noz3,,9,0,40,0,,,,,,곡예를 부리듯 뛰어올라 전방을 크게 내려찍어\n {damage}의 피해를 입힙니다
