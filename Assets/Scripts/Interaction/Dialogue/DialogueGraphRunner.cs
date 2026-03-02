@@ -218,7 +218,10 @@ public class DialogueGraphRunner
             _ => false
         };
     }
-
+    public void Abort()
+    {
+        Finish();
+    }
     private void ExecuteCalls(List<CallFuncCall> calls)
     {
         if (calls == null) return;
@@ -263,6 +266,33 @@ public class DialogueGraphRunner
                 case CallableFunc.Temp_Load_Battle1:
                     {
                         SceneManager.LoadScene("Battle_1 Real");
+                        break;
+                    }
+                case CallableFunc.CallEvent:
+                    {
+
+                        //플래그 에 따라 이벤트 발생 여부는 나중에 
+
+                        var fem = FieldEventManager.Instance;
+                        if (fem == null)
+                        {
+                            Debug.LogWarning("[DialogueGraphRunner] CallEvent: FieldEventManager.Instance가 없음 (필드에 1개 있어야 함)");
+                            break;
+                        }
+
+                        if (string.IsNullOrWhiteSpace(c.eventCode))
+                        {
+                            Debug.LogWarning("[DialogueGraphRunner] CallEvent: eventCode가 비어있음");
+                            break;
+                        }
+
+                        if (!fem.HasEvent(c.eventType, c.eventCode))
+                        {
+                            Debug.LogWarning($"[DialogueGraphRunner] CallEvent: 필드에 등록되지 않은 이벤트 호출 시도: {c.eventType}/{c.eventCode}");
+                            break;
+                        }
+
+                        fem.StartEvent(c.eventType, c.eventCode);
                         break;
                     }
                 default:

@@ -1,0 +1,123 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0d3383e8f0d2248a79edee4f538755, type: 3}
+  m_Name: SectorE_GasRoom_Machine
+  m_EditorClassIdentifier: 
+  nodes:
+  - guid: dcb7eabfa27e4a59ad38463a8d72dd56
+    speaker: 
+    text: "\uC774 \uAC00\uC2A4\uC2E4\uC5D0\uC11C \uB098\uC624\uB294 \uC9C0\uAE0B
+      \uC9C0\uAE0B\uD55C \uAC00\uC2A4\uB4E4\uC740 \uBAA8\uB450 \uC774 \uC7A5\uCE58\uC5D0\uC11C
+      \uC2DC\uC791\uB418\uC5B4,\n\uD30C\uC774\uD504\uB97C \uD0C0\uACE0 \uD37C\uC838\uB098\uAC00\uB294
+      \uAC83 \uAC19\uB2E4"
+    choices: []
+    defaultNextGuid: 32991db043b1480faff504c4c1103e88
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls: []
+    position: {x: 264, y: -92}
+  - guid: 32991db043b1480faff504c4c1103e88
+    speaker: 
+    text: "\uC5B4\uCA4C\uBA74 \uC774 \uAE30\uACC4\uC7A5\uCE58\uB97C \uBA48\uCD9C
+      \uC218 \uC788\uC744\uC9C0\uB3C4 \uBAA8\uB978\uB2E4\n(\uC9C0\uD61C\uC758 \uD2B8\uB77C\uC774\uC5BC
+      : \uC9C0\uD61C\uAC00 \uB192\uC744 \uACBD\uC6B0 \uC131\uACF5 \uD655\uB960\uC774
+      \uC99D\uAC00\uD569\uB2C8\uB2E4)"
+    choices:
+    - choiceGuid: 30b9416d2e1947b99f2c4a30274d3007
+      text: "\uC2DC\uB3C4\uD55C\uB2E4"
+      lockedAtFirst: 0
+      unlockKey: 
+      defaultNextGuid: 
+      nextLinks: []
+      calls:
+      - func: 8
+        flag: 0
+        value: 0
+        stringKey: 
+        eventType: 1
+        eventCode: Dice_1
+    - choiceGuid: e8314e897e50425d8504de31317cca9d
+      text: "\uBB3C\uB7EC \uB09C\uB2E4"
+      lockedAtFirst: 0
+      unlockKey: 
+      defaultNextGuid: 331434a8fe34473ea9d9a04074a26c64
+      nextLinks: []
+      calls: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls: []
+    position: {x: 960, y: -92}
+  - guid: 331434a8fe34473ea9d9a04074a26c64
+    speaker: 
+    text: "\uD568\uBD80\uB85C \uB9CC\uC84C\uB2E4\uAC00 \uC5B4\uB5BB\uAC8C \uB420\uC9C0
+      \uBAA8\uB978\uB2E4, \uC5EC\uAE30\uC11C\uB294 \uBB3C\uB7EC\uB098\uC790"
+    choices: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls: []
+    position: {x: 1891, y: -13}
+  - guid: e7183d4c2f294b4baa18bb3156d3735c
+    speaker: 
+    text: "\uC694\uB780\uD55C \uC18C\uB9AC\uB97C \uB0B4\uACE0 \uC788\uB294 \uAE30\uACC4\uC7A5\uCE58\uC774\uB2E4"
+    choices: []
+    defaultNextGuid: dcb7eabfa27e4a59ad38463a8d72dd56
+    nextLinks: []
+    isEntryCandidate: 1
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 1
+    calls: []
+    position: {x: -134, y: -64}
+  - guid: 9d6c541887464d2a86f0044cd4359747
+    speaker: 
+    text: "\uB2F9\uC2E0\uC740 \uAE30\uACC4\uC7A5\uCE58\uB97C \uC870\uC791\uD574\uBCF8\uB2E4"
+    choices: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls:
+    - func: 8
+      flag: 0
+      value: 1
+      stringKey: 
+      eventType: 1
+      eventCode: Dice_1
+    position: {x: 1891, y: -438}

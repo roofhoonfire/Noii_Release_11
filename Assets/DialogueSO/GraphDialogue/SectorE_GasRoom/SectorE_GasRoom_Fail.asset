@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0d3383e8f0d2248a79edee4f538755, type: 3}
+  m_Name: SectorE_GasRoom_Fail
+  m_EditorClassIdentifier: 
+  nodes:
+  - guid: 0e60710264c84f93b9dbab3e8f863513
+    speaker: 
+    text: "\uAE30\uACC4\uC7A5\uCE58\uC758 \uBCF5\uC7A1\uD568\uC740 \uC0C1\uC815 \uBC94\uC704\uB97C
+      \uC544\uB4DD\uD788 \uBC97\uC5B4\uB098 \uC788\uB2E4"
+    choices: []
+    defaultNextGuid: 076c9e4cb4b84ca3908a3d05b9585828
+    nextLinks: []
+    isEntryCandidate: 1
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 1
+    calls: []
+    position: {x: 64, y: 128}
+  - guid: 076c9e4cb4b84ca3908a3d05b9585828
+    speaker: 
+    text: "\uC0B0\uC18C\uAC00 \uBD80\uC871\uD55C \uACF3\uC5D0\uC11C \uBA38\uB9AC\uB97C
+      \uC4F4 \uB098\uBA38\uC9C0, \uC815\uC2E0\uC774 \uD750\uB824\uC9C4\uB2E4"
+    choices: []
+    defaultNextGuid: 718978558e1647cb82d93fd9e470ac20
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls: []
+    position: {x: 585, y: 159}
+  - guid: 718978558e1647cb82d93fd9e470ac20
+    speaker: 
+    text: "\uC815\uC2E0\uC774 \uC544\uB4DD\uD574\uC9C4\uB2E4.."
+    choices: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls: []
+    position: {x: 1211, y: 159}

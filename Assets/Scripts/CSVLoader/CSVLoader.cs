@@ -18,6 +18,7 @@ public class CSVLoader : MonoBehaviour //ÀÌÀÚ½ÄÀº Ä«µåÀÇ ¸ÞÅ¸µ¥ÀÌÅÍ //³ªÁß¿¡ ÀÌ°
     public BoundEffectSO runtimeBoundEffectSO;
     public JujuSO runtimeJujuSO;
     public JujuEffectSO runtimeJujuEffectSO;
+    public DrawCardSO runtimeDrawCardSO; //  Ãß°¡: µå·Î¿ì Ä«µå ¸ÞÅ¸
     // ¾ÆÀÌÅÛ SOµµ ¿©±â ÇÏ³ª ¸¸µë
 
 
@@ -38,8 +39,11 @@ public class CSVLoader : MonoBehaviour //ÀÌÀÚ½ÄÀº Ä«µåÀÇ ¸ÞÅ¸µ¥ÀÌÅÍ //³ªÁß¿¡ ÀÌ°
     void Start()
     {
         //Ä«µå ÀÌÆåÆ® ·Îµå
-      //  CardDEffectDatabase.LoadEffectFromCSV(Resources.Load<TextAsset>("cardsEffect"));  //È¿°ú µ¥ÀÌÅÍ, Á¤Àû Å¬·¡½º·Î °ü¸®
+        //  CardDEffectDatabase.LoadEffectFromCSV(Resources.Load<TextAsset>("cardsEffect"));  //È¿°ú µ¥ÀÌÅÍ, Á¤Àû Å¬·¡½º·Î °ü¸®
 
+        runtimeDrawCardSO = DrawCardMetaDatabase.LoadMetaFromCSV();
+        if (runtimeDrawCardSO != null)
+            Debug.Log($"[DrawCardCSVLoader] ·±Å¸ÀÓ DrawCard SO »ý¼º ¿Ï·á - ÃÑ {runtimeDrawCardSO.drawcards.Length}°³");
         runtimeCardSO = CardMetaDatabase.LoadMetaFromCSV(); //¸ÞÅ¸ µ¥ÀÌÅÍ ·Îµå
 
         Debug.Log($"[CardCSVLoader] ·±Å¸ÀÓ Ä«µå SO »ý¼º ¿Ï·á - ÃÑ {runtimeCardSO.cards.Length}Àå");
@@ -70,7 +74,18 @@ public class CSVLoader : MonoBehaviour //ÀÌÀÚ½ÄÀº Ä«µåÀÇ ¸ÞÅ¸µ¥ÀÌÅÍ //³ªÁß¿¡ ÀÌ°
         return null; // ¾øÀ¸¸é null ¹ÝÈ¯
     }
 
+    public DrawCard GetDrawCardByCode(string code)
+    {
+        if (runtimeDrawCardSO == null || runtimeDrawCardSO.drawcards == null)
+            return null;
 
+        foreach (var dc in runtimeDrawCardSO.drawcards)
+        {
+            if (dc != null && dc.code == code)
+                return dc;
+        }
+        return null;
+    }
     public Item GetItemByCode(string code)
     {
         foreach (var item in runtimeItemSO.items)

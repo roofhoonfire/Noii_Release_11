@@ -28,7 +28,8 @@ AddCard,
 AddItem,
 MatChange,
 Destroy,
-Temp_Load_Battle1
+Temp_Load_Battle1,
+            CallEvent, //  추가
 
 
 }
@@ -155,4 +156,9 @@ public class CallFuncCall
 
     // 문자열 타겟 (unlockKey 같은)
     public string stringKey;
+
+
+    //  CallEvent 전용 (다른 func에서는 무시)
+    public FieldEventManager.EventType eventType;
+    public string eventCode;
 }

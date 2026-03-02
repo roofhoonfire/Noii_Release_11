@@ -1,0 +1,4 @@
+code,name,sprite,knowledgeType,amount,cardText
+dc1,크로스 블로우,DrawCards/DC_C1,sword,1,검술 지식을 1 획득 합니다
+dc2,삼연권,DrawCards/DC_C2,defend,1,방어 지식을 1 획득 합니다
+dc3,반격,DrawCards/DC_C3,heist,1,신속 지식을 1 획득 합니다
