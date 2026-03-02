@@ -61,7 +61,7 @@ public class KnowledgeManger : MonoBehaviour
         BattleManager.Instance.spawnedKnowledgeUIs.Clear();
 
         // 2) 현재 tempKnowledges 기반으로 새로 생성
-        var list = BattleManager.Instance.tempKnowledges;
+        var list = BattleManager.Instance.currentKnowledges;
         if (list == null) return;
 
         foreach (var kt in list)

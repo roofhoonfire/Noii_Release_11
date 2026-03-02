@@ -6,13 +6,13 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Scenes/Field_1.unity
+    path: Assets/Scenes/Field/SectorE/Field_1.unity
     guid: 7056d473e7b5b7e43a6f7caea296129d
   - enabled: 1
     path: Assets/Scenes/Opening.unity
     guid: 7ed24cac1dcfa8243a989f3b33b8b958
   - enabled: 1
-    path: Assets/Scenes/Field_1Final.unity
+    path: Assets/Scenes/Field/SectorE/Field_1Final.unity
     guid: 543761fdfa84cbc4a892156a674de1f5
   - enabled: 1
     path: Assets/Scenes/Battle_1 Real.unity

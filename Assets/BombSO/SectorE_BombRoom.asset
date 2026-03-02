@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44635304ecf187e47a664f661ea6d6a4, type: 3}
+  m_Name: SectorE_BombRoom
+  m_EditorClassIdentifier: 
+  loop: 1
+  loopInterval: 0.25
+  steps:
+  - delayBeforeExplode: 0.4
+    zoneIds: 010000000d0000000e000000120000001a000000
+  - delayBeforeExplode: 0.4
+    zoneIds: 030000000f0000000e0000001300000019000000
+  - delayBeforeExplode: 0.4
+    zoneIds: 05000000110000000e0000001400000018000000
+  - delayBeforeExplode: 0.4
+    zoneIds: 070000000e00000010000000
+  - delayBeforeExplode: 0.4
+    zoneIds: 09000000150000001600000017000000
+  - delayBeforeExplode: 0.4
+    zoneIds: 0b0000000e0000000d0000001300000019000000
+  - delayBeforeExplode: 0.4
+    zoneIds: 0e0000000f00000014000000180000000c000000
+  - delayBeforeExplode: 0.4
+    zoneIds: 0a000000110000000e0000001a00000012000000
+  - delayBeforeExplode: 0.4
+    zoneIds: 080000000e000000100000001300000019000000
+  - delayBeforeExplode: 0.4
+    zoneIds: 060000000e0000000d0000001a00000012000000
+  - delayBeforeExplode: 0.4
+    zoneIds: 040000000e0000000f0000001300000019000000
+  - delayBeforeExplode: 0.4
+    zoneIds: 020000000e000000110000001400000018000000
+  - delayBeforeExplode: 0.4
+    zoneIds: 0e00000010000000

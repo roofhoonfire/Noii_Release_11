@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 621aa7ea3298c3e47b966071913c8dae, type: 3}
+  m_Name: StellarDB
+  m_EditorClassIdentifier: 
+  entries:
+  - key: st1
+    constellationPrefab: {fileID: 1746890290382056719, guid: fb98f15028afdc04388c06727abb6658,
+      type: 3}

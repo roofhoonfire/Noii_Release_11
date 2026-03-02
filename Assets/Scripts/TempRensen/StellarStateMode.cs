@@ -1,10 +1,24 @@
-// StellarOverallManager.cs
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class StellarStateMode : MonoBehaviour
 {
     public static StellarStateMode Instance { get; private set; }
+
+    [Header("Constellation DB")]
+    [SerializeField] private StellarConstellationDBSO constellationDB;
+    [SerializeField] private Transform constellationSpawnRoot;
+
+    private GameObject _spawnedConstellation;
+
+    [Header("Card UI")]
+    [SerializeField] public GameObject cardPrefab;
+    [SerializeField] public RectTransform cardContentArea;
+    public List<GameObject> spawnedCards = new List<GameObject>();
+
+    public bool isActive = false;
+    private Coroutine _stellarCoroutine;
 
     private void Awake()
     {
@@ -16,24 +30,202 @@ public class StellarStateMode : MonoBehaviour
         Instance = this;
     }
 
+    // ê¸°ì¡´ í˜¸ì¶œ í˜¸í™˜ìš©(ì›í•˜ë©´ ìœ ì§€)
+    public void SetActive(bool active)
+    {
+        SetActive(active, null);
+    }
+
+    // âœ… ìƒˆ ë²„ì „: ë³„ìë¦¬ í‚¤ë¥¼ ë°›ëŠ”ë‹¤
+    public void SetActive(bool active, string constellationKey)
+    {
+        if (active == isActive) return;
+        isActive = active;
+
+        if (isActive)
+        {
+            SpawnConstellation(constellationKey);
+            StartStellarLoop();
+        }
+        else
+        {
+            StopStellarLoop();
+        }
+    }
+
+    private void SpawnConstellation(string key)
+    {
+        // ì´ì „ ê²ƒ ì œê±°(í˜¹ì‹œ ë‚¨ì•„ìˆë‹¤ë©´)
+        ClearConstellation();
+
+        if (string.IsNullOrWhiteSpace(key))
+            return; // í‚¤ ì—†ìœ¼ë©´ ë³„ìë¦¬ ì•ˆ ë„ìš°ê³  ê·¸ëƒ¥ ëª¨ë“œë§Œ ì¼¬
+
+        if (constellationDB == null || constellationSpawnRoot == null)
+        {
+            Debug.LogWarning("[StellarStateMode] constellationDB / constellationSpawnRoot ë¹„ì–´ìˆìŒ");
+            return;
+        }
+
+        if (!constellationDB.TryGetPrefab(key, out var prefab))
+        {
+            Debug.LogWarning($"[StellarStateMode] ë³„ìë¦¬ í‚¤ ëª» ì°¾ìŒ: {key}");
+            return;
+        }
+
+        _spawnedConstellation = Instantiate(prefab, constellationSpawnRoot);
+        // í•„ìš”í•˜ë©´ ë¡œì»¬ íŠ¸ëœìŠ¤í¼ ì´ˆê¸°í™”
+        var rt = _spawnedConstellation.transform;
+        rt.localPosition = Vector3.zero;
+        rt.localRotation = Quaternion.identity;
+        rt.localScale = Vector3.one;
+    }
+
+    private void ClearConstellation()
+    {
+        if (_spawnedConstellation != null)
+        {
+            Destroy(_spawnedConstellation);
+            _spawnedConstellation = null;
+        }
+    }
+
+    private void StartStellarLoop()
+    {
+        if (_stellarCoroutine == null)
+            _stellarCoroutine = StartCoroutine(FusionLoop());
+    }
+
+    private void StopStellarLoop()
+    {
+        if (_stellarCoroutine != null)
+        {
+            StopCoroutine(_stellarCoroutine);
+            _stellarCoroutine = null;
+        }
+
+        isActive = false;
+        StartCoroutine(CloseHandsThenReturn());
+    }
+
+    public void CancelAndReturn()
+    {
+        if (_stellarCoroutine != null)
+        {
+            StopCoroutine(_stellarCoroutine);
+            _stellarCoroutine = null;
+        }
+
+        isActive = false;
+        StartCoroutine(CloseHandsThenReturn());
+    }
+
+    private IEnumerator CloseHandsThenReturn()
+    {
+        ClearAllCards();
+        ClearConstellation(); // âœ… ë³„ìë¦¬ë„ ê°™ì´ ì •ë¦¬
+
+        yield return BattleCameraDirector.Instance.SetShotAndWait(BattleCameraDirector.ShotId.Back);
+        BattleManager.Instance.AnotherModeDone();
+    }
+
+    private IEnumerator FusionLoop()
+    {
+        PopulateCards();
+
+        while (isActive)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                CancelAndReturn();
+                yield break;
+            }
+            yield return null;
+        }
+    }
+
+    // ì´í•˜ ë„ˆ ì½”ë“œ ê·¸ëŒ€ë¡œ(ì¹´ë“œ ìŠ¤í°/í•©ì„± ë“±)â€¦
+    private void ClearAllCards()
+    {
+        if (cardContentArea != null)
+        {
+            for (int i = cardContentArea.childCount - 1; i >= 0; i--)
+                Destroy(cardContentArea.GetChild(i).gameObject);
+        }
+        spawnedCards.Clear();
+    }
+
+    private void PopulateCards()
+    {
+        spawnedCards.Clear();
+
+        foreach (string code in BattleManager.Instance.apData.hands)
+        {
+            var cardGO = Instantiate(cardPrefab, cardContentArea);
+            spawnedCards.Add(cardGO);
+
+            if (BattleManager.Instance.apData.isBlinded)
+            {
+                Transform visualRoot = cardGO.transform.Find("VisualRoot");
+                if (visualRoot != null)
+                {
+                    Transform blood = visualRoot.Find("BloodShed");
+                    if (blood != null) blood.gameObject.SetActive(true);
+                }
+            }
+
+            var info = cardGO.GetComponent<EachCardInfo>();
+            if (info == null) { Debug.LogWarning("EachCardInfo ì—†ìŒ"); continue; }
+
+            info.cardData = CSVLoader.Instance.GetCardByCode(code);
+            info.ApplyCardData();
+        }
+    }
+
+    // TrySynthesize ë“± ë‚˜ë¨¸ì§€ëŠ” ë„¤ ì½”ë“œ ìœ ì§€í•˜ë©´ ë¨
+    private void SpawnResultCardUI(string code) {
+        if (string.IsNullOrWhiteSpace(code)) return; 
+        code = code.Trim(); var cardGO = Instantiate(cardPrefab, cardContentArea); 
+        spawnedCards.Add(cardGO);
+        if (BattleManager.Instance.apData.isBlinded) { 
+            Transform visualRoot = cardGO.transform.Find("VisualRoot");
+            if (visualRoot != null) { Transform blood = visualRoot.Find("BloodShed"); 
+                if (blood != null) blood.gameObject.SetActive(true); 
+            }
+        }
+        var info = cardGO.GetComponent<EachCardInfo>();
+        if (info == null) { 
+            Debug.LogWarning("[Fusion] ê²°ê³¼ ì¹´ë“œì— EachCardInfo ì—†ìŒ");
+            return; 
+        } 
+        var cardData = CSVLoader.Instance.GetCardByCode(code);
+        if (cardData == null) { 
+            Debug.LogWarning($"[Fusion] ê²°ê³¼ ì¹´ë“œ ì½”ë“œ ëª» ì°¾ìŒ: {code}");
+            return;
+        }
+        info.cardData = cardData; info.ApplyCardData();
+    }
+
+
     /// <summary>
-    /// ¿ä±¸ Àç·á(³ëµå¸®½ºÆ®/³ë¿ï¸®Áö) ¸¸Á·ÇÏ¸é:
-    /// - TempManager.Instance.tempHands ¿¡¼­ ¿ä±¸ Ä«µåÄÚµåµé Á¦°Å
-    /// - TempManager.Instance.tempKnowledges ¿¡¼­ ¿ä±¸ ³ë¿ï¸®Áöµé Á¦°Å
-    /// - rewardCardCode ¸¦ tempHands¿¡ Ãß°¡
+    /// ìš”êµ¬ ì¬ë£Œ(ë…¸ë“œë¦¬ìŠ¤íŠ¸/ë…¸ìš¸ë¦¬ì§€) ë§Œì¡±í•˜ë©´:
+    /// - TempManager.Instance.tempHands ì—ì„œ ìš”êµ¬ ì¹´ë“œì½”ë“œë“¤ ì œê±°
+    /// - TempManager.Instance.tempKnowledges ì—ì„œ ìš”êµ¬ ë…¸ìš¸ë¦¬ì§€ë“¤ ì œê±°
+    /// - rewardCardCode ë¥¼ tempHandsì— ì¶”ê°€
     /// </summary>
+    /// ì…‹ ì•¡í‹°ë¸Œ ë  ë•Œ, ë§¤ê°œë³€ìˆ˜ë¡œ ë°›ì€ í”„ë¦¬íŒ¹ ìƒì„± . . . 
     public bool TrySynthesize(List<StellarNode> requiredNodes, List<KnowledgeType> requiredKnowledges, string rewardCardCode)
     {
         if (BattleManager.Instance == null)
         {
-            Debug.LogError("[StellarOverallManager] TempManager.Instance ¾øÀ½");
+            Debug.LogError("[StellarOverallManager] TempManager.Instance ì—†ìŒ");
             return false;
         }
 
         var hands = BattleManager.Instance.apData.hands;              // List<string>
-        var knowledges = BattleManager.Instance.tempKnowledges;    // List<KnowledgeType>
+        var knowledges = BattleManager.Instance.currentKnowledges;    // List<KnowledgeType>
 
-        // 1) ¿ä±¸ Ä«µåÄÚµå ¸®½ºÆ®·Î º¯È¯ (requiredNodes°¡ nullÀÌ¸é = ¿ä±¸ ¾øÀ½)
+        // 1) ìš”êµ¬ ì¹´ë“œì½”ë“œ ë¦¬ìŠ¤íŠ¸ë¡œ ë³€í™˜ (requiredNodesê°€ nullì´ë©´ = ìš”êµ¬ ì—†ìŒ)
         List<string> requiredCardCodes = null;
         if (requiredNodes != null)
         {
@@ -46,21 +238,23 @@ public class StellarStateMode : MonoBehaviour
             }
         }
 
-        // 2) º¸À¯ Àç»êÀÌ ¿ä±¸ Àç·á¸¦ ÀüºÎ °¡Áö°í ÀÖ´ÂÁö °Ë»ç(Áßº¹ Æ÷ÇÔ)
+        // 2) ë³´ìœ  ì¬ì‚°ì´ ìš”êµ¬ ì¬ë£Œë¥¼ ì „ë¶€ ê°€ì§€ê³  ìˆëŠ”ì§€ ê²€ì‚¬(ì¤‘ë³µ í¬í•¨)
         bool cardsOk = (requiredCardCodes == null) || ContainsAllWithCounts(hands, requiredCardCodes);
         bool knowOk = (requiredKnowledges == null) || ContainsAllWithCounts(knowledges, requiredKnowledges);
 
         if (!cardsOk || !knowOk)
         {
-            Debug.Log("[StellarOverallManager] ÇÕ¼º ½ÇÆĞ: Àç·á ºÎÁ·");
+            Debug.Log("[StellarOverallManager] í•©ì„± ì‹¤íŒ¨: ì¬ë£Œ ë¶€ì¡±");
             return false;
         }
 
-        // 3) ¿ä±¸ Àç·á Á¦°Å
+        // 3) ìš”êµ¬ ì¬ë£Œ ì œê±°
         if (requiredCardCodes != null)
         {
             foreach (var code in requiredCardCodes)
                 RemoveOne(hands, code);
+            RemoveMaterialCardUI(requiredCardCodes);
+
         }
 
         if (requiredKnowledges != null)
@@ -69,15 +263,17 @@ public class StellarStateMode : MonoBehaviour
                 RemoveOne(knowledges, k);
         }
 
-        // 4) º¸»ó Áö±Ş
+        // 4) ë³´ìƒ ì§€ê¸‰
         if (!string.IsNullOrEmpty(rewardCardCode))
             hands.Add(rewardCardCode);
 
-        Debug.Log($"[StellarOverallManager] ÇÕ¼º ¼º°ø! reward={rewardCardCode}");
+        Debug.Log($"[StellarOverallManager] í•©ì„± ì„±ê³µ! reward={rewardCardCode}");
+
+        SpawnResultCardUI(rewardCardCode);
         return true;
     }
 
-    // ---------- helpers (Áßº¹ °³¼ö±îÁö °í·Á) ----------
+    // ---------- helpers (ì¤‘ë³µ ê°œìˆ˜ê¹Œì§€ ê³ ë ¤) ----------
 
     private static bool ContainsAllWithCounts(List<string> owned, List<string> required)
     {
@@ -136,7 +332,53 @@ public class StellarStateMode : MonoBehaviour
     private static void RemoveOne(List<KnowledgeType> list, KnowledgeType value)
     {
         if (list == null) return;
+
         int idx = list.IndexOf(value);
-        if (idx >= 0) list.RemoveAt(idx);
+        if (idx >= 0)
+        {
+            KnowledgeType removed = list[idx];
+
+            // ğŸ”¥ Trashë¡œ ì´ë™
+            if (BattleManager.Instance != null && BattleManager.Instance.knowledgeTrash != null)
+            {
+                BattleManager.Instance.knowledgeTrash.Add(removed);
+            }
+
+            list.RemoveAt(idx);
+        }
+    }
+    private void RemoveMaterialCardUI(List<string> consumedCodes)
+    {
+        if (consumedCodes == null || consumedCodes.Count == 0)
+            return;
+
+        // ì¤‘ë³µ ì¹´ë“œ ê³ ë ¤
+        var need = new Dictionary<string, int>();
+        foreach (var code in consumedCodes)
+        {
+            if (string.IsNullOrWhiteSpace(code)) continue;
+            var trimmed = code.Trim();
+            need.TryGetValue(trimmed, out int c);
+            need[trimmed] = c + 1;
+        }
+
+        for (int i = spawnedCards.Count - 1; i >= 0; i--)
+        {
+            var go = spawnedCards[i];
+            if (go == null) continue;
+
+            var info = go.GetComponent<EachCardInfo>();
+            if (info == null || info.cardData == null) continue;
+
+            string code = info.cardData.code; // âš  ë„ˆ CSV êµ¬ì¡°ì— ë§ê²Œ í•„ë“œëª… ìˆ˜ì •
+
+            if (need.TryGetValue(code, out int count) && count > 0)
+            {
+                need[code] = count - 1;
+
+                spawnedCards.RemoveAt(i);
+                Destroy(go);
+            }
+        }
     }
 }

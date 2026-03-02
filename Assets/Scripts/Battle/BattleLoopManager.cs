@@ -98,7 +98,11 @@ public class BattleManager : MonoBehaviour
 
 
     [Header ("Stellar")]
-    public List<KnowledgeType> tempKnowledges;
+    public List<KnowledgeType> currentKnowledges; //보유 날리지로 이름 바꾸기
+    public List<KnowledgeType> knowledgeDeck; //날리지 덱
+    public List<KnowledgeType> knowledgeTrash; //날리지 덱
+
+    public List<string> StellarList;
 
     [Header("Runtime spawned knowledge prefabs")]
     public List<EachKnowledgeInfo> spawnedKnowledgeUIs = new List<EachKnowledgeInfo>();
@@ -407,44 +411,49 @@ public class BattleManager : MonoBehaviour
         selectModeUI.EnterSelectMode();
 
 
-        // 3) 핸드 초기화
+        // 3) 노울리지 초기화
         //  apData.hands = new List<string>();
         // ─────────────────────────────
         // [추가] 덱이 비어있으면 기본 카드 1장 보충 경콘진용
         // ─────────────────────────────
-        int targetHandSize = 5;
+        int targetKnowLedgeSize = 5;
 
         // 현재 핸드 기준으로 부족한 수 계산
-        int needToDraw = targetHandSize - apData.hands.Count;
+        int needToDraw = targetKnowLedgeSize - currentKnowledges.Count;
 
         if (needToDraw <= 0)
            yield return null;
 
         // 덱이 부족하면 trash에서 계속 보충
-        while (apData.deckList.Count < needToDraw && apData.trash.Count > 0)
+        while (knowledgeDeck.Count < needToDraw && knowledgeTrash.Count > 0)
         {
-            int randIndex = UnityEngine.Random.Range(0, apData.trash.Count);
-            string picked = apData.trash[randIndex];
+            int randIndex = UnityEngine.Random.Range(0, knowledgeTrash.Count);
+            KnowledgeType picked = knowledgeTrash[randIndex];
 
-            apData.deckList.Add(picked);
-            apData.trash.RemoveAt(randIndex);
+            knowledgeDeck.Add(picked);
+            knowledgeTrash.RemoveAt(randIndex);
 
             Debug.Log($"[SelectMode] trash → deck 이동: {picked}");
         }
 
         // 실제 뽑을 수 계산 (덱이 모자랄 수도 있으니까)
-        int drawCount = Mathf.Min(needToDraw, apData.deckList.Count);
+        int drawCount = Mathf.Min(needToDraw, knowledgeDeck.Count);
 
         System.Random rng = new System.Random();
 
         for (int i = 0; i < drawCount; i++)
         {
-            int idx = rng.Next(0, apData.deckList.Count);
-            string pickedCard = apData.deckList[idx];
+            int idx = rng.Next(0, knowledgeDeck.Count);
+            KnowledgeType pickedCard = knowledgeDeck[idx];
 
-            apData.hands.Add(pickedCard);
-            apData.deckList.RemoveAt(idx);
+            currentKnowledges.Add(pickedCard);
+            knowledgeDeck.RemoveAt(idx);
         }
+
+
+
+        KnowledgeManger.Instance.Rebuild();
+        //
 
         //주술포인트(차크라 생성)
 
@@ -489,7 +498,10 @@ public class BattleManager : MonoBehaviour
 
                 yield return BattleCameraDirector.Instance.SetShotAndWait(BattleCameraDirector.ShotId.Front);
                 AnotherModeStart();
-                CardFusionState.Instance.SetActive(true);
+                //        CardFusionState.Instance.SetActive(true);
+                StellarStateMode.Instance.SetActive(true, StellarList[0]);
+                
+                
                 Debug.Log("[SelectMode] R 입력 → 여기서 ItemMode 진입 예정 (현재는 로그만)");
                 yield return new WaitUntil(() => _AnotherModeNow == false);
 
