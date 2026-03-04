@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec0d3383e8f0d2248a79edee4f538755, type: 3}
+  m_Name: SectorE_Hatchery_ShinyThing
+  m_EditorClassIdentifier: 
+  nodes:
+  - guid: 141fad358621440eafa064873329e887
+    speaker: 
+    text: "\uB2E4\uC74C\uC5D0 \uCC59\uACA8\uBCF4\uC790"
+    choices: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 0
+    calls: []
+    position: {x: 596, y: 220}
+  - guid: deff00485aba47baba02c31cf890edca
+    speaker: 
+    text: "\uB208\uC55E\uC5D0 \uBC18\uC9DD\uC774\uB294 \uBB34\uC5B8\uAC00\uAC00 \uC788\uB2E4"
+    choices:
+    - choiceGuid: 6cf5a13faded4732a1616ae232e23572
+      text: "\uCC59\uACA8 \uAC04\uB2E4"
+      lockedAtFirst: 0
+      unlockKey: 
+      defaultNextGuid: 
+      nextLinks: []
+      calls:
+      - func: 8
+        flag: 0
+        value: 0
+        stringKey: 
+        eventType: 3
+        eventCode: Cine_1
+    - choiceGuid: 3c30ff8d6eaf44d6997dc048fec4938d
+      text: "\uADF8\uB9CC \uB454\uB2E4"
+      lockedAtFirst: 0
+      unlockKey: 
+      defaultNextGuid: 141fad358621440eafa064873329e887
+      nextLinks: []
+      calls: []
+    defaultNextGuid: 
+    nextLinks: []
+    isEntryCandidate: 0
+    entryRule:
+      flag: 0
+      op: 0
+      value: 0
+    entryPriority: 0
+    isDefaultEntry: 1
+    calls: []
+    position: {x: 93, y: 33}

@@ -2,7 +2,8 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class StellarNodeClickProxy : MonoBehaviour, IPointerClickHandler
+public class StellarNodeClickProxy : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler,
+    IPointerExitHandler
 {
     [SerializeField] private StellarNode owner;
 
@@ -15,5 +16,19 @@ public class StellarNodeClickProxy : MonoBehaviour, IPointerClickHandler
         {
             owner?.OnDoubleClicked();
         }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (owner == null) return;
+
+        // 노드 보상 카드 코드 기준으로 프리뷰 스폰
+        StellarStateMode.Instance.SpawnPreviewCard(owner.rewarCardCode);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        // 호버 종료 → 프리뷰 제거
+        StellarStateMode.Instance.ClearPreviewCard();
     }
 }

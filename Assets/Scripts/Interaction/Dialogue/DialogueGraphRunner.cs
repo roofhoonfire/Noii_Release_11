@@ -249,6 +249,8 @@ public class DialogueGraphRunner
 
                 case CallableFunc.AddItem:
                     _state.itemIds.Add(c.stringKey);
+                    NarrationOverlay.Instance.Show($"{c.stringKey}¸¦ È¹µæÇß´Ù");
+
                     break;
 
 
@@ -266,6 +268,14 @@ public class DialogueGraphRunner
                 case CallableFunc.Temp_Load_Battle1:
                     {
                         SceneManager.LoadScene("Battle_1 Real");
+                        break;
+                    }
+
+                    //³ªÁß¿¡ ÀüÃ¼ ½ºÅÈÀ¸·Î ¹Ù²Ù¼À
+                case CallableFunc.AddIntel:
+                    {
+                        _state.intel += 2;
+                        NarrationOverlay.Instance.Show("ÁöÇý°¡ 2 »ó½ÂÇß½À´Ï´Ù");
                         break;
                     }
                 case CallableFunc.CallEvent:

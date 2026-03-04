@@ -31,7 +31,7 @@ MonoBehaviour:
   cam2DollyDuration: 1
   cam2CutInTriggerPos: 1
   stopDollyAtCutInPoint: 1
-  enemyHitEffectClip: {fileID: 7400000, guid: c5c585672a473f94b99cf32dfa8701ed, type: 2}
+  enemyHitEffectClip: {fileID: 7400000, guid: 25ba317dbd10e5f4485f017bc3a89918, type: 2}
   useEnemyHitEffect: 1
   hitStopInfos:
   - index: 0

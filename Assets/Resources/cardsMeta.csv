@@ -10,8 +10,8 @@ c8,,소형 마나건,ActionCards/AC_C6,,4,3,10,5,,,1,,,피해를 {damage} 줍니
 c9,,암습,ActionCards/AC_C6,,3,1,15,0,1,,1,,,피해를 {damage} 줍니다 \n 연속으로 사용할 경우 \n피해량이 감소합니다
 c10,,마나 흉탄,ActionCards/AC_C6,,5,1,40,0,,,0,,,피해를 {damage} 줍니다 
 c11,,예민한 일격,ActionCards/AC_C6,,,,,,,,,,,"캐스팅 중 피해를 입으면, 피해를 주지 못합니다 ㅠㅠ"
-c12,,세로베기,ActionCards/AC_C6,,3,1,15,0,,,1,,,피해를 {damage} 줍니다
-c13,,가로베기,ActionCards/AC_C6,,5,1,25,0,,,1,,,피해를 {damage} 줍니다
+c12,,세로베기,ActionCards/AC_C2,,3,1,15,0,,,1,,,피해를 {damage} 줍니다
+c13,,가로베기,ActionCards/AC_C3,,5,1,25,0,,,1,,,피해를 {damage} 줍니다
 c14,,순간 포착,ActionCards/AC_C6,,4,,,15,,,,,,패링 : 손에 들고 있는 카드들의 캐스팅이 1턴 감소합니다
 c15,,하프소딩,ActionCards/AC_C6,,6,,,30,,,,,,패링 : 다음 공격의 피해량이 5 증가합니다
 c16,,숨고르기,ActionCards/AC_C6,,1,0,0,0,,,2,,,숨을 고릅니다

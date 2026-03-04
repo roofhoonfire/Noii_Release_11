@@ -45,7 +45,13 @@ MonoBehaviour:
       value: 0
     entryPriority: 0
     isDefaultEntry: 0
-    calls: []
+    calls:
+    - func: 9
+      flag: 0
+      value: 0
+      stringKey: 
+      eventType: 0
+      eventCode: 
     position: {x: 1546, y: 238}
   - guid: 435f5aed491f46dfb60057722b1eb8c5
     speaker: 

@@ -285,6 +285,7 @@ GameObject:
   - component: {fileID: 3960735031008229395}
   - component: {fileID: 3272352138270098457}
   - component: {fileID: 1424854490034824534}
+  - component: {fileID: 253806172210994648}
   m_Layer: 5
   m_Name: Card_Battle_Fusion_Ingredients
   m_TagString: Untagged
@@ -373,7 +374,7 @@ MonoBehaviour:
     defense: 0
     disappear: 0
     mana: 0
-    tileType: 0
+    seqType: 0
     zoneIndex: 0
     energy: 0
     damage: 0
@@ -424,6 +425,27 @@ MonoBehaviour:
   eachCardInfo: {fileID: 8196907308678828831}
   highlightGO: {fileID: 716063272145293371}
   logClick: 0
+--- !u!114 &253806172210994648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 686844825720063196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bce75b9eba582e459453170f1f33325, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 823128537967313220}
+  hoverDelay: 0.01
+  hoverScale: 1.15
+  tweenDuration: 0.12
+  hoverEase: 27
+  exitEase: 6
+  hoverYOffset: 30
+  previewHoldSeconds: 0.35
+  ignoreTimeScale: 1
 --- !u!1 &716063272145293371
 GameObject:
   m_ObjectHideFlags: 0

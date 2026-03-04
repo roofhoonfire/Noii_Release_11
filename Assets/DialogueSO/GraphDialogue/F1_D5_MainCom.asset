@@ -61,6 +61,8 @@ MonoBehaviour:
       flag: 0
       value: 1
       stringKey: 
+      eventType: 0
+      eventCode: 
     position: {x: 1256, y: 130}
   - guid: eb3767461f524e62b7efa138d8665e64
     speaker: 
@@ -91,10 +93,12 @@ MonoBehaviour:
     entryPriority: 0
     isDefaultEntry: 0
     calls:
-    - func: 7
+    - func: 8
       flag: 0
       value: 1
       stringKey: 
+      eventType: 3
+      eventCode: Cine_2
     position: {x: 2540, y: -30}
   - guid: 86650ab4fefb4d4ea953476cbd3800dc
     speaker: "\uAE30\uACC4\uC7A5\uCE58"

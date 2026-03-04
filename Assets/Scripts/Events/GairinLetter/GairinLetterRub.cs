@@ -68,9 +68,9 @@ public class GairinLetterRub : MonoBehaviour
                 _destroyScheduled = true;
 
                 // 여기서 한 번만 보상/메시지 처리
-                SimpleTypewriterUI.Instance.Play("지혜가 5 상승했습니다");
+                NarrationOverlay.Instance.Show("지혜가 2 상승했습니다");
                 var charState = GameStateManager.Instance.GetCharacterState("player");
-                charState.intel += 5;
+                charState.intel += 2;
                 // TODO: charState.intel += 5; 같은 실제 반영 코드 넣고 싶으면 여기서
 
                 StartCoroutine(DestroyAfterAudio());

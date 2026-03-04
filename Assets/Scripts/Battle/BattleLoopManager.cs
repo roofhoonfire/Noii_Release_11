@@ -3,11 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Burst.CompilerServices;
-using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
 using SRandom = System.Random;
-
+using DG.Tweening;
 /// <summary>
 /// PVE 배틀 메인 루프 담당
 /// UI / 이펙트는 신경 안 쓰고,
@@ -46,6 +45,16 @@ public class BattleManager : MonoBehaviour
     [Header("Select Mode UI")]
     [SerializeField] private SelectModeUIController selectModeUI;
     // --- 액션 큐 ---
+
+    [Header("Draw Phase VFX")]
+    [SerializeField] private GameObject drawCardPrefab;            // ✅ 드로우 카드 프리팹
+    [SerializeField] private Transform drawSpawnPoint;             // ✅ 생성 위치
+    [SerializeField] private Transform drawDisappearPoint;         // ✅ 사라지는 위치
+
+    [Header("Draw Phase Timing")]
+    [SerializeField] private float drawMoveSeconds = 0.35f;        // ✅ 이동 시간(인스펙터 조절)
+    [SerializeField] private float patchDelaySeconds = 0.10f;      // ✅ 이동 후 대기(인스펙터 조절)
+    [SerializeField] private float patchAnimFallbackSeconds = 0.60f; // ✅ 애니 길이 못 읽을 때 fallback
     private struct QueuedAction
     {
         public int actorId;
@@ -97,11 +106,9 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private int yougetChakrainEvery;
 
 
-    [Header ("Stellar")]
-    public List<KnowledgeType> currentKnowledges; //보유 날리지로 이름 바꾸기
-    public List<KnowledgeType> knowledgeDeck; //날리지 덱
-    public List<KnowledgeType> knowledgeTrash; //날리지 덱
-
+    [Header ("Stellar")] public List<KnowledgeType> currentKnowledges;   // 유지: 실제 보유 토큰(타입)
+    public List<string> knowledgeDeck;              //  변경: DrawCard "code" 덱
+    public List<string> knowledgeTrash;             //  변경: DrawCard "code" 트래시
     public List<string> StellarList;
 
     [Header("Runtime spawned knowledge prefabs")]
@@ -198,6 +205,9 @@ public class BattleManager : MonoBehaviour
     {
         //광폭화, 같은거 여기 집어넣기... . . . .. . . . .. 
 
+        yield return SimpleTypewriterUI.Instance.TypeAndCloseRoutine("어둠 속에서 코가면이 모습을 드러냈다");
+
+        yield return DrawKnowledgePhaseRoutine(3);
 
         // 메인 전투 루프
         while (!_battleEnded)
@@ -409,7 +419,7 @@ public class BattleManager : MonoBehaviour
         _isSelectModeActive = true;
         Debug.Log("=== SelectMode 진입: C=Card, I=Item (지금은 모드 없이 로그만) ===");
         selectModeUI.EnterSelectMode();
-
+        /*
 
         // 3) 노울리지 초기화
         //  apData.hands = new List<string>();
@@ -454,6 +464,9 @@ public class BattleManager : MonoBehaviour
 
         KnowledgeManger.Instance.Rebuild();
         //
+        */
+        //찐드로우 페이즈
+        yield return DrawKnowledgePhaseRoutine();
 
         //주술포인트(차크라 생성)
 
@@ -526,6 +539,134 @@ public class BattleManager : MonoBehaviour
         return _actionQueue.Any(q => q.actorId == actorId && !q.action.isDot);
     }
 
+    private IEnumerator DrawKnowledgePhaseRoutine(int drawCount)
+    {
+        for (int i = 0; i < drawCount; i++)
+            yield return DrawKnowledgePhaseRoutine(); // 기존 1장 드로우 루틴 호출
+    }
+    private IEnumerator DrawKnowledgePhaseRoutine()
+    {
+        // 0) CSVLoader / 런타임 드로우카드 SO 준비 체크
+        if (CSVLoader.Instance == null || CSVLoader.Instance.runtimeDrawCardSO == null)
+        {
+            Debug.LogWarning("[DrawPhase] CSVLoader/runtimeDrawCardSO가 준비되지 않음");
+            yield break;
+        }
+
+        // 1) 덱 비었는지 검사 → 비었으면 트래쉬 전부 덱으로 복귀
+        if (knowledgeDeck == null) knowledgeDeck = new List<string>();
+        if (knowledgeTrash == null) knowledgeTrash = new List<string>();
+        if (currentKnowledges == null) currentKnowledges = new List<KnowledgeType>();
+
+        if (knowledgeDeck.Count == 0)
+        {
+            if (knowledgeTrash.Count > 0)
+            {
+                knowledgeDeck.AddRange(knowledgeTrash);
+                knowledgeTrash.Clear();
+                Debug.Log("[DrawPhase] Deck empty → Trash 전체를 Deck으로 복귀");
+            }
+            else
+            {
+                Debug.LogWarning("[DrawPhase] Deck/Trash 모두 비어있음 → 드로우 불가");
+                yield break;
+            }
+        }
+
+        // 2) 덱에서 1장 랜덤으로 뽑고 → 트래쉬에 추가
+        int idx = UnityEngine.Random.Range(0, knowledgeDeck.Count);
+        string drawCode = knowledgeDeck[idx];
+        knowledgeDeck.RemoveAt(idx);
+        knowledgeTrash.Add(drawCode);
+
+        // 3) 뽑은 code로 DrawCard 메타 조회 → (kt, amount) 만큼 currentKnowledges에 추가
+        var drawCard = CSVLoader.Instance.GetDrawCardByCode(drawCode);
+        if (drawCard == null)
+        {
+            Debug.LogWarning($"[DrawPhase] DrawCard 메타 없음: code={drawCode}");
+            yield break;
+        }
+
+        int amount = Mathf.Max(0, drawCard.amount);
+        for (int i = 0; i < amount; i++)
+            currentKnowledges.Add(drawCard.kt);
+        // ─────────────────────────────────────────────
+        // [VFX] 드로우 카드 연출 (Rebuild 직전)
+        // ─────────────────────────────────────────────
+        if (drawCardPrefab != null && drawSpawnPoint != null && drawDisappearPoint != null)
+        {
+            var go = Instantiate(drawCardPrefab, drawSpawnPoint.position, drawSpawnPoint.rotation, drawSpawnPoint);
+
+            var info = go.GetComponent<EachDrawCardInfo>();
+            if (info != null)
+            {
+                info.drawCardData = drawCard;     // 방금 뽑은 DrawCard 메타
+                info.ApplyDrawCardData();         // 텍스트/아트 세팅 + patching OFF
+            }
+            else
+            {
+                Debug.LogWarning("[DrawPhase] EachDrawCardInfo가 프리팹에 없음");
+            }
+
+            // 1) 스폰 → 2) 튀어오르듯 이동 (두 트윈 느낌: 이동 + 살짝 펀치 스케일)
+            var t = go.transform;
+
+            DG.Tweening.Sequence seq = DOTween.Sequence();
+
+            // 이동(점프 느낌)
+            seq.Append(
+                t.DOJump(drawDisappearPoint.position, jumpPower: 40f, numJumps: 1, duration: drawMoveSeconds)
+                 .SetEase(Ease.OutQuad)
+            );
+
+            // 동시에 살짝 튀는 느낌(두 번째 트윈)
+            seq.Join(
+                t.DOPunchScale(new Vector3(0.12f, 0.12f, 0f), drawMoveSeconds * 0.9f, vibrato: 8, elasticity: 0.8f)
+            );
+
+            yield return seq.WaitForCompletion();
+
+            // 3) 특정 초 기다린 뒤 patching ON
+            if (patchDelaySeconds > 0f)
+                yield return new WaitForSeconds(patchDelaySeconds);
+
+            if (info != null)
+            {
+                info.SetPatchingActive(true);
+
+                // 4) patching 애니 끝날 때까지 기다린 뒤 파괴
+                float wait = patchAnimFallbackSeconds;
+
+                var anim = info.GetPatchingAnimator();
+                if (anim != null)
+                {
+                    // 활성화 직후 상태 반영을 위해 1프레임 대기
+                    yield return null;
+
+                    var st = anim.GetCurrentAnimatorStateInfo(0);
+                    // normalizedTime은 진행률이고, length는 클립 길이(초)
+                    if (st.length > 0.01f)
+                        wait = st.length;
+                }
+
+                if (wait > 0f)
+                    yield return new WaitForSeconds(wait);
+            }
+            else
+            {
+                // info 없으면 그냥 fallback 시간 후 제거
+                if (patchAnimFallbackSeconds > 0f)
+                    yield return new WaitForSeconds(patchAnimFallbackSeconds);
+            }
+
+            Destroy(go);
+        }
+        // 4) 리빌드
+        if (KnowledgeManger.Instance != null)
+            KnowledgeManger.Instance.Rebuild();
+
+        yield break;
+    }
     private void InitActionBeforeInsert(ActionData action, int actorId)
     {
         Debug.LogWarning("제출후 temp apdata 초기화요");

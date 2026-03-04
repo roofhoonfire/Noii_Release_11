@@ -12,7 +12,7 @@ public class FieldEventManager : MonoBehaviour
         DiceRoll,
         Dialogue,          //  추가
 
-        TimelineCinematic,
+        Cinema,
         // LaserAvoid, FallingRocks, etc...
     }
 
@@ -103,8 +103,11 @@ public class FieldEventManager : MonoBehaviour
                 else
                     Debug.LogWarning("[FieldEventManager] DialogueEventManager Instance가 없음");
                 break;
-            case EventType.TimelineCinematic:
-                Debug.Log("[FieldEventManager] TimelineCinematic은 추후 구현");
+            case EventType.Cinema:
+                if (CinemaEventManager.Instance != null)
+                    CinemaEventManager.Instance.StartEvent(eventCode);
+                else
+                    Debug.LogWarning("[FieldEventManager] CinemaEventManager Instance가 없음");
                 break;
 
             default:
@@ -136,8 +139,9 @@ public class FieldEventManager : MonoBehaviour
                 if (DialogueEventManager.Instance != null)
                     DialogueEventManager.Instance.StopEvent(eventCode);
                 break;
-            case EventType.TimelineCinematic:
-                Debug.Log("[FieldEventManager] TimelineCinematic은 추후 구현");
+            case EventType.Cinema:
+                if (CinemaEventManager.Instance != null)
+                    CinemaEventManager.Instance.StopEvent(eventCode);
                 break;
         }
     }
@@ -153,16 +157,7 @@ public class FieldEventManager : MonoBehaviour
             StartEvent(EventType.BombAvoid, "Bomb_1");
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            Debug.Log("BombAvoid Stop");
-            StopEvent(EventType.BombAvoid, "Bomb_1");
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            Debug.Log("BombAvoid Stop");
-            StartEvent(EventType.DiceRoll, "Dice_1");
-        }
+    
     }
     
 }

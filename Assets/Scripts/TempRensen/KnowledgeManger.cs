@@ -1,5 +1,7 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 public enum KnowledgeType
 {
     sword,
@@ -12,10 +14,10 @@ public class KnowledgeManger : MonoBehaviour
     public static KnowledgeManger Instance { get; private set; }
 
     [Header("UI")]
-    [SerializeField] private Transform spawnRoot;           // VerticalLayoutGroup ´Ş¸° ¿ÀºêÁ§Æ® ÃßÃµ
+    [SerializeField] private Transform spawnRoot;           // VerticalLayoutGroup ë‹¬ë¦° ì˜¤ë¸Œì íŠ¸ ì¶”ì²œ
     [SerializeField] private EachKnowledgeInfo knowledgePrefab;
 
-    // ³»ºÎÀûÀ¸·Î Å¸ÀÔº° UI¸¦ °ü¸®(Áßº¹ Çã¿ë À§ÇØ ¸®½ºÆ®)
+    // ë‚´ë¶€ì ìœ¼ë¡œ íƒ€ì…ë³„ UIë¥¼ ê´€ë¦¬(ì¤‘ë³µ í—ˆìš© ìœ„í•´ ë¦¬ìŠ¤íŠ¸)
     private readonly List<EachKnowledgeInfo> _spawned = new();
 
     private void Awake()
@@ -30,26 +32,26 @@ public class KnowledgeManger : MonoBehaviour
 
     private void Start()
     {
-      //  Rebuild(); // ÃÊ±â 1È¸
+      //  Rebuild(); // ì´ˆê¸° 1íšŒ
     }
 
     /// <summary>
-    /// Init + Refresh ÅëÇÕ: tempKnowledges ±âÁØÀ¸·Î UI¸¦ ¿ÏÀüÈ÷ ´Ù½Ã ¸¸µç´Ù.
+    /// Init + Refresh í†µí•©: tempKnowledges ê¸°ì¤€ìœ¼ë¡œ UIë¥¼ ì™„ì „íˆ ë‹¤ì‹œ ë§Œë“ ë‹¤.
     /// </summary>
     public void Rebuild()
     {
         if (BattleManager.Instance == null)
         {
-            Debug.LogError("[KnowledgeManger] TempManager.Instance ¾øÀ½");
+            Debug.LogError("[KnowledgeManger] BattleManager.Instance ì—†ìŒ");
             return;
         }
         if (spawnRoot == null || knowledgePrefab == null)
         {
-            Debug.LogError("[KnowledgeManger] spawnRoot / knowledgePrefab ÂüÁ¶ ºñ¾îÀÖÀ½");
+            Debug.LogError("[KnowledgeManger] spawnRoot / knowledgePrefab ì°¸ì¡° ë¹„ì–´ìˆìŒ");
             return;
         }
 
-        // 1) ±âÁ¸ UI Á¦°Å
+        // 1) ê¸°ì¡´ UI ì œê±°
         for (int i = _spawned.Count - 1; i >= 0; i--)
         {
             if (_spawned[i] != null)
@@ -57,10 +59,9 @@ public class KnowledgeManger : MonoBehaviour
         }
         _spawned.Clear();
 
-        // TempManager°¡ »ı¼ºµÈ UI ¸®½ºÆ®¸¦ µé°íÀÖ¾î¾ß ÇÑ´Ù°í ÇßÀ¸´Ï °°ÀÌ Á¤¸®
         BattleManager.Instance.spawnedKnowledgeUIs.Clear();
 
-        // 2) ÇöÀç tempKnowledges ±â¹İÀ¸·Î »õ·Î »ı¼º
+        // 2) ìƒˆë¡œ ìƒì„±
         var list = BattleManager.Instance.currentKnowledges;
         if (list == null) return;
 
@@ -69,8 +70,36 @@ public class KnowledgeManger : MonoBehaviour
             var ui = Instantiate(knowledgePrefab, spawnRoot);
             ui.ApplyData(kt);
 
+            // ğŸ”¥ ì—¬ê¸° ì¶”ê°€ëœ ë¶€ë¶„
+            ApplyKnowledgeColor(ui, kt);
+
             _spawned.Add(ui);
             BattleManager.Instance.spawnedKnowledgeUIs.Add(ui);
         }
+    }
+
+    private void ApplyKnowledgeColor(EachKnowledgeInfo ui, KnowledgeType kt)
+    {
+        Image img = ui.GetComponentInChildren<Image>();
+        if (img == null) return;
+
+        Color pastelColor = Color.white;
+
+        switch (kt)
+        {
+            case KnowledgeType.sword:
+                pastelColor = new Color(0.95f, 0.55f, 0.55f); // íŒŒìŠ¤í…” ë ˆë“œ
+                break;
+
+            case KnowledgeType.defend:
+                pastelColor = new Color(0.55f, 0.85f, 0.60f); // íŒŒìŠ¤í…” ê·¸ë¦°
+                break;
+
+            case KnowledgeType.heist:
+                pastelColor = new Color(0.55f, 0.65f, 0.95f); // íŒŒìŠ¤í…” ë¸”ë£¨
+                break;
+        }
+
+        img.color = pastelColor;
     }
 }

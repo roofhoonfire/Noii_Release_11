@@ -30,7 +30,7 @@ MatChange,
 Destroy,
 Temp_Load_Battle1,
             CallEvent, //  Ãß°¡
-
+AddIntel,
 
 }
 

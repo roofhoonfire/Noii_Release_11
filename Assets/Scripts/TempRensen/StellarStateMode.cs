@@ -16,7 +16,11 @@ public class StellarStateMode : MonoBehaviour
     [SerializeField] public GameObject cardPrefab;
     [SerializeField] public RectTransform cardContentArea;
     public List<GameObject> spawnedCards = new List<GameObject>();
+    [Header("Preview Card UI")]
+    [SerializeField] private GameObject previewCardPrefab;
+    [SerializeField] private Transform previewCardSpawnPoint;
 
+    private GameObject _spawnedPreviewCard;
     public bool isActive = false;
     private Coroutine _stellarCoroutine;
 
@@ -123,7 +127,8 @@ public class StellarStateMode : MonoBehaviour
     private IEnumerator CloseHandsThenReturn()
     {
         ClearAllCards();
-        ClearConstellation(); // ✅ 별자리도 같이 정리
+        ClearConstellation(); //  별자리도 같이 정리
+        ClearPreviewCard(); // ✅ 추가
 
         yield return BattleCameraDirector.Instance.SetShotAndWait(BattleCameraDirector.ShotId.Back);
         BattleManager.Instance.AnotherModeDone();
@@ -339,11 +344,11 @@ public class StellarStateMode : MonoBehaviour
             KnowledgeType removed = list[idx];
 
             // 🔥 Trash로 이동
-            if (BattleManager.Instance != null && BattleManager.Instance.knowledgeTrash != null)
+          /*  if (BattleManager.Instance != null && BattleManager.Instance.knowledgeTrash != null)
             {
                 BattleManager.Instance.knowledgeTrash.Add(removed);
             }
-
+          */// 이제 카드 뽑는 식이라 트래쉬로 갈 필요 없음
             list.RemoveAt(idx);
         }
     }
@@ -379,6 +384,63 @@ public class StellarStateMode : MonoBehaviour
                 spawnedCards.RemoveAt(i);
                 Destroy(go);
             }
+        }
+    }
+
+    public void SpawnPreviewCard(string code)
+    {
+        if (previewCardPrefab == null || previewCardSpawnPoint == null)
+        {
+            Debug.LogWarning("[StellarStateMode] previewCardPrefab / previewCardSpawnPoint 비어있음");
+            return;
+        }
+
+        // 기존 프리뷰 제거 (항상 1장만 유지)
+        if (_spawnedPreviewCard != null)
+        {
+            Destroy(_spawnedPreviewCard);
+            _spawnedPreviewCard = null;
+        }
+
+        if (string.IsNullOrWhiteSpace(code))
+            return;
+
+        code = code.Trim();
+
+        // 스폰
+        _spawnedPreviewCard = Instantiate(previewCardPrefab, previewCardSpawnPoint);
+
+        // 로컬 트랜스폼 정리(프리팹이 UI든 3D든 안전하게)
+        var t = _spawnedPreviewCard.transform;
+        t.localPosition = Vector3.zero;
+        t.localRotation = Quaternion.identity;
+        t.localScale = Vector3.one;
+
+        // 카드 데이터 로드
+        var cardData = CSVLoader.Instance.GetCardByCode(code);
+        if (cardData == null)
+        {
+            Debug.LogWarning($"[StellarStateMode] 프리뷰 카드 코드 못 찾음: {code}");
+            return;
+        }
+
+        // EachCardInfo에 반영
+        var info = _spawnedPreviewCard.GetComponent<EachCardInfo>();
+        if (info == null)
+        {
+            Debug.LogWarning("[StellarStateMode] previewCardPrefab에 EachCardInfo 없음");
+            return;
+        }
+
+        info.cardData = cardData;
+        info.ApplyCardData();
+    }
+    public void ClearPreviewCard()
+    {
+        if (_spawnedPreviewCard != null)
+        {
+            Destroy(_spawnedPreviewCard);
+            _spawnedPreviewCard = null;
         }
     }
 }
