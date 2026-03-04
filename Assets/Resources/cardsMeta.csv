@@ -1,5 +1,5 @@
 code,cardType,name,sprite,animation,actionClock,rumblePoint,damage,defense,disappear,mana,seqType,zoneIndex,energy,cardText
-c1,0,크로스 블로우,ActionCards/AC_C1,,6,2,30,0,0,0,0,0,,피해를 {damage} 줍니다 \n 상대의 다음 행동까지 1턴 남았다면 피해량이 2배가 됩니다
+c1,0,크로스 블로우,ActionCards/AC_C1,,4,2,45,0,0,0,0,0,,피해를 {damage} 줍니다 \n 상대의 다음 행동까지 1턴 남았다면 피해량이 2배가 됩니다
 c2,0,삼연권,ActionCards/AC_C2,,6,3,5,0,0,0,1,2,,{damage}의 피해를 3회 줍니다 \n 
 c3,,반격,ActionCards/AC_C3,,7,2,10,0,,,1,,,피해를 {damage} 줍니다 \n 캐스팅 중 패링에 성공할때마다 \n피해량이 5 증가합니다
 c4,,칩실드,ActionCards/AC_C4,,103,2,,,,,,,,단단한 방패를 앞세워 캐스팅 동안 방어합니다

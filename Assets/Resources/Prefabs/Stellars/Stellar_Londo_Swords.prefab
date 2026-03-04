@@ -2309,8 +2309,8 @@ MonoBehaviour:
   childNodes: []
   nodeNum: 0
   paretNode: {fileID: 0}
-  rewarCardCode: c16
-  costKnowledge: 02000000
+  rewarCardCode: c2
+  costKnowledge: 
   nodeTier: 1
   clickImage: {fileID: 5301189785297415028}
   debugString: "\uC228\uACE0\uB974\uAE30"

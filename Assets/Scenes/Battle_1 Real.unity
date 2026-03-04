@@ -2534,7 +2534,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 675eb2c1c434e7146a0674f49843996f, type: 2}
   - {fileID: 11400000, guid: e1318978b482c64468907778aceec6c2, type: 2}
   - {fileID: 11400000, guid: 29b8a34522473c34288efa801a02b940, type: 2}
-  - {fileID: 11400000, guid: 7affed3ae0e879a43bf4e8b6e6080c65, type: 2}
+  - {fileID: 11400000, guid: 40a8237e206b91a449c34290eb0fb045, type: 2}
   - {fileID: 11400000, guid: 877bd3c76795b05418e4e07bc2b1f545, type: 2}
 --- !u!114 &371132903
 MonoBehaviour:
@@ -7641,6 +7641,7 @@ MonoBehaviour:
   - dc2
   - dc1
   - dc3
+  - dc2
   knowledgeTrash: []
   StellarList:
   - st1

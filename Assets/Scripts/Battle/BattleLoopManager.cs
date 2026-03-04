@@ -1080,7 +1080,7 @@ public class BattleManager : MonoBehaviour
                 if (popupPrefab != null && popupSpawnPoint != null)
                 {
                     var pop = Instantiate(popupPrefab, popupSpawnPoint.position, Quaternion.identity);
-                    pop.Setup(10.ToString());
+                    pop.Setup(damageReal.ToString());
                 }
             }
             

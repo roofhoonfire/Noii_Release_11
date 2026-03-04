@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: NT_Garo
   m_EditorClassIdentifier: 
   cardCode: c13
-  actionNotice: "\uAC80\uC744 \uAC00\uB85C\uB85C \uAE38\uAC8C \uD718\uB450\uB985\uB2C8\uB2E4"
+  actionNotice: "\uAC80\uC744 \uAE4A\uAC8C \uD718\uB450\uB985\uB2C8\uB2E4"
   wideShot: 5
   enemyShot: 3
   playerPrepareClip: {fileID: 7400000, guid: 2db7cd35c8139954c8e6ab9b206ed854, type: 2}

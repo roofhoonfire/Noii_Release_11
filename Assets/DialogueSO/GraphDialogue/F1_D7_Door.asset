@@ -15,8 +15,28 @@ MonoBehaviour:
   nodes:
   - guid: deff00485aba47baba02c31cf890edca
     speaker: 
-    text: "\uBB38\uC740 \uAD73\uAC8C \uB2EB\uD600 \uC788\uB2E4"
-    choices: []
+    text: "\uC774\uC81C \uBB38\uC744 \uC5F4 \uC218 \uC788\uC744 \uAC83 \uAC19\uB2E4"
+    choices:
+    - choiceGuid: 78ce42be8e3c428090d55a98b4bf4762
+      text: "\uBB38\uC744 \uC5F0\uB2E4"
+      lockedAtFirst: 0
+      unlockKey: 
+      defaultNextGuid: 
+      nextLinks: []
+      calls:
+      - func: 8
+        flag: 0
+        value: 0
+        stringKey: 
+        eventType: 3
+        eventCode: Cine_1
+    - choiceGuid: f91bf37fb61145ada86b5ba8349a3ac1
+      text: "\uADF8\uB9CC \uB454\uB2E4"
+      lockedAtFirst: 0
+      unlockKey: 
+      defaultNextGuid: 
+      nextLinks: []
+      calls: []
     defaultNextGuid: 
     nextLinks: []
     isEntryCandidate: 1
@@ -27,19 +47,4 @@ MonoBehaviour:
     entryPriority: 0
     isDefaultEntry: 1
     calls: []
-    position: {x: 681, y: 130}
-  - guid: 1671fcc0482f47db8569b67664a447c7
-    speaker: NPC
-    text: "\uC0C8 \uB300\uC0AC"
-    choices: []
-    defaultNextGuid: 
-    nextLinks: []
-    isEntryCandidate: 0
-    entryRule:
-      flag: 0
-      op: 0
-      value: 0
-    entryPriority: 0
-    isDefaultEntry: 0
-    calls: []
-    position: {x: 1190, y: 503}
+    position: {x: 706, y: -15}
